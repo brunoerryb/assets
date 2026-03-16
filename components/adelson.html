@@ -1,520 +1,629 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Habitus OS · Aderry</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Habitus OS — Aderry</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --purple:    #6B21A8;
-  --purple-m:  #7F77DD;
-  --purple-l:  rgba(107,33,168,0.08);
-  --blue:      #3A0CA3;
-  --bg:        #0D0910;
-  --surface:   #130C18;
-  --surface2:  #1C1228;
-  --card:      rgba(107,33,168,0.06);
-  --border:    rgba(107,33,168,0.15);
-  --border-h:  rgba(107,33,168,0.32);
-  --glass:     rgba(13,9,16,0.94);
-  --t1:        #EDE8F5;
-  --t2:        #B8A0D0;
-  --t3:        #7A6888;
-  --t4:        #3D2B52;
-  --green:     #4CAF82;
-  --green-bg:  rgba(76,175,130,0.10);
-  --gold:      #C4933F;
-  --gold-bg:   rgba(196,147,63,0.10);
-  --gold-bd:   rgba(196,147,63,0.24);
-  --shadow:    rgba(0,0,0,0.5);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--t1);
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-}
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: rgba(107,33,168,0.3); border-radius: 4px; }
-* { scrollbar-width: thin; scrollbar-color: rgba(107,33,168,0.3) transparent; }
-
-@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-@keyframes pulse  { 0%,100%{opacity:.6} 50%{opacity:1} }
-@keyframes toastin { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
-.fadein { animation: fadein 0.22s ease; }
-
-/* ─── TOPBAR ─── */
-#topbar {
-  position: sticky; top: 0; z-index: 100;
-  background: var(--glass);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(16px);
-  display: flex; align-items: center; gap: 0;
-  padding: 0 20px;
-  height: 48px;
-}
-.tb-logo {
-  display: flex; align-items: center; gap: 8px;
-  margin-right: 28px; flex-shrink: 0;
-}
-.tb-logo-mark {
-  width: 26px; height: 26px; border-radius: 7px;
-  background: linear-gradient(135deg, var(--purple) 0%, var(--blue) 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Montserrat', sans-serif; font-weight: 700;
-  font-size: 11px; color: #fff; letter-spacing: 0.02em;
-}
-.tb-logo-text {
-  font-family: 'Montserrat', sans-serif; font-weight: 600;
-  font-size: 12px; color: var(--t2); letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.tb-logo-sep {
-  color: var(--t4); font-size: 11px; margin: 0 2px;
-}
-.tb-nav { display: flex; align-items: stretch; flex: 1; }
-.tab-btn {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 10px 16px;
-  border: none; background: none; cursor: pointer;
-  border-bottom: 2px solid transparent;
-  color: var(--t3);
-  margin-bottom: -1px;
-  transition: color 0.18s, border-color 0.18s;
-  white-space: nowrap;
-}
-.tab-btn:hover { color: var(--t2); }
-.tab-btn.active { border-bottom-color: var(--purple); color: var(--purple-m); }
-
-.tb-right {
-  display: flex; align-items: center; gap: 14px;
-  margin-left: auto; flex-shrink: 0;
-}
-.week-dots { display: flex; gap: 4px; align-items: center; }
-.wdot {
-  width: 7px; height: 7px; border-radius: 2px;
-  background: var(--t4); transition: background 0.2s;
-  cursor: default;
-}
-.wdot.today { background: var(--purple-m); }
-#clock {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; color: var(--t3); letter-spacing: 0.06em;
-}
-
-/* ─── DAY PROGRESS ─── */
-#dayprog {
-  height: 2px; background: var(--border); position: relative; overflow: hidden;
-}
-#dayprogfill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--purple) 0%, var(--purple-m) 100%);
-  transition: width 1s linear;
-  width: 0%;
-}
-
-/* ─── MAIN ─── */
-#main { max-width: 820px; margin: 0 auto; padding: 28px 20px 80px; }
-
-/* ─── PERIOD HEADER ─── */
-.period-hdr {
-  display: flex; align-items: center; gap: 10px;
-  margin: 28px 0 10px;
-}
-.period-icon {
-  font-size: 13px; line-height: 1;
-  font-family: 'JetBrains Mono', monospace;
-}
-.period-label {
-  font-family: 'Montserrat', sans-serif; font-weight: 600;
-  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-}
-.period-range {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  color: var(--t3); margin-left: 2px;
-}
-.period-sub {
-  font-size: 10px; color: var(--t3); margin-left: 4px;
-  font-style: italic;
-}
-.period-line {
-  flex: 1; height: 1px; background: var(--border);
-}
-
-/* ─── BLOCK ROWS ─── */
-.blocks-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; overflow: hidden;
-}
-.block-row {
-  display: grid;
-  grid-template-columns: 22px 68px 86px 1fr 18px;
-  align-items: center; gap: 10px;
-  padding: 11px 14px;
-  border-left: 3px solid transparent;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  position: relative;
-}
-.block-row:not(:last-child) { border-bottom: 1px solid var(--border); }
-.block-row:hover { background: rgba(107,33,168,0.06) !important; }
-.block-row.is-current { background: rgba(107,33,168,0.10); }
-.block-row.is-open { /* border-left set inline */ }
-.block-row.is-done { opacity: 0.68; }
-
-.block-check {
-  width: 16px; height: 16px; border-radius: 4px;
-  border: 1.5px solid var(--border-h);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; cursor: pointer; transition: all 0.15s;
-  background: transparent;
-}
-.block-check.checked {
-  background: var(--green-bg); border-color: var(--green); color: var(--green);
-}
-
-.block-time {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  color: var(--t3); letter-spacing: 0.04em; text-align: right;
-}
-.dur-badge {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px; padding: 3px 8px; border-radius: 5px;
-  text-align: center; white-space: nowrap;
-  display: inline-block;
-}
-.block-label {
-  font-size: 13px; font-weight: 500; color: var(--t1);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.block-row.is-done .block-label { text-decoration: line-through; color: var(--t3); }
-.block-chevron {
-  font-size: 10px; color: var(--t3); text-align: right; transition: transform 0.2s;
-  font-family: 'JetBrains Mono', monospace;
-}
-.block-row.is-open .block-chevron { transform: rotate(180deg); }
-
-/* ─── BLOCK EXPAND ─── */
-.block-expand {
-  padding: 14px 16px 16px 51px;
-  border-left: 3px solid transparent;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  animation: fadein 0.18s ease;
-}
-.block-desc {
-  font-size: 12px; color: var(--t3); line-height: 1.6;
-  margin-bottom: 14px; font-style: italic;
-}
-.field-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; color: var(--t3); letter-spacing: 0.06em;
-  text-transform: uppercase; margin-bottom: 5px; display: block;
-}
-.field-input, .field-textarea {
-  width: 100%; background: rgba(107,33,168,0.05);
-  border: 1px solid var(--border); border-radius: 7px;
-  color: var(--t1); font-family: 'Inter', sans-serif;
-  font-size: 13px; padding: 8px 11px;
-  outline: none; resize: vertical;
-  transition: border-color 0.2s;
-  margin-bottom: 10px;
-}
-.field-input:focus, .field-textarea:focus {
-  border-color: var(--border-h);
-  background: rgba(107,33,168,0.08);
-}
-.field-textarea { line-height: 1.6; min-height: 72px; }
-.field-textarea.large { min-height: 110px; }
-.field-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.fields-sep { height: 1px; background: var(--border); margin: 10px 0 14px; }
-.field-mini-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 9px;
-  color: var(--t4); letter-spacing: 0.08em; text-transform: uppercase;
-  margin-bottom: 8px; display: block;
-}
-
-/* ─── WEEK THEME BANNER ─── */
-.week-banner {
-  border-radius: 12px; padding: 16px 20px;
-  margin-bottom: 20px;
-  display: flex; align-items: flex-start; gap: 16px;
-  border: 1px solid var(--border-h);
-  position: relative;
-}
-.week-banner-tag {
-  font-family: 'Montserrat', sans-serif; font-weight: 700;
-  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.week-banner-label {
-  font-size: 11px; color: var(--t3); margin-bottom: 3px;
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.04em; text-transform: uppercase; font-size: 9px;
-}
-.week-banner-val { font-size: 12px; color: var(--t2); line-height: 1.5; }
-.week-banner-cols { display: flex; gap: 28px; flex-wrap: wrap; flex: 1; }
-.week-banner-col { min-width: 180px; }
-.export-btn {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 6px 12px; border-radius: 6px;
-  border: 1px solid var(--border-h); background: var(--purple-l);
-  color: var(--purple-m); cursor: pointer; transition: all 0.18s;
-  white-space: nowrap; flex-shrink: 0; align-self: flex-start;
-}
-.export-btn:hover { background: rgba(107,33,168,0.15); border-color: var(--purple-m); }
-
-/* ─── DAY REVIEW ─── */
-.review-card {
-  background: var(--gold-bg); border: 1px solid var(--gold-bd);
-  border-radius: 12px; padding: 20px; margin-top: 28px;
-}
-.review-title {
-  font-family: 'Montserrat', sans-serif; font-weight: 600;
-  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 18px;
-}
-.grat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
-.score-row { display: flex; gap: 8px; margin-top: 4px; }
-.score-btn {
-  width: 36px; height: 36px; border-radius: 8px;
-  border: 1px solid var(--border-h); background: var(--card);
-  font-family: 'JetBrains Mono', monospace; font-size: 13px;
-  color: var(--t2); cursor: pointer; transition: all 0.15s;
-}
-.score-btn.active {
-  background: var(--purple); border-color: var(--purple-m); color: #fff;
-}
-.score-btn:hover:not(.active) { border-color: var(--border-h); color: var(--t1); }
-
-/* ─── SEMANA ─── */
-.semana-intro {
-  font-size: 13px; color: var(--t3); margin-bottom: 24px;
-  line-height: 1.7; font-style: italic;
-}
-.week-grid { display: flex; flex-direction: column; gap: 10px; }
-.wday-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 16px 18px;
-  display: grid; grid-template-columns: 56px 1fr 1fr;
-  gap: 16px; align-items: start;
-  transition: border-color 0.18s, background 0.18s;
-  cursor: default;
-}
-.wday-card.today {
-  border-color: var(--border-h); background: var(--card);
-}
-.wday-name {
-  font-family: 'Montserrat', sans-serif; font-weight: 700;
-  font-size: 16px; line-height: 1.1;
-}
-.wday-full { font-size: 10px; color: var(--t3); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
-.wday-badge {
-  display: inline-block; padding: 3px 9px; border-radius: 5px;
-  font-size: 10px; font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.04em; margin-bottom: 8px;
-  font-weight: 500;
-}
-.wday-sub-label {
-  font-size: 9px; font-family: 'JetBrains Mono', monospace;
-  text-transform: uppercase; letter-spacing: 0.08em; color: var(--t3);
-  margin-bottom: 4px;
-}
-.wday-sub-val { font-size: 12px; color: var(--t2); line-height: 1.55; }
-.wday-today-pill {
-  font-family: 'JetBrains Mono', monospace; font-size: 9px;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 4px;
-  background: rgba(107,33,168,0.15); color: var(--purple-m);
-  border: 1px solid var(--border-h);
-  display: inline-block; margin-left: 8px; vertical-align: middle;
-}
-
-/* ─── ARQUIVO ─── */
-.archive-list { display: flex; flex-direction: column; gap: 8px; }
-.archive-entry {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 14px;
-  cursor: pointer; transition: background 0.15s, border-color 0.15s;
-}
-.archive-entry:hover { background: var(--card); border-color: var(--border-h); }
-.archive-date {
-  font-family: 'JetBrains Mono', monospace; font-size: 11px;
-  color: var(--t2); flex-shrink: 0;
-}
-.archive-day-tag {
-  font-size: 11px; color: var(--t3); flex: 1;
-}
-.archive-score-dots { display: flex; gap: 3px; }
-.archive-sdot {
-  width: 8px; height: 8px; border-radius: 2px;
-  background: var(--t4);
-}
-.archive-sdot.filled { background: var(--gold); }
-.archive-count {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  color: var(--t3);
-}
-.archive-back-btn {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 7px 14px; border-radius: 7px;
-  border: 1px solid var(--border-h); background: var(--card);
-  color: var(--t2); cursor: pointer; transition: all 0.18s;
-  margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;
-}
-.archive-back-btn:hover { background: var(--purple-l); color: var(--t1); }
-.archive-empty {
-  text-align: center; padding: 60px 20px;
-  color: var(--t3); font-size: 13px; font-style: italic;
-}
-
-/* ─── PERFIL ─── */
-.welcome-banner {
-  background: var(--purple-l); border: 1px solid var(--border-h);
-  border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;
-}
-.welcome-title {
-  font-family: 'Montserrat', sans-serif; font-weight: 700;
-  font-size: 15px; color: var(--purple-m); margin-bottom: 6px;
-}
-.welcome-sub { font-size: 13px; color: var(--t2); line-height: 1.6; }
-.profile-section {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 20px; margin-bottom: 14px;
-}
-.profile-section-title {
-  font-family: 'Montserrat', sans-serif; font-weight: 600;
-  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--purple-m); margin-bottom: 16px;
-  display: flex; align-items: center; gap: 8px;
-}
-.profile-section-letter {
-  width: 20px; height: 20px; border-radius: 5px;
-  background: var(--purple-l); border: 1px solid var(--border-h);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--purple-m);
-}
-.save-profile-btn {
-  background: linear-gradient(135deg, var(--purple) 0%, var(--blue) 100%);
-  color: #fff; border: none; border-radius: 9px;
-  font-family: 'Montserrat', sans-serif; font-weight: 600;
-  font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 12px 28px; cursor: pointer; transition: opacity 0.18s;
-  margin-top: 8px;
-}
-.save-profile-btn:hover { opacity: 0.85; }
-.principles-toggle {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 7px 14px; border-radius: 7px;
-  border: 1px solid var(--border-h); background: var(--purple-l);
-  color: var(--purple-m); cursor: pointer; transition: all 0.18s;
-  display: inline-flex; align-items: center; gap: 6px;
-}
-.principles-toggle:hover { background: rgba(107,33,168,0.15); }
-.principles-list { margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
-.principle-item {
-  border-left: 2px solid var(--purple);
-  padding-left: 14px;
-}
-.principle-num {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  color: var(--purple-m); letter-spacing: 0.08em; margin-bottom: 4px;
-}
-.principle-text { font-size: 13px; color: var(--t2); line-height: 1.6; font-style: italic; }
-.principle-author { font-size: 11px; color: var(--t3); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
-
-/* ─── TOAST ─── */
-#toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: var(--surface2); border: 1px solid var(--border-h);
-  border-radius: 8px; padding: 9px 18px;
-  font-family: 'JetBrains Mono', monospace; font-size: 11px;
-  color: var(--t1); z-index: 9999;
-  display: none; letter-spacing: 0.04em;
-  animation: toastin 0.22s ease;
-  box-shadow: 0 4px 24px var(--shadow);
-}
-#toast.show { display: block; }
-
-/* ─── MISC ─── */
-.section-heading {
-  font-family: 'Montserrat', sans-serif; font-weight: 700;
-  font-size: 18px; color: var(--t1); margin-bottom: 6px;
-}
-.section-sub { font-size: 12px; color: var(--t3); margin-bottom: 24px; }
-.current-live {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--purple-m);
-  animation: pulse 2.6s ease-in-out infinite;
-  display: inline-block; margin-right: 5px; vertical-align: middle;
-}
-.readonly-badge {
-  font-family: 'JetBrains Mono', monospace; font-size: 9px;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 2px 8px; border-radius: 4px;
-  background: rgba(107,33,168,0.12); color: var(--t3);
-  border: 1px solid var(--border); display: inline-block; margin-left: 8px;
-}
-.day-key-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 11px;
-  color: var(--t3); margin-bottom: 4px;
-}
-.day-key-date {
-  font-family: 'Montserrat', sans-serif; font-weight: 700;
-  font-size: 17px; color: var(--t1); text-transform: capitalize;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 640px) {
-  .week-banner-cols { flex-direction: column; gap: 12px; }
-  .grat-row { grid-template-columns: 1fr; }
-  .wday-card { grid-template-columns: 46px 1fr; }
-  .wday-card > *:last-child { grid-column: 2; }
-  .field-row2 { grid-template-columns: 1fr; }
-  .week-dots { display: none; }
-  .block-row { grid-template-columns: 22px 52px 68px 1fr 18px; gap: 6px; }
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--t1);
+  transition:background-color 0.3s,color 0.3s,border-color 0.3s,box-shadow 0.3s;
+  padding-bottom:80px;min-height:100%}
+[data-theme="dark"]{
+  --bg:#0D0910;--surface:#130D1A;--card:#1A1025;--t1:#EDE8F5;--t2:#8B7AA0;
+  --border:rgba(107,33,168,0.2);--border-h:rgba(107,33,168,0.4);
+  --accent:#7F77DD;--accent-bg:rgba(127,119,221,0.1);--accent-bg-h:rgba(127,119,221,0.15);
+  --shadow:rgba(0,0,0,0.5);--green:#4CAF82;--green-bg:#1a3a2a;--done-text:#7ECFAC;
+  --gold:#C4933F;--header-bg:rgba(13,9,16,0.95)
+}
+[data-theme="light"]{
+  --bg:#F5F3FF;--surface:#FFFFFF;--card:#FAF8FF;--t1:#1A0A2E;--t2:#5A4A6A;
+  --border:rgba(107,33,168,0.15);--border-h:rgba(107,33,168,0.35);
+  --accent:#6B21A8;--accent-bg:rgba(107,33,168,0.06);--accent-bg-h:rgba(107,33,168,0.1);
+  --shadow:rgba(0,0,0,0.08);--green:#16a34a;--green-bg:#f0fdf4;--done-text:#15803d;
+  --gold:#b45309;--header-bg:rgba(245,243,255,0.95)
+}
+/* ---- HEADER ---- */
+#app-header{
+  position:sticky;top:0;z-index:100;height:56px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+  background:var(--header-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);box-shadow:0 2px 12px var(--shadow)
+}
+.logo{font-family:Montserrat,sans-serif;font-size:15px;font-weight:600;
+  color:var(--t1);letter-spacing:0.02em;user-select:none}
+.logo span{color:var(--accent)}
+#clock{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:400;
+  color:var(--t2);letter-spacing:0.05em;min-width:70px;text-align:center}
+.header-actions{display:flex;gap:4px;align-items:center}
+.icon-btn{
+  width:36px;height:36px;min-width:44px;min-height:44px;
+  display:flex;align-items:center;justify-content:center;
+  border:none;background:transparent;cursor:pointer;border-radius:8px;
+  color:var(--t2);transition:background 0.15s,color 0.15s
+}
+.icon-btn:hover{background:var(--accent-bg);color:var(--accent)}
+/* ---- DESKTOP TABS ---- */
+#desktop-tabs{
+  display:none;align-items:center;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);padding:0 16px;gap:4px
+}
+@media(min-width:768px){
+  #desktop-tabs{display:flex}
+  #bottom-nav{display:none !important}
+  body{padding-bottom:0}
+  .view-container{max-width:720px;margin:0 auto}
+}
+.tab-btn{
+  display:flex;align-items:center;gap:6px;padding:12px 16px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:400;
+  text-transform:uppercase;letter-spacing:0.12em;color:var(--t2);
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  cursor:pointer;transition:color 0.2s,border-color 0.2s;white-space:nowrap
+}
+.tab-btn svg{width:13px;height:13px;flex-shrink:0}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover:not(.active){color:var(--t1)}
+/* ---- BOTTOM NAV ---- */
+#bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;height:68px;
+  display:flex;align-items:center;
+  background:var(--surface);border-top:1px solid var(--border);z-index:100;
+  padding-bottom:env(safe-area-inset-bottom,0)
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:8px 4px;border:none;background:transparent;cursor:pointer;
+  color:var(--t2);transition:color 0.2s;min-height:44px
+}
+.nav-item svg{width:18px;height:18px}
+.nav-item span{font-family:'JetBrains Mono',monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:0.08em}
+.nav-item.active{color:var(--accent)}
+/* ---- VIEWS ---- */
+.view{display:none}
+.view.active{display:block}
+/* ---- COMMON ---- */
+.section-label{
+  font-family:Montserrat,sans-serif;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.12em;color:var(--t2);margin-bottom:8px
+}
+.section-heading{
+  font-family:Montserrat,sans-serif;font-size:12px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.12em;color:var(--t2);
+  padding:12px 16px 8px
+}
+/* ---- DIA TOP ---- */
+#dia-top{padding:16px 16px 8px}
+.date-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);margin-bottom:12px}
+.prio-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.prio-row{display:flex;align-items:center;gap:8px}
+.prio-num{
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;
+  color:var(--accent);min-width:16px;text-align:center
+}
+.prio-input{
+  flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:9px 11px;font-family:Inter,sans-serif;font-size:13px;color:var(--t1);
+  outline:none;transition:border-color 0.2s
+}
+.prio-input:focus{border-color:var(--border-h)}
+.prio-input::placeholder{color:var(--t2)}
+/* ---- PROGRESS ---- */
+#progress-wrap{padding:8px 16px 12px}
+.progress-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);margin-bottom:6px}
+.progress-bar-bg{width:100%;height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-bar-fill{
+  height:100%;background:var(--accent);border-radius:4px;
+  transition:width 0.4s cubic-bezier(0.4,0,0.2,1)
+}
+/* ---- PERIOD SECTIONS ---- */
+.period-section{margin-bottom:4px}
+.period-header{
+  display:flex;align-items:center;gap:10px;padding:14px 16px 8px
+}
+.period-divider{flex:1;height:1px;background:var(--border)}
+.period-label{
+  font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.1em;color:var(--t2);white-space:nowrap
+}
+.period-range{
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);white-space:nowrap
+}
+.period-badge{
+  font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;
+  border-radius:20px;border:1px solid var(--border);color:var(--t2);
+  background:transparent;white-space:nowrap;
+  transition:background 0.3s,border-color 0.3s,color 0.3s
+}
+.period-badge.active-period{
+  background:var(--accent-bg);border-color:var(--accent);color:var(--accent)
+}
+.period-badge.done-period{
+  background:var(--green-bg);border-color:rgba(76,175,130,0.4);color:var(--done-text)
+}
+/* ---- BLOCK CARDS ---- */
+.blocks-list{padding:0 16px;display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.block-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;transition:background 0.1s,border-color 0.2s,opacity 0.3s,border-left-color 0.2s
+}
+.block-card:hover .block-header{background:var(--accent-bg-h)}
+.block-card.now{border-left:3px solid var(--accent);background:var(--accent-bg)}
+.block-card.past{opacity:0.7}
+.block-card.done{background:var(--green-bg);border-color:rgba(76,175,130,0.25)}
+.block-card.done .block-label{text-decoration:line-through;color:var(--done-text)}
+/* block header grid */
+.block-header{
+  display:grid;grid-template-columns:20px 1fr 18px;
+  align-items:center;gap:10px;padding:10px 12px;
+  cursor:pointer;min-height:44px;transition:background 0.1s
+}
+/* checkbox */
+.block-checkbox{
+  width:18px;height:18px;border-radius:5px;
+  border:1.5px solid var(--border-h);flex-shrink:0;
+  position:relative;transition:background 0.2s,border-color 0.2s;cursor:pointer
+}
+.block-checkbox.checked{background:var(--green);border-color:var(--green)}
+.block-checkbox.checked::after{
+  content:'';position:absolute;left:3px;top:5px;
+  width:10px;height:6px;
+  border-left:2px solid #fff;border-bottom:2px solid #fff;
+  transform:rotate(-45deg)
+}
+@keyframes checkPulse{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.block-checkbox.pulse{animation:checkPulse 0.2s ease}
+/* block meta */
+.block-meta{min-width:0;overflow:hidden}
+.block-time-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.block-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2)}
+.block-dur{
+  font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 6px;
+  border-radius:6px;background:var(--accent-bg);color:var(--accent)
+}
+.now-badge{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);display:none}
+.block-card.now .now-badge{display:inline}
+.block-label{
+  font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--t1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:color 0.2s,text-decoration 0.2s
+}
+.block-chevron{
+  font-size:15px;color:var(--t2);transition:transform 0.3s;
+  user-select:none;justify-self:end;line-height:1
+}
+.block-card.open .block-chevron{transform:rotate(90deg)}
+/* block body */
+.block-body{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1)}
+.block-card.open .block-body{max-height:900px}
+.block-body-inner{padding:0 12px 14px}
+.block-desc{font-size:12px;font-style:italic;color:var(--t2);margin-bottom:12px;line-height:1.6}
+/* field groups */
+.field-group{margin-bottom:8px}
+.field-label{
+  font-family:Inter,sans-serif;font-size:11px;font-weight:500;
+  color:var(--t2);margin-bottom:4px;display:block
+}
+.field-input{
+  width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;font-family:Inter,sans-serif;font-size:13px;color:var(--t1);
+  outline:none;transition:border-color 0.2s;resize:none;overflow:hidden;
+  line-height:1.5
+}
+.field-input:focus{border-color:var(--border-h)}
+.field-input::placeholder{color:var(--t2)}
+textarea.field-input{min-height:60px}
+textarea.field-input.large{min-height:100px}
+.notes-label{
+  font-family:Inter,sans-serif;font-size:11px;font-weight:500;
+  color:var(--t2);margin-top:10px;margin-bottom:4px;display:block;
+  padding-top:8px;border-top:1px solid var(--border)
+}
+/* ---- REVIEW SECTION ---- */
+.review-section{padding:0 16px 12px}
+.review-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;display:flex;flex-direction:column;gap:12px
+}
+/* score */
+.score-row{display:flex;gap:6px;margin-top:4px}
+.score-btn{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:var(--t2);cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s;
+  flex-shrink:0
+}
+.score-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.score-btn:hover:not(.active){background:var(--accent-bg);border-color:var(--border-h);color:var(--accent)}
+/* ---- AMANHA SECTION ---- */
+.amanha-section{padding:0 16px 12px}
+.amanha-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;background:var(--card);border:1px solid var(--border);
+  border-radius:12px;cursor:pointer;transition:background 0.1s;text-align:left
+}
+.amanha-toggle:hover{background:var(--accent-bg-h)}
+.amanha-toggle-label{
+  font-family:Montserrat,sans-serif;font-size:13px;font-weight:500;color:var(--t1)
+}
+.amanha-chevron{font-size:15px;color:var(--t2);transition:transform 0.3s}
+.amanha-chevron.open{transform:rotate(90deg)}
+.amanha-body{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1)}
+.amanha-body.open{max-height:1000px}
+.amanha-body-inner{
+  background:var(--card);border:1px solid var(--border);border-top:none;
+  border-radius:0 0 12px 12px;padding:12px 16px 16px;
+  display:flex;flex-direction:column;gap:10px
+}
+.amanha-tema-wrap{
+  padding:12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;display:flex;flex-direction:column;gap:4px
+}
+.tema-tag{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  font-weight:500;letter-spacing:0.08em;margin-bottom:2px
+}
+.tema-study{font-size:12px;color:var(--t2);line-height:1.5}
+/* ---- EXPORT BTN ---- */
+.export-wrap{padding:4px 16px 24px}
+.export-btn{
+  width:100%;padding:12px;background:var(--card);border:1px solid var(--border);
+  border-radius:12px;font-family:Montserrat,sans-serif;font-size:12px;font-weight:500;
+  letter-spacing:0.08em;color:var(--t2);cursor:pointer;
+  transition:background 0.2s,color 0.2s,border-color 0.2s
+}
+.export-btn:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--border-h)}
+.export-btn.copied{background:var(--green-bg);color:var(--done-text);border-color:rgba(76,175,130,0.4)}
+/* ---- WELCOME BANNER ---- */
+#welcome-banner{
+  margin:16px;padding:16px;background:var(--accent-bg);
+  border:1px solid var(--accent);border-radius:12px;
+  display:flex;flex-direction:column;gap:10px
+}
+.welcome-title{font-family:Montserrat,sans-serif;font-size:14px;font-weight:600;color:var(--accent)}
+.welcome-text{font-size:13px;color:var(--t2);line-height:1.6}
+.welcome-cta{
+  align-self:flex-start;padding:9px 18px;background:var(--accent);border:none;
+  border-radius:8px;font-family:Montserrat,sans-serif;font-size:12px;font-weight:600;
+  color:#fff;cursor:pointer;transition:opacity 0.2s
+}
+.welcome-cta:hover{opacity:0.85}
+/* ---- SEMANA VIEW ---- */
+#semana-view{padding:16px}
+.semana-scroll{
+  display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding-bottom:8px;-ms-overflow-style:none;scrollbar-width:none
+}
+.semana-scroll::-webkit-scrollbar{display:none}
+.week-card{
+  min-width:140px;width:140px;flex-shrink:0;background:var(--card);
+  border:1px solid var(--border);border-radius:12px;padding:14px;
+  cursor:pointer;scroll-snap-align:start;
+  transition:border-color 0.2s,background 0.2s,outline 0.15s
+}
+.week-card.today-card{min-width:155px;width:155px;border-color:var(--accent);background:var(--accent-bg)}
+.week-card:hover{border-color:var(--border-h);background:var(--accent-bg-h)}
+.week-card.selected-card{outline:2px solid var(--accent);outline-offset:2px}
+.wc-day{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;margin-bottom:2px}
+.wc-num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:400;color:var(--t1);margin-bottom:8px}
+.wc-tag{
+  font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 7px;
+  border-radius:20px;display:inline-block;
+  letter-spacing:0.04em;line-height:1.4
+}
+#week-detail{
+  margin-top:16px;background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:18px;display:none
+}
+#week-detail.visible{display:block}
+.wd-full-day{font-family:Montserrat,sans-serif;font-size:16px;font-weight:600;margin-bottom:4px}
+.wd-tag{font-family:'JetBrains Mono',monospace;font-size:11px;margin-bottom:14px}
+.wd-section-label{
+  font-family:Montserrat,sans-serif;font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.12em;color:var(--t2);margin-bottom:5px
+}
+.wd-text{font-size:13px;color:var(--t1);line-height:1.6;margin-bottom:14px}
+/* ---- ARQUIVO VIEW ---- */
+#arquivo-view{padding:16px}
+.arquivo-list{display:flex;flex-direction:column;gap:6px}
+.arquivo-row{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  transition:border-color 0.2s,background 0.2s
+}
+.arquivo-row:hover{border-color:var(--border-h);background:var(--accent-bg-h)}
+.arq-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);min-width:90px;flex-shrink:0}
+.arq-snippet{flex:1;font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arq-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.arq-count{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2)}
+.arq-score-dots{display:flex;gap:2px}
+.arq-dot{width:5px;height:5px;border-radius:50%;background:var(--border)}
+.arq-dot.filled{background:var(--accent)}
+/* arquivo detail */
+#arquivo-detail{display:none}
+#arquivo-detail.visible{display:block}
+.back-btn{
+  display:flex;align-items:center;gap:6px;padding:8px 0 12px;
+  background:transparent;border:none;font-family:Montserrat,sans-serif;
+  font-size:13px;color:var(--t2);cursor:pointer;transition:color 0.2s
+}
+.back-btn:hover{color:var(--accent)}
+.arq-detail-date{font-family:Montserrat,sans-serif;font-size:18px;font-weight:600;color:var(--t1);margin-bottom:16px}
+.arq-blocks-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;margin-bottom:12px
+}
+.arq-block-row{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 0;border-bottom:1px solid var(--border)
+}
+.arq-block-row:last-child{border-bottom:none}
+.arq-block-check{
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--done-text);
+  min-width:14px;flex-shrink:0
+}
+.arq-block-time{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);
+  min-width:50px;flex-shrink:0
+}
+.arq-block-name{font-family:Inter,sans-serif;font-size:13px;color:var(--t1)}
+.arq-block-name.done-arq{text-decoration:line-through;color:var(--t2)}
+.arq-review-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:14px;margin-bottom:8px
+}
+.arq-review-label{
+  font-family:Montserrat,sans-serif;font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.1em;color:var(--t2);margin-bottom:5px
+}
+.arq-review-text{font-size:13px;color:var(--t1);line-height:1.6}
+.arq-section-sep{margin-bottom:12px}
+/* ---- PERFIL VIEW ---- */
+#perfil-view{padding:16px}
+.perfil-section{
+  margin-bottom:6px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden
+}
+.perfil-header{
+  display:flex;align-items:center;justify-content:space-between;padding:14px 16px;
+  cursor:pointer;transition:background 0.1s
+}
+.perfil-header:hover{background:var(--accent-bg-h)}
+.perfil-header-left{display:flex;align-items:center;gap:10px}
+.perfil-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);min-width:14px}
+.perfil-title{font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;color:var(--t1)}
+.perfil-chevron{font-size:15px;color:var(--t2);transition:transform 0.3s}
+.perfil-chevron.open{transform:rotate(90deg)}
+.perfil-body{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1)}
+.perfil-body.open{max-height:1200px}
+.perfil-body-inner{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+/* principle cards */
+.principle-card{
+  padding:13px;background:var(--surface);border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0;margin-bottom:4px
+}
+.principle-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:4px}
+.principle-quote{font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;color:var(--t1);margin-bottom:5px}
+.principle-body{font-size:12px;color:var(--t2);line-height:1.6}
+/* save btn */
+.save-perfil-btn{
+  display:block;width:calc(100% - 32px);margin:6px 16px 16px;padding:13px;
+  background:var(--accent);border:none;border-radius:10px;
+  font-family:Montserrat,sans-serif;font-size:13px;font-weight:600;color:#fff;
+  cursor:pointer;transition:opacity 0.2s
+}
+.save-perfil-btn:hover{opacity:0.88}
+.save-perfil-btn.saved{background:var(--green)}
+/* ---- EMPTY STATES ---- */
+.empty-state{
+  padding:40px 16px;text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2)
+}
+/* ---- HIDDEN ---- */
+.hidden{display:none !important}
 </style>
 </head>
 <body>
-<div id="app">
-  <div id="topbar">
-    <div class="tb-logo">
-      <div class="tb-logo-mark">Ad</div>
-      <span class="tb-logo-text">Habitus</span>
-      <span class="tb-logo-sep">·</span>
-      <span class="tb-logo-text" style="color:var(--purple-m)">Aderry</span>
+<!-- HEADER -->
+<header id="app-header">
+  <div class="logo">Habitus <span>OS</span></div>
+  <div id="clock">00:00:00</div>
+  <div class="header-actions">
+    <button class="icon-btn" id="theme-toggle" title="Alternar tema" aria-label="Alternar tema">
+      <svg id="theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+    </button>
+    <button class="icon-btn" data-nav="perfil" title="Perfil" aria-label="Perfil">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+    </button>
+  </div>
+</header>
+<!-- DESKTOP TABS -->
+<nav id="desktop-tabs">
+  <button class="tab-btn active" data-nav="dia">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+    Dia a Dia
+  </button>
+  <button class="tab-btn" data-nav="semana">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Semana
+  </button>
+  <button class="tab-btn" data-nav="arquivo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Arquivo
+  </button>
+  <button class="tab-btn" data-nav="perfil">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    Perfil
+  </button>
+</nav>
+<!-- MAIN -->
+<main>
+  <div class="view-container">
+    <!-- DIA VIEW -->
+    <div id="dia-view" class="view active">
+      <div id="welcome-banner" class="hidden">
+        <div class="welcome-title">Bem-vindo ao Habitus OS</div>
+        <div class="welcome-text">Comece por configurar o seu perfil para personalizar a experiência e activar o sistema Aderry na sua totalidade.</div>
+        <button class="welcome-cta" data-nav="perfil">Configurar Perfil →</button>
+      </div>
+      <div id="dia-top">
+        <div class="date-label" id="today-label"></div>
+        <div class="section-label">Prioridades de hoje</div>
+        <div class="prio-list">
+          <div class="prio-row">
+            <span class="prio-num">1</span>
+            <input class="prio-input" id="prio-1" type="text" placeholder="Prioridade principal do dia..." data-prio="1"/>
+          </div>
+          <div class="prio-row">
+            <span class="prio-num">2</span>
+            <input class="prio-input" id="prio-2" type="text" placeholder="Segunda prioridade..." data-prio="2"/>
+          </div>
+          <div class="prio-row">
+            <span class="prio-num">3</span>
+            <input class="prio-input" id="prio-3" type="text" placeholder="Terceira prioridade..." data-prio="3"/>
+          </div>
+        </div>
+      </div>
+      <div id="progress-wrap">
+        <div class="progress-meta" id="progress-label">0 de 19 blocos · 0%</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div id="periods-container"></div>
+      <div class="section-heading">Revisão do Dia</div>
+      <div class="review-section">
+        <div class="review-card">
+          <div class="field-group">
+            <label class="field-label">O que o Sábio aprendeu hoje?</label>
+            <textarea class="field-input" rows="3" data-review="sabio" placeholder="Reflexão profunda sobre o dia..."></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">O que merecia mais atenção?</label>
+            <textarea class="field-input" rows="2" data-review="atencao" placeholder="Onde a atenção se dispersou ou onde devia ter investido mais..."></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Pelo que estás grato hoje?</label>
+            <textarea class="field-input" rows="2" data-review="grat" placeholder="Gratidão genuina e específica..."></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Nota do dia</label>
+            <div class="score-row" id="score-row">
+              <button class="score-btn" data-score="1">1</button>
+              <button class="score-btn" data-score="2">2</button>
+              <button class="score-btn" data-score="3">3</button>
+              <button class="score-btn" data-score="4">4</button>
+              <button class="score-btn" data-score="5">5</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section-heading">Planeamento</div>
+      <div class="amanha-section">
+        <button class="amanha-toggle" id="amanha-toggle-btn" aria-expanded="false">
+          <span class="amanha-toggle-label">Planear amanhã →</span>
+          <span class="amanha-chevron" id="amanha-chevron">›</span>
+        </button>
+        <div class="amanha-body" id="amanha-body" aria-hidden="true">
+          <div class="amanha-body-inner">
+            <div class="field-group">
+              <label class="field-label">Intenção de amanhã</label>
+              <textarea class="field-input" rows="2" data-amanha="intencao" placeholder="Uma intenção clara e intencional para amanhã..."></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">3 Prioridades de amanhã</label>
+              <div class="prio-list" style="margin-top:4px">
+                <div class="prio-row">
+                  <span class="prio-num">1</span>
+                  <input class="prio-input" type="text" placeholder="Prioridade 1..." data-amanha="prio1"/>
+                </div>
+                <div class="prio-row">
+                  <span class="prio-num">2</span>
+                  <input class="prio-input" type="text" placeholder="Prioridade 2..." data-amanha="prio2"/>
+                </div>
+                <div class="prio-row">
+                  <span class="prio-num">3</span>
+                  <input class="prio-input" type="text" placeholder="Prioridade 3..." data-amanha="prio3"/>
+                </div>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Tema de amanhã</label>
+              <div class="amanha-tema-wrap" id="amanha-tema-pill">
+                <span class="tema-tag" id="amanha-tema-tag"></span>
+                <span class="tema-study" id="amanha-tema-study"></span>
+              </div>
+              <textarea class="field-input" rows="2" style="margin-top:6px" data-amanha="notatema" placeholder="Nota pessoal sobre o tema de amanhã..."></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Notas livres para amanhã</label>
+              <textarea class="field-input" rows="3" data-amanha="notas" placeholder="Qualquer ideia, tarefa pendente ou pensamento para amanhã..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="export-wrap">
+        <button class="export-btn" id="export-btn">Exportar dia → copiar</button>
+      </div>
     </div>
-    <nav class="tb-nav" id="tb-nav"></nav>
-    <div class="tb-right">
-      <div class="week-dots" id="week-dots"></div>
-      <div id="clock"></div>
+    <!-- SEMANA VIEW -->
+    <div id="semana-view" class="view">
+      <div class="semana-scroll" id="semana-scroll"></div>
+      <div style="padding:0 0 16px" id="week-detail-wrap">
+        <div id="week-detail"></div>
+      </div>
+    </div>
+    <!-- ARQUIVO VIEW -->
+    <div id="arquivo-view" class="view">
+      <div id="arquivo-list-wrap"></div>
+      <div id="arquivo-detail"></div>
+    </div>
+    <!-- PERFIL VIEW -->
+    <div id="perfil-view" class="view">
+      <div id="perfil-sections"></div>
+      <button class="save-perfil-btn" id="save-perfil-btn">Guardar Perfil</button>
     </div>
   </div>
-  <div id="dayprog"><div id="dayprogfill"></div></div>
-  <main id="main"></main>
-</div>
-<div id="toast"></div>
-
+</main>
+<!-- BOTTOM NAV -->
+<nav id="bottom-nav" role="navigation" aria-label="Navegação principal">
+  <button class="nav-item active" data-nav="dia" aria-label="Dia a Dia">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+    <span>Dia</span>
+  </button>
+  <button class="nav-item" data-nav="semana" aria-label="Semana">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Semana</span>
+  </button>
+  <button class="nav-item" data-nav="arquivo" aria-label="Arquivo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>Arquivo</span>
+  </button>
+  <button class="nav-item" data-nav="perfil" aria-label="Perfil">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <span>Perfil</span>
+  </button>
+</nav>
 <script>
-/* ════════════════════════════════════════════════
-   DATA
-════════════════════════════════════════════════ */
+
+// ===== DATA CONSTANTS =====
 const BLOCKS = [
-  // MANHÃ
   {id:'m0',p:'manha',t:'06:00',e:'06:15',d:'15 min',label:'Acordar e ritual matinal',desc:'Água com sal, corpo, presença. Sem ecrãs. Chegada intencional ao dia.',fields:[]},
   {id:'m1',p:'manha',t:'06:15',e:'06:45',d:'30 min',label:'Devocional',desc:'Oração, meditação, silêncio. O Sábio começa pelo centro — não pela agenda.',fields:[{k:'recebeu',l:'O que recebi hoje?',big:true}]},
   {id:'m2',p:'manha',t:'06:45',e:'08:00',d:'75 min',label:'Leitura profunda',desc:'Livro de filosofia, estratégia ou método. Com lápis, sem pressa, com margem para pensar.',fields:[{k:'titulo',l:'Título do livro',big:false},{k:'autor',l:'Autor',big:false},{k:'pagina',l:'Páginas lidas',big:false},{k:'insight',l:'Insight principal',big:true}]},
@@ -524,13 +633,11 @@ const BLOCKS = [
   {id:'m6',p:'manha',t:'09:20',e:'09:40',d:'20 min',label:'Banho e skincare',desc:'Cuidado com o corpo como extensão do cuidado com a mente.',fields:[]},
   {id:'m7',p:'manha',t:'09:40',e:'10:10',d:'30 min',label:'Café da manhã em silêncio',desc:'Sem ecrãs. A refeição como ritual — não como tarefa.',fields:[]},
   {id:'m8',p:'manha',t:'10:10',e:'10:30',d:'20 min',label:'Transição',desc:'Preparação para o trabalho profundo. Fechar a manhã, abrir a tarde.',fields:[]},
-  // TARDE
   {id:'a0',p:'tarde',t:'10:30',e:'12:30',d:'2h',label:'Trabalho de Método e Posicionamento',desc:'Foco total. Escrita estratégica, desenvolvimento da metodologia Aderry, criação de frameworks.',fields:[{k:'emque',l:'Em que trabalhei',big:true},{k:'avancei',l:'O que avancei',big:false},{k:'proximo',l:'Próximo passo',big:false}]},
   {id:'a1',p:'tarde',t:'12:30',e:'14:00',d:'1h 30min',label:'Almoço e descanso real',desc:'Refeição sem ecrãs de trabalho. Pausa mental completa — não uma pausa entre tarefas.',fields:[{k:'almoco',l:'O que almocei',big:false}]},
   {id:'a2',p:'tarde',t:'14:00',e:'16:00',d:'2h',label:'Execução e operação',desc:'Clientes, comunicação, gestão. Com o alicerce intelectual já sólido.',fields:[{k:'executado',l:'Tarefas executadas',big:true},{k:'pendente',l:'O que ficou pendente',big:true}]},
   {id:'a3',p:'tarde',t:'16:00',e:'17:15',d:'1h 15min',label:'Estudo e crescimento',desc:'Tema do dia — ver sistema semanal. Aprendizado estruturado.',fields:[{k:'tema',l:'Tema / Fonte',big:false},{k:'aprendeu',l:'O que aprendi',big:true},{k:'aplicar',l:'Ideia para aplicar',big:false}]},
   {id:'a4',p:'tarde',t:'17:15',e:'18:00',d:'45 min',label:'Fechamento do dia',desc:'Revisão, pendências, intenção de amanhã. Fechar o ciclo com clareza.',fields:[{k:'amanha',l:'O que fica para amanhã',big:true}]},
-  // NOITE
   {id:'n0',p:'noite',t:'18:00',e:'19:30',d:'1h 30min',label:'Vida pessoal e presença',desc:'Conexões, lazer, sem agenda de trabalho. O Sábio precisa do mundo para reflectir sobre ele.',fields:[]},
   {id:'n1',p:'noite',t:'19:30',e:'20:15',d:'45 min',label:'Jantar tranquilo',desc:'Refeição presente, com conversas que nutrem.',fields:[]},
   {id:'n2',p:'noite',t:'20:15',e:'21:00',d:'45 min',label:'Leitura leve ou música',desc:'Não relacionado com trabalho. O pensamento profundo precisa de respirar.',fields:[]},
@@ -540,777 +647,973 @@ const BLOCKS = [
 ];
 
 const PERIODS = [
-  {id:'manha',label:'Manhã',  icon:'○',color:'#7F77DD',range:'06:00 → 10:30',sub:'Profundidade antes de execução'},
-  {id:'tarde',label:'Tarde',  icon:'◈',color:'#6B21A8',range:'10:30 → 18:00',sub:'Pensamento, Método e Operação'},
-  {id:'noite',label:'Noite',  icon:'◎',color:'#3A0CA3',range:'18:00 → 22:15',sub:'Desaceleração e Contemplação'},
+  {id:'manha',label:'Manhã',range:'06:00 → 10:30'},
+  {id:'tarde',label:'Tarde',range:'10:30 → 18:00'},
+  {id:'noite',label:'Noite',range:'18:00 → 22:15'},
 ];
 
 const WEEK = [
-  {day:'Seg',full:'Segunda',color:'#7F77DD',tag:'Método & Filosofia',    study:'Filosofia, epistemologia, pensamento sistémico',content:'Os fundamentos do método Aderry — o porquê das coisas'},
-  {day:'Ter',full:'Terça',  color:'#9B5DE5',tag:'Posicionamento & Marca',study:'Branding, identidade, valor percebido, semiótica',content:'Posicionamento, marca pessoal, construção de autoridade'},
-  {day:'Qua',full:'Quarta', color:'#6B21A8',tag:'Estratégia & Negócio',  study:'Estratégia empresarial, crescimento, modelos de negócio',content:'Visão, frameworks, teses de mercado'},
-  {day:'Qui',full:'Quinta', color:'#5B3CA8',tag:'Liderança & Sabedoria', study:'Liderança, psicologia, comportamento humano, negociação',content:'Autoridade, comunicação de alto impacto, cultura'},
-  {day:'Sex',full:'Sexta',  color:'#4B2CA8',tag:'Narrativa & Casos',     study:'Casos reais, biografias, storytelling, comportamento',content:'Bastidores metodológicos, aprendizados, reflexões profundas'},
-  {day:'Sáb',full:'Sábado', color:'#8B45B5',tag:'Expansão & Espiritualidade',study:'Espiritualidade, poesia, arte, criatividade expandida',content:'Opcional — o mais pessoal e filosófico da semana'},
-  {day:'Dom',full:'Domingo',color:'#3D8C68',tag:'Síntese & Preparação',  study:'Revisão da semana — foco em insight, não em produtividade',content:'O que aprendi? O que mudou? Intenção para a próxima semana?'},
+  {day:'Seg',full:'Segunda',color:'#7F77DD',tag:'Método & Filosofia',study:'Filosofia, epistemologia, pensamento sistémico',content:'Os fundamentos do método Aderry — o porquê das coisas'},
+  {day:'Ter',full:'Terça',color:'#9B5DE5',tag:'Posicionamento & Marca',study:'Branding, identidade, valor percebido, semiótica',content:'Posicionamento, marca pessoal, construção de autoridade'},
+  {day:'Qua',full:'Quarta',color:'#6B21A8',tag:'Estratégia & Negócio',study:'Estratégia empresarial, crescimento, modelos de negócio',content:'Visão, frameworks, teses de mercado'},
+  {day:'Qui',full:'Quinta',color:'#5B3CA8',tag:'Liderança & Sabedoria',study:'Liderança, psicologia, comportamento humano, negociação',content:'Autoridade, comunicação de alto impacto, cultura'},
+  {day:'Sex',full:'Sexta',color:'#4B2CA8',tag:'Narrativa & Casos',study:'Casos reais, biografias, storytelling, comportamento',content:'Bastidores metodológicos, aprendizados, reflexões profundas'},
+  {day:'Sáb',full:'Sábado',color:'#8B45B5',tag:'Expansão & Espiritualidade',study:'Espiritualidade, poesia, arte, criatividade expandida',content:'Opcional — o mais pessoal e filosófico da semana'},
+  {day:'Dom',full:'Domingo',color:'#3D8C68',tag:'Síntese & Preparação',study:'Revisão da semana — foco em insight, não em produtividade',content:'O que aprendi? O que mudou? Intenção para a próxima semana?'},
 ];
-const ALL_DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
 const PRINCIPLES = [
-  {num:'I',   quote:'Profundidade antes de velocidade.',  body:'O Sábio que age sem pensar torna-se apenas um executor. A reflexão é o trabalho.'},
-  {num:'II',  quote:'O método é o produto.',              body:'Cada hora de pensamento sobre como a Aderry pensa e ensina é uma hora investida no activo mais valioso do negócio.'},
-  {num:'III', quote:'O silêncio é produtivo.',            body:'Dias sem output visível podem ser os dias de maior criação — se o pensamento avançou, o sistema avançou.'},
-  {num:'IV',  quote:'Governar o tempo é governar o negócio.', body:'O Governante em ti sabe que a estrutura não limita — liberta. A rotina é o palácio onde o Sábio pensa.'},
+  {num:'I',quote:'Profundidade antes de velocidade.',body:'O Sábio que age sem pensar torna-se apenas um executor. A reflexão é o trabalho.'},
+  {num:'II',quote:'O método é o produto.',body:'Cada hora de pensamento sobre como a Aderry pensa e ensina é uma hora investida no activo mais valioso do negócio.'},
+  {num:'III',quote:'O silêncio é produtivo.',body:'Dias sem output visível podem ser os dias de maior criação — se o pensamento avançou, o sistema avançou.'},
+  {num:'IV',quote:'Governar o tempo é governar o negócio.',body:'O Governante em ti sabe que a estrutura não limita — liberta. A rotina é o palácio onde o Sábio pensa.'},
 ];
 
-/* ════════════════════════════════════════════════
-   STATE
-════════════════════════════════════════════════ */
-let S = { view:'dia', expandedBlock:null, archiveKey:null, showPrinciples:false, isFirstVisit:false };
+const PROFILE_SECTIONS = [
+  {id:'A',title:'Quem és',fields:[
+    {k:'nome',l:'Nome',big:false,ph:'Como te chamas?'},
+    {k:'essencia',l:'Essência em 3 palavras',big:false,ph:'Ex: Clareza, Profundidade, Intenção'},
+    {k:'missao',l:'A tua missão',big:true,ph:'Por que razão fazes o que fazes?'},
+  ]},
+  {id:'B',title:'O teu negócio',fields:[
+    {k:'negocio',l:'O negócio Aderry',big:true,ph:'Descreve o que a Aderry faz e para quem'},
+    {k:'diferencial',l:'O teu diferencial',big:true,ph:'O que te torna insubstituível?'},
+    {k:'fase',l:'Fase actual',big:false,ph:'Ex: Construção, Escala, Consolidação'},
+  ]},
+  {id:'C',title:'Intenção anual',fields:[
+    {k:'intencao_ano',l:'Intenção deste ano',big:true,ph:'Uma frase que orienta todas as decisões'},
+    {k:'palavra_ano',l:'Palavra do ano',big:false,ph:'Uma palavra que define este período'},
+    {k:'meta_principal',l:'Meta principal',big:true,ph:'O que precisa de estar concluído?'},
+  ]},
+  {id:'D',title:'Valores e princípios',fields:[
+    {k:'valores',l:'Os teus valores',big:true,ph:'Lista os teus 5 valores fundamentais'},
+    {k:'linhas_vermelhas',l:'Linhas vermelhas',big:true,ph:'O que não comprometes, em circunstância alguma?'},
+  ]},
+  {id:'E',title:'O Sábio — o teu arquétipo',fields:[
+    {k:'sabio_forca',l:'A força do Sábio em ti',big:true,ph:'Onde o Sábio se manifesta naturalmente?'},
+    {k:'sabio_sombra',l:'A sombra do Sábio',big:true,ph:'Quando o Sábio trabalha contra ti?'},
+    {k:'sabio_pratica',l:'A prática do Sábio',big:true,ph:'Como cultivas a profundidade diariamente?'},
+  ]},
+  {id:'F',title:'Contexto e notas',fields:[
+    {k:'contexto',l:'Contexto actual',big:true,ph:'O que está a acontecer na tua vida/negócio agora?'},
+    {k:'notas_livres',l:'Notas livres',big:true,ph:'Qualquer coisa relevante para o sistema conhecer'},
+  ]},
+  {id:'G',title:'Princípios do Sistema',fields:null},
+];
 
-/* ════════════════════════════════════════════════
-   STORAGE
-════════════════════════════════════════════════ */
+const ALL_DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const PROFILE_KEY = 'habitus-adelson-profile';
 const JOURNAL_KEY = 'habitus-adelson-journal';
+const THEME_KEY   = 'habitus-adelson-theme';
 
-function todayKey() { return new Date().toISOString().slice(0,10); }
-function loadProfile() { try { return JSON.parse(localStorage.getItem(PROFILE_KEY)); } catch { return null; } }
-function saveProfile(d) { localStorage.setItem(PROFILE_KEY, JSON.stringify(d)); }
-function loadJournal() { try { return JSON.parse(localStorage.getItem(JOURNAL_KEY)||'{}'); } catch { return {}; } }
-function saveJournal(d) { localStorage.setItem(JOURNAL_KEY, JSON.stringify(d)); }
+// ===== STATE =====
+let expandedBlock = null;
+let autoExpanded = false;
+let currentView = 'dia';
+let selectedWeekIdx = null;
 
-function getDay(k) {
+// ===== STORAGE HELPERS =====
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveProfile(data) {
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+function loadJournal() {
+  try { return JSON.parse(localStorage.getItem(JOURNAL_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveJournal(data) {
+  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(data)); } catch(e) {}
+}
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function yesterdayKey() {
+  const d = new Date();
+  d.setDate(d.getDate()-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function tomorrowKey() {
+  const d = new Date();
+  d.setDate(d.getDate()+1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function getTodayData() {
   const j = loadJournal();
-  if (j[k]) return j[k];
-  const d = { blocks:{}, review:{learned:'',thinking:'',silence:'',gratitude:['','',''],score:0} };
-  BLOCKS.forEach(b => { d.blocks[b.id] = {done:false,intention:'',notes:'',extras:{}}; });
+  const k = todayKey();
+  if (!j[k]) j[k] = {blocks:{}};
+  if (!j[k].blocks) j[k].blocks = {};
+  return j[k];
+}
+function setTodayData(data) {
+  const j = loadJournal();
+  j[todayKey()] = data;
+  saveJournal(j);
+}
+function getDateData(dateKey) {
+  const j = loadJournal();
+  const d = j[dateKey] || {blocks:{}};
+  if (!d.blocks) d.blocks = {};
   return d;
 }
-function saveDay(k, data) { const j=loadJournal(); j[k]=data; saveJournal(j); }
-function updateBlockField(dateKey, blockId, field, value) {
-  const d = getDay(dateKey);
-  if (!d.blocks[blockId]) d.blocks[blockId] = {done:false,intention:'',notes:'',extras:{}};
-  d.blocks[blockId][field] = value;
-  saveDay(dateKey, d);
-}
-function updateBlockExtra(dateKey, blockId, extraKey, value) {
-  const d = getDay(dateKey);
-  if (!d.blocks[blockId]) d.blocks[blockId] = {done:false,intention:'',notes:'',extras:{}};
-  if (!d.blocks[blockId].extras) d.blocks[blockId].extras = {};
-  d.blocks[blockId].extras[extraKey] = value;
-  saveDay(dateKey, d);
-}
-function updateReview(dateKey, field, value) {
-  const d = getDay(dateKey);
-  if (!d.review) d.review = {learned:'',thinking:'',silence:'',gratitude:['','',''],score:0};
-  d.review[field] = value;
-  saveDay(dateKey, d);
-}
-function updateGratitude(dateKey, idx, value) {
-  const d = getDay(dateKey);
-  if (!d.review) d.review = {learned:'',thinking:'',silence:'',gratitude:['','',''],score:0};
-  if (!d.review.gratitude) d.review.gratitude = ['','',''];
-  d.review.gratitude[idx] = value;
-  saveDay(dateKey, d);
-}
 
-/* ════════════════════════════════════════════════
-   UTILS
-════════════════════════════════════════════════ */
-const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-function hhmm(s) { const [h,m]=s.split(':').map(Number); return h*60+m; }
-function fmtTime(d) { return d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}); }
-function fmtDateLong(k) {
-  const d = new Date(k+'T06:00:00');
-  return d.toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+// ===== TIME HELPERS =====
+function timeToMins(t) {
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
 }
-function getCurrentBlockId() {
-  const now = new Date();
-  const m = now.getHours()*60+now.getMinutes();
+function nowMins() {
+  const n = new Date();
+  return n.getHours()*60 + n.getMinutes();
+}
+function getActiveBlockId() {
+  const nm = nowMins();
   for (const b of BLOCKS) {
-    if (b.id==='n5') continue;
-    const s=hhmm(b.t), e=hhmm(b.e);
-    if (m>=s && m<e) return b.id;
+    if (b.d === '—') continue;
+    const start = timeToMins(b.t);
+    const end   = timeToMins(b.e);
+    if (end < start) {
+      if (nm >= start || nm < end) return b.id;
+    } else {
+      if (nm >= start && nm < end) return b.id;
+    }
   }
   return null;
 }
-function getTodayWeek() {
-  const d = new Date();
-  const s = ALL_DAYS[d.getDay()];
-  return WEEK.find(w=>w.day===s) || WEEK[0];
+function getBlockState(b) {
+  if (b.d === '—') return 'sleep';
+  const nm    = nowMins();
+  const start = timeToMins(b.t);
+  const end   = timeToMins(b.e);
+  if (end < start) {
+    if (nm >= start || nm < end) return 'now';
+    return nm < start ? 'future' : 'past';
+  }
+  if (nm >= start && nm < end) return 'now';
+  if (nm >= end) return 'past';
+  return 'future';
 }
-function checkSVG() {
-  return '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
-}
-function showToast(msg, duration=2200) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), duration);
-}
-
-/* ════════════════════════════════════════════════
-   DAY PROGRESS
-════════════════════════════════════════════════ */
-function updateDayProgress() {
-  const now = new Date();
-  const m = now.getHours()*60+now.getMinutes();
-  const dayStart = 6*60, dayEnd = 22*60+15;
-  const pct = Math.max(0, Math.min(100, ((m - dayStart)/(dayEnd - dayStart))*100));
-  const fill = document.getElementById('dayprogfill');
-  if (fill) fill.style.width = pct + '%';
+function getPeriodState(p) {
+  const pBlocks = BLOCKS.filter(b => b.p === p.id && b.d !== '—');
+  if (pBlocks.length === 0) return 'future';
+  const firstStart = timeToMins(pBlocks[0].t);
+  const lastEnd    = timeToMins(pBlocks[pBlocks.length-1].e);
+  const nm = nowMins();
+  if (nm >= lastEnd)   return 'done';
+  if (nm >= firstStart) return 'active';
+  return 'future';
 }
 
-/* ════════════════════════════════════════════════
-   TOPBAR
-════════════════════════════════════════════════ */
-function renderTopbar() {
-  const nav = document.getElementById('tb-nav');
-  const tabs = [
-    {id:'dia',    label:'Dia a Dia'},
-    {id:'semana', label:'Semana'},
-    {id:'arquivo',label:'Arquivo'},
-    {id:'perfil', label:'Perfil'},
-  ];
-  nav.innerHTML = tabs.map(t =>
-    `<button class="tab-btn${S.view===t.id?' active':''}" data-nav="${t.id}">${t.label}</button>`
-  ).join('');
-
-  // week dots
-  const dotsEl = document.getElementById('week-dots');
-  const todayIdx = new Date().getDay(); // 0=Sun
-  dotsEl.innerHTML = ALL_DAYS.map((d,i) => {
-    const isToday = i === todayIdx;
-    const w = WEEK.find(x=>x.day===d);
-    const color = w ? w.color : '#7F77DD';
-    return `<div class="wdot${isToday?' today':''}" title="${d}" style="${isToday?'background:'+color+';box-shadow:0 0 6px '+color+'66':''}"></div>`;
-  }).join('');
-
-  // clock
-  const clockEl = document.getElementById('clock');
-  if (clockEl) clockEl.textContent = fmtTime(new Date());
+// ===== DATE FORMATTING =====
+function formatDatePT(dateKey) {
+  const parts = dateKey.split('-').map(Number);
+  const date = new Date(parts[0], parts[1]-1, parts[2]);
+  const days   = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return days[date.getDay()]+', '+parts[2]+' de '+months[parts[1]-1]+' de '+parts[0];
+}
+function formatDateShort(dateKey) {
+  const [y,m,d] = dateKey.split('-');
+  return d+'/'+m+'/'+y;
 }
 
-function updateTabActive() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.nav === S.view);
+// ===== CLOCK =====
+function updateClock() {
+  const n = new Date();
+  const h = String(n.getHours()).padStart(2,'0');
+  const m = String(n.getMinutes()).padStart(2,'0');
+  const s = String(n.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('clock');
+  if (el) el.textContent = h+':'+m+':'+s;
+  if (currentView === 'dia') updateBlockHighlights();
+}
+
+// ===== LIVE BLOCK HIGHLIGHTS =====
+function updateBlockHighlights() {
+  BLOCKS.forEach(b => {
+    const card = document.querySelector('.block-card[data-id="'+b.id+'"]');
+    if (!card) return;
+    const state = getBlockState(b);
+    card.classList.remove('now','past','future');
+    if      (state === 'now')    card.classList.add('now');
+    else if (state === 'past')   card.classList.add('past');
+    else if (state === 'future') card.classList.add('future');
   });
-}
-
-/* ════════════════════════════════════════════════
-   RENDER MAIN
-════════════════════════════════════════════════ */
-function renderMain() {
-  const main = document.getElementById('main');
-  if (S.view === 'dia') {
-    main.innerHTML = renderDia(false, todayKey());
-  } else if (S.view === 'semana') {
-    main.innerHTML = renderSemana();
-  } else if (S.view === 'arquivo') {
-    main.innerHTML = renderArquivo();
-  } else if (S.view === 'perfil') {
-    main.innerHTML = renderPerfil();
-  }
-  main.classList.remove('fadein');
-  void main.offsetWidth;
-  main.classList.add('fadein');
-  updateTabActive();
-}
-
-/* ════════════════════════════════════════════════
-   renderDia
-════════════════════════════════════════════════ */
-function renderDia(readonly, dayKey) {
-  const ddata = getDay(dayKey);
-  const currentId = readonly ? null : getCurrentBlockId();
-  const tw = getTodayWeek();
-  const isToday = dayKey === todayKey();
-
-  // Week banner
-  let html = '';
-  html += `<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:20px">`;
-  if (!readonly && isToday) {
-    html += `<div>
-      <div class="day-key-label">Hoje</div>
-      <div class="day-key-date">${fmtDateLong(dayKey)}</div>
-    </div>`;
-  } else {
-    html += `<div>
-      <div class="day-key-label">${readonly ? '<span class="readonly-badge">arquivo</span>' : ''}</div>
-      <div class="day-key-date">${fmtDateLong(dayKey)}</div>
-    </div>`;
-  }
-  html += `</div>`;
-
-  // Week theme banner
-  html += `<div class="week-banner" style="background:linear-gradient(135deg,${tw.color}14 0%,${tw.color}08 100%);border-color:${tw.color}40">
-    <div style="flex:1">
-      <div class="week-banner-tag" style="color:${tw.color}">${esc(tw.tag)}</div>
-      <div class="week-banner-cols">
-        <div class="week-banner-col">
-          <div class="week-banner-label">Estudo do dia</div>
-          <div class="week-banner-val">${esc(tw.study)}</div>
-        </div>
-        <div class="week-banner-col">
-          <div class="week-banner-label">Conteúdo / Foco</div>
-          <div class="week-banner-val">${esc(tw.content)}</div>
-        </div>
-      </div>
-    </div>
-    ${!readonly ? `<button class="export-btn" data-export>Exportar</button>` : ''}
-  </div>`;
-
-  // Periods
-  PERIODS.forEach(period => {
-    const blocks = BLOCKS.filter(b => b.p === period.id);
-    html += `<div class="period-hdr">
-      <span class="period-icon" style="color:${period.color}">${period.icon}</span>
-      <span class="period-label" style="color:${period.color}">${period.label}</span>
-      <span class="period-range">${period.range}</span>
-      <span class="period-sub">· ${period.sub}</span>
-      <div class="period-line"></div>
-    </div>`;
-    html += `<div class="blocks-card">`;
-    blocks.forEach((block, bi) => {
-      const bd = ddata.blocks[block.id] || {done:false,intention:'',notes:'',extras:{}};
-      const isCurrent = !readonly && currentId === block.id;
-      const isOpen = S.expandedBlock === block.id;
-      const isDone = bd.done;
-      let rowClass = 'block-row';
-      if (isCurrent) rowClass += ' is-current';
-      if (isOpen) rowClass += ' is-open';
-      if (isDone) rowClass += ' is-done';
-      const borderColor = (isCurrent || isOpen) ? period.color : 'transparent';
-
-      html += `<div class="${rowClass}" style="--period-color:${period.color};border-left-color:${borderColor}" data-toggle-block="${block.id}">`;
-      // Checkbox
-      if (!readonly) {
-        html += `<div class="block-check${isDone?' checked':''}" data-toggle-done="${block.id}" title="Marcar como feito">
-          ${isDone ? checkSVG() : ''}
-        </div>`;
-      } else {
-        html += `<div class="block-check${isDone?' checked':''}" style="cursor:default">
-          ${isDone ? checkSVG() : ''}
-        </div>`;
-      }
-      // Time
-      html += `<div class="block-time">${block.t}</div>`;
-      // Dur badge
-      html += `<div class="dur-badge" style="background:${period.color}20;color:${period.color}">${block.d}</div>`;
-      // Label
-      if (isCurrent) {
-        html += `<div class="block-label"><span class="current-live"></span>${esc(block.label)}</div>`;
-      } else {
-        html += `<div class="block-label">${esc(block.label)}</div>`;
-      }
-      // Chevron
-      html += `<div class="block-chevron">${isOpen ? '▲' : '▼'}</div>`;
-      html += `</div>`; // .block-row
-
-      // Expanded content
-      if (isOpen) {
-        html += `<div class="block-expand" style="border-left-color:${period.color}">`;
-        html += `<div class="block-desc">${esc(block.desc)}</div>`;
-
-        // Custom fields
-        if (block.fields && block.fields.length > 0) {
-          const smallFields = block.fields.filter(f => !f.big);
-          const bigFields = block.fields.filter(f => f.big);
-
-          if (smallFields.length > 0) {
-            if (smallFields.length >= 2) {
-              html += `<div class="field-row2">`;
-              smallFields.forEach(f => {
-                const val = bd.extras ? (bd.extras[f.k] || '') : '';
-                html += `<div><label class="field-label">${esc(f.l)}</label>
-                  <input class="field-input" type="text" placeholder="${esc(f.l)}" value="${esc(val)}"
-                    data-extra="${f.k}" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}></div>`;
-              });
-              html += `</div>`;
-            } else {
-              smallFields.forEach(f => {
-                const val = bd.extras ? (bd.extras[f.k] || '') : '';
-                html += `<label class="field-label">${esc(f.l)}</label>
-                  <input class="field-input" type="text" placeholder="${esc(f.l)}" value="${esc(val)}"
-                    data-extra="${f.k}" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}><br>`;
-              });
-            }
-          }
-          bigFields.forEach(f => {
-            const val = bd.extras ? (bd.extras[f.k] || '') : '';
-            html += `<label class="field-label">${esc(f.l)}</label>
-              <textarea class="field-textarea${f.large?' large':''}" placeholder="${esc(f.l)}"
-                data-extra="${f.k}" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(val)}</textarea>`;
-          });
-          html += `<div class="fields-sep"></div>`;
+  PERIODS.forEach(p => {
+    const badge = document.querySelector('.period-badge[data-period="'+p.id+'"]');
+    if (!badge) return;
+    const state = getPeriodState(p);
+    badge.classList.remove('active-period','done-period');
+    if (state === 'active') {
+      badge.textContent = 'Em curso ●';
+      badge.classList.add('active-period');
+    } else if (state === 'done') {
+      badge.textContent = 'Completo ✓';
+      badge.classList.add('done-period');
+    } else {
+      badge.textContent = 'A chegar ○';
+    }
+  });
+  updateProgress();
+  // Auto-expand active block once per dia view load
+  if (!autoExpanded) {
+    const activeId = getActiveBlockId();
+    if (activeId) {
+      autoExpanded = true;
+      if (expandedBlock !== activeId) {
+        expandedBlock = activeId;
+        document.querySelectorAll('.block-card.open').forEach(c => c.classList.remove('open'));
+        const ac = document.querySelector('.block-card[data-id="'+activeId+'"]');
+        if (ac) {
+          ac.classList.add('open');
+          setTimeout(() => ac.scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
         }
-
-        // Intention
-        html += `<label class="field-mini-label">Intenção para este bloco</label>
-          <input class="field-input" type="text" placeholder="O que quero realizar neste bloco..."
-            value="${esc(bd.intention||'')}" data-field="intention" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}><br>`;
-        // Notes
-        html += `<label class="field-mini-label">Notas / Reflexão</label>
-          <textarea class="field-textarea" placeholder="Notas livres sobre este bloco..."
-            data-field="notes" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(bd.notes||'')}</textarea>`;
-
-        html += `</div>`; // .block-expand
       }
-    });
-    html += `</div>`; // .blocks-card
-  });
-
-  // Day Review
-  const rev = ddata.review || {learned:'',thinking:'',silence:'',gratitude:['','',''],score:0};
-  html += `<div class="review-card">
-    <div class="review-title">◈ Revisão do Dia</div>
-    <label class="field-label" style="color:var(--gold)">O que aprendi hoje?</label>
-    <textarea class="field-textarea" placeholder="Insights, aprendizados, surpresas do dia..."
-      data-review="learned" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(rev.learned||'')}</textarea>
-    <label class="field-label" style="color:var(--gold)">O que ocupou o meu pensamento?</label>
-    <textarea class="field-textarea" placeholder="Ideias, questões abertas, reflexões..."
-      data-review="thinking" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(rev.thinking||'')}</textarea>
-    <label class="field-label" style="color:var(--gold)">Que silêncio foi produtivo hoje?</label>
-    <textarea class="field-textarea" placeholder="Momentos de quietude que criaram algo..."
-      data-review="silence" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(rev.silence||'')}</textarea>
-    <label class="field-label" style="color:var(--gold);margin-top:4px">Gratidão (3 itens)</label>
-    <div class="grat-row">
-      ${[0,1,2].map(i => `<input class="field-input" type="text" placeholder="Gratidão ${i+1}..."
-        value="${esc((rev.gratitude&&rev.gratitude[i])||'')}" data-grat="${i}" data-dkey="${dayKey}" ${readonly?'disabled':''}>`).join('')}
-    </div>
-    <label class="field-label" style="color:var(--gold)">Score do dia</label>
-    <div class="score-row">
-      ${[1,2,3,4,5].map(n => `<button class="score-btn${(rev.score||0)===n?' active':''}"
-        data-score="${n}" data-dkey="${dayKey}" ${readonly?'disabled':''}>${n}</button>`).join('')}
-    </div>
-  </div>`;
-
-  return html;
-}
-
-/* ════════════════════════════════════════════════
-   renderSemana
-════════════════════════════════════════════════ */
-function renderSemana() {
-  const todayDayIdx = new Date().getDay();
-  const todayDayShort = ALL_DAYS[todayDayIdx];
-  let html = `<div class="section-heading">Sistema Semanal</div>
-  <div class="section-sub" style="margin-bottom:20px">Cada dia tem um tema de estudo e foco de conteúdo — a arquitectura do pensamento Aderry.</div>
-  <p class="semana-intro">O Sábio não aprende ao acaso — tem um sistema. Cada dia da semana alimenta uma dimensão diferente do método Aderry.</p>
-  <div class="week-grid">`;
-
-  WEEK.forEach(w => {
-    const isToday = w.day === todayDayShort;
-    html += `<div class="wday-card${isToday?' today':''}">
-      <div>
-        <div class="wday-name" style="color:${w.color}">${w.day}${isToday ? `<span class="wday-today-pill">hoje</span>` : ''}</div>
-        <div class="wday-full">${w.full}</div>
-      </div>
-      <div>
-        <div class="wday-badge" style="background:${w.color}18;color:${w.color};border:1px solid ${w.color}30">${esc(w.tag)}</div>
-        <div class="wday-sub-label">Estudo</div>
-        <div class="wday-sub-val">${esc(w.study)}</div>
-      </div>
-      <div>
-        <div class="wday-sub-label" style="margin-top:26px">Conteúdo / Foco</div>
-        <div class="wday-sub-val">${esc(w.content)}</div>
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-  return html;
-}
-
-/* ════════════════════════════════════════════════
-   renderArquivo
-════════════════════════════════════════════════ */
-function renderArquivo() {
-  if (S.archiveKey) {
-    const ddata = getDay(S.archiveKey);
-    const rev = ddata.review || {};
-    let html = `<button class="archive-back-btn" data-archive-back>← Voltar ao arquivo</button>`;
-    html += renderDia(true, S.archiveKey);
-    return html;
-  }
-
-  const journal = loadJournal();
-  const keys = Object.keys(journal).sort().reverse();
-  const today = todayKey();
-
-  let html = `<div class="section-heading">Arquivo</div>
-  <div class="section-sub">Todos os dias registados no sistema Habitus OS · Aderry.</div>`;
-
-  if (keys.length === 0) {
-    html += `<div class="archive-empty">Nenhum dia arquivado ainda.<br>Começa por registar o teu dia na aba "Dia a Dia".</div>`;
-    return html;
-  }
-
-  html += `<div class="archive-list">`;
-  keys.forEach(k => {
-    if (k === today) return; // today shown in dia tab
-    const d = journal[k];
-    const rev = d.review || {};
-    const score = rev.score || 0;
-    const blocks = d.blocks || {};
-    const doneCount = Object.values(blocks).filter(b => b.done).length;
-    const totalBlocks = BLOCKS.length;
-    const dateStr = fmtDateLong(k);
-
-    const dayIdx = new Date(k+'T06:00:00').getDay();
-    const dayShort = ALL_DAYS[dayIdx];
-    const weekDay = WEEK.find(w => w.day === dayShort);
-    const dayTag = weekDay ? weekDay.tag : '';
-    const dayColor = weekDay ? weekDay.color : '#7F77DD';
-
-    html += `<div class="archive-entry" data-archive-open="${k}">
-      <div class="archive-date">${k}</div>
-      <div>
-        <div style="font-size:12px;color:var(--t1);margin-bottom:3px">${dateStr}</div>
-        <div class="archive-day-tag" style="color:${dayColor}">${esc(dayTag)}</div>
-      </div>
-      <div style="flex:1"></div>
-      <div class="archive-count">${doneCount}/${totalBlocks}</div>
-      <div class="archive-score-dots">
-        ${[1,2,3,4,5].map(n => `<div class="archive-sdot${n<=score?' filled':''}"></div>`).join('')}
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-  return html;
-}
-
-/* ════════════════════════════════════════════════
-   renderPerfil
-════════════════════════════════════════════════ */
-function renderPerfil() {
-  const p = loadProfile() || {};
-  let html = '';
-
-  if (S.isFirstVisit) {
-    html += `<div class="welcome-banner">
-      <div class="welcome-title">Bem-vindo ao Habitus OS · Aderry</div>
-      <div class="welcome-sub">Antes de começar, conta-nos um pouco sobre ti. Este perfil ajuda o sistema a personalizar a tua experiência e a manter o contexto do teu percurso.</div>
-    </div>`;
-  } else {
-    html += `<div class="section-heading">Perfil</div>
-    <div class="section-sub">O teu contexto, identidade e princípios orientadores.</div>`;
-  }
-
-  const sec = (letter, title, inner) => `
-    <div class="profile-section">
-      <div class="profile-section-title">
-        <div class="profile-section-letter">${letter}</div>
-        ${title}
-      </div>
-      ${inner}
-    </div>`;
-
-  const inp = (id, label, val, placeholder='') => `
-    <label class="field-label">${label}</label>
-    <input class="field-input" type="text" id="pf-${id}" value="${esc(val||'')}" placeholder="${esc(placeholder||label)}">`;
-
-  const ta = (id, label, val, placeholder='') => `
-    <label class="field-label">${label}</label>
-    <textarea class="field-textarea" id="pf-${id}" placeholder="${esc(placeholder||label)}">${esc(val||'')}</textarea>`;
-
-  html += sec('A', 'Identidade',
-    inp('nome',     'Nome',                 p.nome,     'O teu nome completo') +
-    inp('cidade',   'Cidade',               p.cidade,   'Onde vives e trabalhas') +
-    inp('empresa',  'Empresa / Projecto',   p.empresa,  'Nome do negócio ou projecto')
-  );
-
-  html += sec('B', 'Sobre o teu Negócio',
-    ta('negocio',    'O que é a Aderry?', p.negocio, 'Descreve o negócio, o método, o propósito...') +
-    ta('mercado',    'A quem serves?',    p.mercado,  'Público-alvo, clientes ideais, contexto...')
-  );
-
-  html += sec('C', 'Visão e Posicionamento',
-    ta('visao',      'A tua visão a 3 anos', p.visao,      'O que queres construir? Onde queres estar?') +
-    inp('posicao',   'Como te defines profissionalmente', p.posicao, 'Ex: Estratega, Mentor, Fundador...')
-  );
-
-  html += sec('D', 'Filosofia Pessoal',
-    ta('filosofia',  'A tua filosofia de vida e trabalho', p.filosofia, 'O que guia as tuas decisões?') +
-    inp('inspiracao','Figura ou referência que te inspira',  p.inspiracao,'Ex: Marco Aurélio, Schopenhauer...')
-  );
-
-  html += sec('E', 'Rotina e Energia',
-    inp('pico',      'O teu pico de energia',             p.pico,     'Ex: Manhã cedo, 07h-10h') +
-    inp('desafio',   'Maior desafio com a rotina actual', p.desafio,  'O que te tira do caminho?') +
-    ta('ritual',     'Ritual matinal actual',              p.ritual,   'Como começas o dia hoje?')
-  );
-
-  html += sec('F', 'Intenção Actual',
-    ta('intencao',   'O que precisas de construir nos próximos 90 dias?', p.intencao, 'Foco, objectivo, projecto...') +
-    ta('obstaculos', 'Que obstáculos prevês?',                            p.obstaculos,'O que pode sair do caminho?')
-  );
-
-  // Section G — Principles (collapsible)
-  html += `<div class="profile-section">
-    <div class="profile-section-title">
-      <div class="profile-section-letter">G</div>
-      Princípios do Sistema
-    </div>
-    <button class="principles-toggle" data-toggle-principles>
-      ${S.showPrinciples ? '▲ Ocultar princípios' : '▼ Ver princípios do sistema'}
-    </button>
-    ${S.showPrinciples ? `<div class="principles-list">
-      ${PRINCIPLES.map(pr => `<div class="principle-item">
-        <div class="principle-num">Princípio ${pr.num}</div>
-        <div class="principle-text">"${esc(pr.quote)}"</div>
-        <div class="principle-author" style="margin-top:5px;color:var(--t3);font-size:11px">${esc(pr.body)}</div>
-      </div>`).join('')}
-    </div>` : ''}
-  </div>`;
-
-  html += `<button class="save-profile-btn" data-save-profile>Guardar Perfil</button>`;
-  return html;
-}
-
-/* ════════════════════════════════════════════════
-   EXPORT
-════════════════════════════════════════════════ */
-function exportDay(dayKey) {
-  const ddata = getDay(dayKey);
-  const rev = ddata.review || {};
-  let lines = [];
-  lines.push(`HABITUS OS · ADERRY — ${fmtDateLong(dayKey)}`);
-  lines.push('═'.repeat(50));
-  lines.push('');
-
-  PERIODS.forEach(period => {
-    lines.push(`${period.icon} ${period.label.toUpperCase()} (${period.range})`);
-    lines.push('─'.repeat(40));
-    BLOCKS.filter(b => b.p === period.id).forEach(b => {
-      const bd = ddata.blocks[b.id] || {};
-      const done = bd.done ? '[✓]' : '[ ]';
-      lines.push(`${done} ${b.t}  ${b.label}  (${b.d})`);
-      if (bd.intention) lines.push(`    Intenção: ${bd.intention}`);
-      if (bd.notes) lines.push(`    Notas: ${bd.notes}`);
-      if (bd.extras) {
-        Object.entries(bd.extras).forEach(([k,v]) => {
-          if (v) lines.push(`    ${k}: ${v}`);
-        });
-      }
-    });
-    lines.push('');
-  });
-
-  lines.push('◈ REVISÃO DO DIA');
-  lines.push('─'.repeat(40));
-  if (rev.learned) lines.push(`Aprendi: ${rev.learned}`);
-  if (rev.thinking) lines.push(`Pensamentos: ${rev.thinking}`);
-  if (rev.silence) lines.push(`Silêncio produtivo: ${rev.silence}`);
-  if (rev.gratitude) lines.push(`Gratidão: ${rev.gratitude.filter(Boolean).join(' · ')}`);
-  if (rev.score) lines.push(`Score: ${rev.score}/5`);
-
-  return lines.join('\n');
-}
-
-/* ════════════════════════════════════════════════
-   EVENT HANDLERS
-════════════════════════════════════════════════ */
-function handleClick(e) {
-  const t = e.target;
-
-  // Nav tabs
-  const navBtn = t.closest('[data-nav]');
-  if (navBtn) {
-    S.view = navBtn.dataset.nav;
-    S.expandedBlock = null;
-    S.archiveKey = null;
-    renderMain();
-    return;
-  }
-
-  // Toggle block expand
-  const toggleBlock = t.closest('[data-toggle-block]');
-  if (toggleBlock && !t.closest('[data-toggle-done]') && !t.closest('input') && !t.closest('textarea') && !t.closest('button[data-score]') && !t.closest('[data-export]')) {
-    const bid = toggleBlock.dataset.toggleBlock;
-    S.expandedBlock = S.expandedBlock === bid ? null : bid;
-    renderMain();
-    return;
-  }
-
-  // Toggle done
-  const toggleDone = t.closest('[data-toggle-done]');
-  if (toggleDone) {
-    e.stopPropagation();
-    const bid = toggleDone.dataset.toggleDone;
-    const dk = todayKey();
-    const d = getDay(dk);
-    if (!d.blocks[bid]) d.blocks[bid] = {done:false,intention:'',notes:'',extras:{}};
-    d.blocks[bid].done = !d.blocks[bid].done;
-    saveDay(dk, d);
-    // Update just the checkbox without full re-render
-    const checkEl = toggleDone;
-    const isDone = d.blocks[bid].done;
-    checkEl.classList.toggle('checked', isDone);
-    checkEl.innerHTML = isDone ? checkSVG() : '';
-    const row = checkEl.closest('.block-row');
-    if (row) {
-      row.classList.toggle('is-done', isDone);
-      const label = row.querySelector('.block-label');
-      if (label) label.style.textDecoration = isDone ? 'line-through' : '';
     }
-    return;
-  }
-
-  // Score button
-  const scoreBtn = t.closest('[data-score]');
-  if (scoreBtn && !scoreBtn.disabled) {
-    const score = parseInt(scoreBtn.dataset.score);
-    const dk = scoreBtn.dataset.dkey || todayKey();
-    updateReview(dk, 'score', score);
-    // Update all score buttons
-    const scoreRow = scoreBtn.closest('.score-row');
-    if (scoreRow) {
-      scoreRow.querySelectorAll('.score-btn').forEach(btn => {
-        btn.classList.toggle('active', parseInt(btn.dataset.score) === score);
-      });
-    }
-    return;
-  }
-
-  // Export
-  const exportBtn = t.closest('[data-export]');
-  if (exportBtn) {
-    const dk = todayKey();
-    const text = exportDay(dk);
-    navigator.clipboard.writeText(text).then(() => {
-      exportBtn.textContent = '✓ Copiado!';
-      setTimeout(() => { exportBtn.textContent = 'Exportar'; }, 2000);
-    }).catch(() => {
-      showToast('Não foi possível copiar — tenta manualmente.');
-    });
-    return;
-  }
-
-  // Archive open
-  const archiveOpen = t.closest('[data-archive-open]');
-  if (archiveOpen) {
-    S.archiveKey = archiveOpen.dataset.archiveOpen;
-    S.expandedBlock = null;
-    renderMain();
-    return;
-  }
-
-  // Archive back
-  if (t.closest('[data-archive-back]')) {
-    S.archiveKey = null;
-    S.expandedBlock = null;
-    renderMain();
-    return;
-  }
-
-  // Toggle principles
-  if (t.closest('[data-toggle-principles]')) {
-    S.showPrinciples = !S.showPrinciples;
-    renderMain();
-    return;
-  }
-
-  // Save profile
-  if (t.closest('[data-save-profile]')) {
-    const fields = ['nome','cidade','empresa','negocio','mercado','visao','posicao','filosofia','inspiracao','pico','desafio','ritual','intencao','obstaculos'];
-    const profile = {};
-    fields.forEach(f => {
-      const el = document.getElementById('pf-'+f);
-      if (el) profile[f] = el.value;
-    });
-    saveProfile(profile);
-    S.isFirstVisit = false;
-    showToast('Perfil guardado');
-    setTimeout(() => {
-      S.view = 'dia';
-      renderMain();
-    }, 800);
-    return;
   }
 }
 
-function handleInput(e) {
-  const t = e.target;
+// ===== PROGRESS =====
+function updateProgress() {
+  const data     = getTodayData();
+  const countable = BLOCKS.filter(b => b.d !== '—');
+  const done      = countable.filter(b => data.blocks[b.id] && data.blocks[b.id].done).length;
+  const pct       = Math.round(done/countable.length*100);
+  const lbl  = document.getElementById('progress-label');
+  const fill = document.getElementById('progress-fill');
+  if (lbl)  lbl.textContent  = done+' de '+countable.length+' blocos · '+pct+'%';
+  if (fill) fill.style.width = pct+'%';
+}
 
-  // Block field (intention / notes)
-  if (t.dataset.field && t.dataset.bid) {
-    const dk = t.dataset.dkey || todayKey();
-    updateBlockField(dk, t.dataset.bid, t.dataset.field, t.value);
-    return;
-  }
+// ===== AUTO-RESIZE TEXTAREAS =====
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight+'px';
+}
+function initAutoResize(container) {
+  if (!container) return;
+  container.querySelectorAll('textarea').forEach(ta => {
+    autoResize(ta);
+  });
+}
 
-  // Block extra field
-  if (t.dataset.extra && t.dataset.bid) {
-    const dk = t.dataset.dkey || todayKey();
-    updateBlockExtra(dk, t.dataset.bid, t.dataset.extra, t.value);
-    return;
-  }
+// ===== RENDER DIA VIEW =====
+function renderDia() {
+  const data  = getTodayData();
+  const yData = getDateData(yesterdayKey());
+  const key   = todayKey();
+
+  // Date label
+  const todayLbl = document.getElementById('today-label');
+  if (todayLbl) todayLbl.textContent = formatDatePT(key);
+
+  // Priorities
+  const p1 = document.getElementById('prio-1');
+  const p2 = document.getElementById('prio-2');
+  const p3 = document.getElementById('prio-3');
+  if (p1) p1.value = data.prio1 || yData.amanha_prio1 || '';
+  if (p2) p2.value = data.prio2 || yData.amanha_prio2 || '';
+  if (p3) p3.value = data.prio3 || yData.amanha_prio3 || '';
 
   // Review fields
-  if (t.dataset.review) {
-    const dk = t.dataset.dkey || todayKey();
-    updateReview(dk, t.dataset.review, t.value);
-    return;
+  ['sabio','atencao','grat'].forEach(k => {
+    const el = document.querySelector('[data-review="'+k+'"]');
+    if (el) { el.value = data['review_'+k] || ''; autoResize(el); }
+  });
+
+  // Score
+  const score = data.score || 0;
+  document.querySelectorAll('.score-btn').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.score) === score);
+  });
+
+  // Amanha fields
+  ['intencao','prio1','prio2','prio3','notatema','notas'].forEach(k => {
+    const el = document.querySelector('[data-amanha="'+k+'"]');
+    if (el) {
+      el.value = data['amanha_'+k] || '';
+      if (el.tagName === 'TEXTAREA') autoResize(el);
+    }
+  });
+
+  // Amanha tema pill — show tomorrow's theme
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate()+1);
+  const tomorrowDayIdx  = tomorrow.getDay(); // 0=Dom
+  const tomorrowWeekItem = WEEK.find(w => ALL_DAYS.indexOf(w.day) === tomorrowDayIdx);
+  if (tomorrowWeekItem) {
+    const tagEl   = document.getElementById('amanha-tema-tag');
+    const studyEl = document.getElementById('amanha-tema-study');
+    if (tagEl)   { tagEl.textContent = tomorrowWeekItem.tag; tagEl.style.color = tomorrowWeekItem.color; }
+    if (studyEl)   studyEl.textContent = tomorrowWeekItem.study;
   }
 
-  // Gratitude
-  if (t.dataset.grat !== undefined) {
-    const dk = t.dataset.dkey || todayKey();
-    updateGratitude(dk, parseInt(t.dataset.grat), t.value);
-    return;
+  // Auto-open amanha panel if hour >= 20
+  const hour = new Date().getHours();
+  const amanhaBody    = document.getElementById('amanha-body');
+  const amanhaChevron = document.getElementById('amanha-chevron');
+  if (hour >= 20 && amanhaBody && !amanhaBody.classList.contains('open')) {
+    amanhaBody.classList.add('open');
+    if (amanhaChevron) amanhaChevron.classList.add('open');
+  }
+
+  // Render periods and blocks
+  const container = document.getElementById('periods-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  PERIODS.forEach(period => {
+    const pBlocks = BLOCKS.filter(b => b.p === period.id);
+    const pState  = getPeriodState(period);
+    let badgeClass = '';
+    let badgeText  = 'A chegar ○';
+    if (pState === 'active') { badgeClass = 'active-period'; badgeText = 'Em curso ●'; }
+    if (pState === 'done')   { badgeClass = 'done-period';   badgeText = 'Completo ✓'; }
+
+    const section = document.createElement('div');
+    section.className = 'period-section';
+    section.innerHTML =
+      '<div class="period-header">' +
+        '<div class="period-divider"></div>' +
+        '<span class="period-label">'+period.label+'</span>' +
+        '<span class="period-range">'+period.range+'</span>' +
+        '<span class="period-badge '+badgeClass+'" data-period="'+period.id+'">'+badgeText+'</span>' +
+        '<div class="period-divider"></div>' +
+      '</div>' +
+      '<div class="blocks-list" id="blocks-'+period.id+'"></div>';
+    container.appendChild(section);
+
+    const blocksList = document.getElementById('blocks-'+period.id);
+    pBlocks.forEach(b => {
+      const bData  = data.blocks[b.id] || {};
+      const isDone = !!bData.done;
+      const bState = getBlockState(b);
+      const isOpen = expandedBlock === b.id;
+
+      let cardClasses = 'block-card';
+      if (bState === 'now')    cardClasses += ' now';
+      else if (bState === 'past') cardClasses += ' past';
+      if (isOpen)  cardClasses += ' open';
+      if (isDone)  cardClasses += ' done';
+
+      const card = document.createElement('div');
+      card.className = cardClasses;
+      card.dataset.id = b.id;
+      card.innerHTML =
+        '<div class="block-header" data-toggle-block="'+b.id+'">' +
+          '<div class="block-checkbox'+(isDone?' checked':'')+'" data-toggle-done="'+b.id+'"></div>' +
+          '<div class="block-meta">' +
+            '<div class="block-time-row">' +
+              '<span class="block-time">'+b.t+'</span>' +
+              '<span class="block-dur">'+b.d+'</span>' +
+              '<span class="now-badge">● Agora</span>' +
+            '</div>' +
+            '<div class="block-label">'+b.label+'</div>' +
+          '</div>' +
+          '<span class="block-chevron">›</span>' +
+        '</div>' +
+        '<div class="block-body">' +
+          '<div class="block-body-inner">' +
+            '<div class="block-desc">'+b.desc+'</div>' +
+            renderBlockFields(b, bData) +
+            '<label class="notes-label">Notas livres</label>' +
+            '<textarea class="field-input" rows="2" data-block-field="'+b.id+'" data-field-key="notes" placeholder="Notas, observações, ideias soltas...">'+(bData.notes||'')+'</textarea>' +
+          '</div>' +
+        '</div>';
+      blocksList.appendChild(card);
+    });
+  });
+
+  updateProgress();
+  initAutoResize(container);
+
+  // Welcome banner
+  const profile = loadProfile();
+  const banner  = document.getElementById('welcome-banner');
+  if (banner) {
+    banner.classList.toggle('hidden', !!(profile.nome || profile.essencia));
   }
 }
 
-/* ════════════════════════════════════════════════
-   CLOCK TICK
-════════════════════════════════════════════════ */
-function startClock() {
-  updateDayProgress();
-  const tick = () => {
-    const clockEl = document.getElementById('clock');
-    if (clockEl) clockEl.textContent = fmtTime(new Date());
-    updateDayProgress();
-    // Update current block highlight if on dia view
-    if (S.view === 'dia') {
-      const currentId = getCurrentBlockId();
-      document.querySelectorAll('.block-row').forEach(row => {
-        const bid = row.dataset.toggleBlock;
-        if (!bid) return;
-        const wasCurrent = row.classList.contains('is-current');
-        const isCurrent = bid === currentId;
-        if (wasCurrent !== isCurrent) {
-          row.classList.toggle('is-current', isCurrent);
-          const period = PERIODS.find(p => BLOCKS.find(b => b.id === bid && b.p === p.id));
-          if (isCurrent && period) {
-            row.style.borderLeftColor = period.color;
-          } else if (!row.classList.contains('is-open')) {
-            row.style.borderLeftColor = 'transparent';
-          }
+function renderBlockFields(b, bData) {
+  if (!b.fields || b.fields.length === 0) return '';
+  return b.fields.map(f => {
+    const val = (bData[f.k] || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    if (f.big) {
+      const largeClass = f.large ? ' large' : '';
+      const rows = f.large ? 4 : 2;
+      return '<div class="field-group">' +
+        '<label class="field-label">'+f.l+'</label>' +
+        '<textarea class="field-input'+largeClass+'" rows="'+rows+'" data-block-field="'+b.id+'" data-field-key="'+f.k+'" placeholder="'+f.l+'...">'+val+'</textarea>' +
+      '</div>';
+    } else {
+      return '<div class="field-group">' +
+        '<label class="field-label">'+f.l+'</label>' +
+        '<input class="field-input" type="text" data-block-field="'+b.id+'" data-field-key="'+f.k+'" placeholder="'+f.l+'..." value="'+val+'" />' +
+      '</div>';
+    }
+  }).join('');
+}
+
+// ===== RENDER SEMANA VIEW =====
+function renderSemana() {
+  const scroll = document.getElementById('semana-scroll');
+  if (!scroll) return;
+  scroll.innerHTML = '';
+
+  const todayDayIdx = new Date().getDay();
+  const now = new Date();
+
+  WEEK.forEach((w, i) => {
+    const dayIdx = ALL_DAYS.indexOf(w.day);
+    const diff   = dayIdx - todayDayIdx;
+    const cardDate = new Date(now);
+    cardDate.setDate(now.getDate() + diff);
+    const dateNum = cardDate.getDate();
+    const isToday = dayIdx === todayDayIdx;
+
+    const card = document.createElement('div');
+    card.className = 'week-card'+(isToday?' today-card':'')+(selectedWeekIdx===i?' selected-card':'');
+    card.dataset.weekIdx = i;
+    card.innerHTML =
+      '<div class="wc-day" style="color:'+w.color+'">'+w.day+'</div>' +
+      '<div class="wc-num">'+dateNum+'</div>' +
+      '<span class="wc-tag" style="background:'+w.color+'22;color:'+w.color+';border:1px solid '+w.color+'44">'+w.tag+'</span>';
+    scroll.appendChild(card);
+  });
+
+  if (selectedWeekIdx === null) {
+    selectedWeekIdx = WEEK.findIndex(w => ALL_DAYS.indexOf(w.day) === todayDayIdx);
+    if (selectedWeekIdx < 0) selectedWeekIdx = 0;
+  }
+  renderWeekDetail(selectedWeekIdx);
+}
+
+function renderWeekDetail(idx) {
+  const detail = document.getElementById('week-detail');
+  if (!detail) return;
+  const w = WEEK[idx];
+  detail.classList.add('visible');
+  detail.innerHTML =
+    '<div class="wd-full-day" style="color:'+w.color+'">'+w.full+'</div>' +
+    '<div class="wd-tag" style="color:'+w.color+'">'+w.tag+'</div>' +
+    '<div class="wd-section-label">Estudo do dia</div>' +
+    '<div class="wd-text">'+w.study+'</div>' +
+    '<div class="wd-section-label">Conteúdo / Foco</div>' +
+    '<div class="wd-text">'+w.content+'</div>';
+
+  // Update selected card visuals
+  document.querySelectorAll('.week-card').forEach((c, i) => {
+    c.classList.toggle('selected-card', i === idx);
+  });
+}
+
+// ===== RENDER ARQUIVO VIEW =====
+function renderArquivo() {
+  const listWrap = document.getElementById('arquivo-list-wrap');
+  const detail   = document.getElementById('arquivo-detail');
+  if (!listWrap || !detail) return;
+  listWrap.style.display = '';
+  detail.classList.remove('visible');
+  detail.innerHTML = '';
+  detail.style.padding = '';
+
+  const j     = loadJournal();
+  const today = todayKey();
+  const dates = Object.keys(j).filter(k => k !== today).sort().reverse();
+
+  if (dates.length === 0) {
+    listWrap.innerHTML = '<div class="empty-state">Sem dias arquivados ainda.<br/>Os dias anteriores aparecem aqui automaticamente.</div>';
+    return;
+  }
+
+  const countable = BLOCKS.filter(b => b.d !== '—');
+  const list = document.createElement('div');
+  list.className = 'arquivo-list';
+
+  dates.forEach(dateKey => {
+    const d         = j[dateKey] || {blocks:{}};
+    const doneCount = countable.filter(b => d.blocks && d.blocks[b.id] && d.blocks[b.id].done).length;
+    const score     = d.score || 0;
+    const snippet   = (d.review_sabio || '').substring(0,60)+(d.review_sabio && d.review_sabio.length>60?'…':'');
+
+    const row = document.createElement('div');
+    row.className = 'arquivo-row';
+    row.dataset.arqDate = dateKey;
+
+    const dots = Array.from({length:5},(_,i)=>'<div class="arq-dot'+(i<score?' filled':'')+'"></div>').join('');
+    row.innerHTML =
+      '<span class="arq-date">'+formatDateShort(dateKey)+'</span>' +
+      '<span class="arq-snippet">'+(snippet||'—')+'</span>' +
+      '<div class="arq-meta">' +
+        '<span class="arq-count">'+doneCount+'/'+countable.length+'</span>' +
+        '<div class="arq-score-dots">'+dots+'</div>' +
+      '</div>';
+    list.appendChild(row);
+  });
+
+  listWrap.innerHTML = '';
+  listWrap.appendChild(list);
+}
+
+function renderArquivoDetail(dateKey) {
+  const listWrap = document.getElementById('arquivo-list-wrap');
+  const detail   = document.getElementById('arquivo-detail');
+  if (!listWrap || !detail) return;
+
+  listWrap.style.display = 'none';
+  detail.innerHTML = '';
+  detail.classList.add('visible');
+  detail.style.padding = '0 0 16px';
+
+  const d = getDateData(dateKey);
+
+  // Back button
+  const back = document.createElement('button');
+  back.className = 'back-btn';
+  back.innerHTML = '‹ Voltar ao Arquivo';
+  back.addEventListener('click', () => {
+    listWrap.style.display = '';
+    detail.classList.remove('visible');
+    detail.innerHTML = '';
+    detail.style.padding = '';
+  });
+  detail.appendChild(back);
+
+  // Date heading
+  const dateH = document.createElement('div');
+  dateH.className = 'arq-detail-date';
+  dateH.textContent = formatDatePT(dateKey);
+  detail.appendChild(dateH);
+
+  // Blocks card
+  const blocksCard = document.createElement('div');
+  blocksCard.className = 'arq-blocks-card';
+  BLOCKS.filter(b=>b.d!=='—').forEach(b => {
+    const bData  = (d.blocks && d.blocks[b.id]) || {};
+    const isDone = !!bData.done;
+    const row    = document.createElement('div');
+    row.className = 'arq-block-row';
+    row.innerHTML =
+      '<span class="arq-block-time">'+b.t+'</span>' +
+      '<span class="arq-block-check">'+(isDone?'✓':'·')+'</span>' +
+      '<span class="arq-block-name'+(isDone?' done-arq':'')+'">'+b.label+'</span>';
+    blocksCard.appendChild(row);
+  });
+  detail.appendChild(blocksCard);
+
+  // Review sections
+  const reviews = [
+    {k:'review_sabio',   l:'O que o Sábio aprendeu'},
+    {k:'review_atencao', l:'O que merecia mais atenção'},
+    {k:'review_grat',    l:'Gratidão'},
+  ].filter(s => d[s.k]);
+
+  if (reviews.length > 0 || d.score) {
+    const revCard = document.createElement('div');
+    revCard.className = 'arq-review-card';
+    reviews.forEach((s, si) => {
+      const wrap = document.createElement('div');
+      if (si > 0) wrap.style.marginTop = '12px';
+      wrap.innerHTML =
+        '<div class="arq-review-label">'+s.l+'</div>' +
+        '<div class="arq-review-text">'+d[s.k]+'</div>';
+      revCard.appendChild(wrap);
+    });
+    if (d.score) {
+      const scoreWrap = document.createElement('div');
+      scoreWrap.style.marginTop = reviews.length > 0 ? '12px' : '0';
+      scoreWrap.innerHTML =
+        '<div class="arq-review-label">Nota do dia</div>' +
+        '<div class="arq-review-text" style="font-family:JetBrains Mono,monospace;font-size:18px;color:var(--accent)">'+d.score+'/5</div>';
+      revCard.appendChild(scoreWrap);
+    }
+    detail.appendChild(revCard);
+  }
+}
+
+// ===== RENDER PERFIL VIEW =====
+function renderPerfil() {
+  const container = document.getElementById('perfil-sections');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const profile = loadProfile();
+
+  PROFILE_SECTIONS.forEach((sec, idx) => {
+    const isOpen = idx === 0;
+    const wrap   = document.createElement('div');
+    wrap.className = 'perfil-section';
+
+    wrap.innerHTML =
+      '<div class="perfil-header" data-perfil-toggle="'+sec.id+'">' +
+        '<div class="perfil-header-left">' +
+          '<span class="perfil-num">'+sec.id+'</span>' +
+          '<span class="perfil-title">'+sec.title+'</span>' +
+        '</div>' +
+        '<span class="perfil-chevron'+(isOpen?' open':'')+'">›</span>' +
+      '</div>' +
+      '<div class="perfil-body'+(isOpen?' open':'')+'">' +
+        '<div class="perfil-body-inner" id="perfil-body-'+sec.id+'"></div>' +
+      '</div>';
+    container.appendChild(wrap);
+
+    const body = document.getElementById('perfil-body-'+sec.id);
+    if (sec.id === 'G') {
+      PRINCIPLES.forEach(pr => {
+        const pc = document.createElement('div');
+        pc.className = 'principle-card';
+        pc.innerHTML =
+          '<div class="principle-num">Princípio '+pr.num+'</div>' +
+          '<div class="principle-quote">'+pr.quote+'</div>' +
+          '<div class="principle-body">'+pr.body+'</div>';
+        body.appendChild(pc);
+      });
+    } else if (sec.fields) {
+      sec.fields.forEach(f => {
+        const val = (profile[f.k] || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const fg  = document.createElement('div');
+        fg.className = 'field-group';
+        if (f.big) {
+          fg.innerHTML =
+            '<label class="field-label">'+f.l+'</label>' +
+            '<textarea class="field-input" rows="3" data-profile-field="'+f.k+'" placeholder="'+(f.ph||'')+'">'+val+'</textarea>';
+        } else {
+          fg.innerHTML =
+            '<label class="field-label">'+f.l+'</label>' +
+            '<input class="field-input" type="text" data-profile-field="'+f.k+'" placeholder="'+(f.ph||'')+'" value="'+val+'" />';
         }
+        body.appendChild(fg);
       });
     }
-  };
-  setInterval(tick, 60000);
+  });
+
+  initAutoResize(container);
 }
 
-/* ════════════════════════════════════════════════
-   INIT
-════════════════════════════════════════════════ */
-function init() {
-  renderTopbar();
-  const profile = loadProfile();
-  if (!profile || !profile.nome) {
-    S.view = 'perfil';
-    S.isFirstVisit = true;
+// ===== NAVIGATION =====
+function navigate(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById(view+'-view');
+  if (target) target.classList.add('active');
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.classList.toggle('active', el.dataset.nav === view);
+  });
+  if (view === 'dia') {
+    expandedBlock = null;
+    autoExpanded  = false;
+    renderDia();
+  } else if (view === 'semana') {
+    renderSemana();
+  } else if (view === 'arquivo') {
+    renderArquivo();
+  } else if (view === 'perfil') {
+    renderPerfil();
   }
-  renderMain();
-  startClock();
-  document.addEventListener('click', handleClick);
-  document.addEventListener('input', handleInput);
 }
 
-document.addEventListener('DOMContentLoaded', init);
+// ===== EVENT DELEGATION =====
+document.addEventListener('click', e => {
+  // Nav items
+  const navEl = e.target.closest('[data-nav]');
+  if (navEl && navEl.dataset.nav) {
+    navigate(navEl.dataset.nav);
+    return;
+  }
+  // Block checkbox (done toggle) — must be before block header toggle
+  const doneEl = e.target.closest('[data-toggle-done]');
+  if (doneEl) {
+    e.stopPropagation();
+    const id   = doneEl.dataset.toggleDone;
+    const data = getTodayData();
+    if (!data.blocks[id]) data.blocks[id] = {};
+    data.blocks[id].done = !data.blocks[id].done;
+    setTodayData(data);
+    const card = document.querySelector('.block-card[data-id="'+id+'"]');
+    if (card) {
+      card.classList.toggle('done', data.blocks[id].done);
+      doneEl.classList.toggle('checked', data.blocks[id].done);
+      // Pulse animation
+      doneEl.classList.remove('pulse');
+      void doneEl.offsetWidth; // reflow
+      doneEl.classList.add('pulse');
+      setTimeout(() => doneEl.classList.remove('pulse'), 220);
+    }
+    updateProgress();
+    return;
+  }
+  // Block header (expand/collapse accordion)
+  const blockHeader = e.target.closest('[data-toggle-block]');
+  if (blockHeader && !e.target.closest('[data-toggle-done]')) {
+    const id    = blockHeader.dataset.toggleBlock;
+    const card  = document.querySelector('.block-card[data-id="'+id+'"]');
+    if (!card) return;
+    const isOpen = card.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.block-card.open').forEach(c => c.classList.remove('open'));
+    if (!isOpen) {
+      card.classList.add('open');
+      expandedBlock = id;
+    } else {
+      expandedBlock = null;
+    }
+    return;
+  }
+  // Amanha toggle button
+  if (e.target.closest('#amanha-toggle-btn')) {
+    const body    = document.getElementById('amanha-body');
+    const chevron = document.getElementById('amanha-chevron');
+    if (body)    body.classList.toggle('open');
+    if (chevron) chevron.classList.toggle('open');
+    return;
+  }
+  // Score buttons
+  const scoreBtn = e.target.closest('.score-btn');
+  if (scoreBtn) {
+    const score = Number(scoreBtn.dataset.score);
+    const data  = getTodayData();
+    data.score  = score;
+    setTodayData(data);
+    document.querySelectorAll('.score-btn').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.score) === score);
+    });
+    return;
+  }
+  // Export button
+  if (e.target.closest('#export-btn')) {
+    exportDay();
+    return;
+  }
+  // Save profile button
+  if (e.target.closest('#save-perfil-btn')) {
+    savePerfilData();
+    return;
+  }
+  // Perfil section toggle
+  const perfilToggle = e.target.closest('[data-perfil-toggle]');
+  if (perfilToggle) {
+    const wrap    = perfilToggle.closest('.perfil-section');
+    const body    = wrap.querySelector('.perfil-body');
+    const chevron = wrap.querySelector('.perfil-chevron');
+    if (body)    body.classList.toggle('open');
+    if (chevron) chevron.classList.toggle('open');
+    return;
+  }
+  // Week card click
+  const weekCard = e.target.closest('.week-card');
+  if (weekCard) {
+    const idx = Number(weekCard.dataset.weekIdx);
+    selectedWeekIdx = idx;
+    renderWeekDetail(idx);
+    return;
+  }
+  // Arquivo row click
+  const arqRow = e.target.closest('.arquivo-row');
+  if (arqRow) {
+    renderArquivoDetail(arqRow.dataset.arqDate);
+    return;
+  }
+});
+
+// ===== INPUT EVENT DELEGATION =====
+document.addEventListener('input', e => {
+  const t = e.target;
+  // Priority inputs (today)
+  if (t.dataset.prio) {
+    const data = getTodayData();
+    data['prio'+t.dataset.prio] = t.value;
+    setTodayData(data);
+    return;
+  }
+  // Review fields
+  if (t.dataset.review) {
+    const data = getTodayData();
+    data['review_'+t.dataset.review] = t.value;
+    setTodayData(data);
+    return;
+  }
+  // Amanha fields
+  if (t.dataset.amanha) {
+    const data = getTodayData();
+    data['amanha_'+t.dataset.amanha] = t.value;
+    setTodayData(data);
+    return;
+  }
+  // Block fields
+  if (t.dataset.blockField && t.dataset.fieldKey) {
+    const blockId  = t.dataset.blockField;
+    const fieldKey = t.dataset.fieldKey;
+    const data     = getTodayData();
+    if (!data.blocks[blockId]) data.blocks[blockId] = {};
+    data.blocks[blockId][fieldKey] = t.value;
+    setTodayData(data);
+    return;
+  }
+  // Profile fields — live save
+  if (t.dataset.profileField) {
+    return; // saved on button click
+  }
+  // Auto-resize textareas
+  if (t.tagName === 'TEXTAREA') autoResize(t);
+});
+
+// ===== THEME =====
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || 'dark';
+  document.documentElement.dataset.theme = saved;
+  updateThemeIcon(saved);
+}
+function updateThemeIcon(theme) {
+  const icon = document.getElementById('theme-icon');
+  if (!icon) return;
+  if (theme === 'dark') {
+    icon.innerHTML =
+      '<circle cx="12" cy="12" r="5"/>' +
+      '<line x1="12" y1="1" x2="12" y2="3"/>' +
+      '<line x1="12" y1="21" x2="12" y2="23"/>' +
+      '<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>' +
+      '<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>' +
+      '<line x1="1" y1="12" x2="3" y2="12"/>' +
+      '<line x1="21" y1="12" x2="23" y2="12"/>' +
+      '<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>' +
+      '<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  } else {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+}
+const themeToggleBtn = document.getElementById('theme-toggle');
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener('click', () => {
+    const cur  = document.documentElement.dataset.theme || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem(THEME_KEY, next);
+    updateThemeIcon(next);
+  });
+}
+
+// ===== EXPORT DAY =====
+function exportDay() {
+  const data = getTodayData();
+  const key  = todayKey();
+  const countable = BLOCKS.filter(b => b.d !== '—');
+  const doneCount = countable.filter(b => data.blocks[b.id] && data.blocks[b.id].done).length;
+
+  let txt = 'HABITUS OS — ADERRY\n';
+  txt += formatDatePT(key)+'\n';
+  txt += '='.repeat(44)+'\n\n';
+
+  if (data.prio1 || data.prio2 || data.prio3) {
+    txt += 'PRIORIDADES DO DIA\n';
+    if (data.prio1) txt += '1. '+data.prio1+'\n';
+    if (data.prio2) txt += '2. '+data.prio2+'\n';
+    if (data.prio3) txt += '3. '+data.prio3+'\n';
+    txt += '\n';
+  }
+
+  txt += 'BLOCOS ('+doneCount+'/'+countable.length+' concluídos)\n\n';
+  BLOCKS.forEach(b => {
+    if (b.d === '—') return;
+    const bData  = (data.blocks && data.blocks[b.id]) || {};
+    const status = bData.done ? '✓' : '○';
+    txt += status+' '+b.t+' – '+b.label+'\n';
+    if (b.fields) {
+      b.fields.forEach(f => {
+        if (bData[f.k]) txt += '  '+f.l+': '+bData[f.k]+'\n';
+      });
+    }
+    if (bData.notes) txt += '  Notas: '+bData.notes+'\n';
+  });
+
+  if (data.review_sabio || data.review_atencao || data.review_grat) {
+    txt += '\nREVISÃO DO DIA\n';
+    if (data.review_sabio)   txt += 'Sábio aprendeu: '+data.review_sabio+'\n';
+    if (data.review_atencao) txt += 'Merecia mais atenção: '+data.review_atencao+'\n';
+    if (data.review_grat)    txt += 'Gratidão: '+data.review_grat+'\n';
+    if (data.score)          txt += 'Nota do dia: '+data.score+'/5\n';
+  }
+
+  if (data.amanha_intencao || data.amanha_prio1) {
+    txt += '\nAMANHÃ\n';
+    if (data.amanha_intencao) txt += 'Intenção: '+data.amanha_intencao+'\n';
+    if (data.amanha_prio1)    txt += '1. '+data.amanha_prio1+'\n';
+    if (data.amanha_prio2)    txt += '2. '+data.amanha_prio2+'\n';
+    if (data.amanha_prio3)    txt += '3. '+data.amanha_prio3+'\n';
+  }
+
+  const copyToClipboard = (text) => {
+    const btn = document.getElementById('export-btn');
+    const showCopied = () => {
+      if (btn) { btn.textContent = '✓ Copiado!'; btn.classList.add('copied'); }
+      setTimeout(() => {
+        if (btn) { btn.textContent = 'Exportar dia → copiar'; btn.classList.remove('copied'); }
+      }, 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text, showCopied));
+    } else {
+      fallbackCopy(text, showCopied);
+    }
+  };
+  const fallbackCopy = (text, cb) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); cb(); } catch(e) {}
+    document.body.removeChild(ta);
+  };
+  copyToClipboard(txt);
+}
+
+// ===== SAVE PROFILE =====
+function savePerfilData() {
+  const profile = {};
+  document.querySelectorAll('[data-profile-field]').forEach(el => {
+    profile[el.dataset.profileField] = el.value;
+  });
+  saveProfile(profile);
+
+  const btn = document.getElementById('save-perfil-btn');
+  if (btn) {
+    btn.textContent = '✓ Guardado';
+    btn.classList.add('saved');
+    setTimeout(() => {
+      btn.textContent = 'Guardar Perfil';
+      btn.classList.remove('saved');
+    }, 2000);
+  }
+  // Hide welcome banner if we now have profile data
+  if (currentView === 'dia') {
+    const banner = document.getElementById('welcome-banner');
+    if (banner && (profile.nome || profile.essencia)) {
+      banner.classList.add('hidden');
+    }
+  }
+}
+
+// ===== INITIALISATION =====
+function init() {
+  initTheme();
+  renderDia();
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // First visit: if no profile data, show welcome and navigate to perfil
+  const profile = loadProfile();
+  if (!profile.nome && !profile.essencia) {
+    const banner = document.getElementById('welcome-banner');
+    if (banner) banner.classList.remove('hidden');
+    setTimeout(() => navigate('perfil'), 700);
+  }
+}
+
+init();
 </script>
 </body>
 </html>
