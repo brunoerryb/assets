@@ -1,796 +1,1316 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Habitus OS · Adelson</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { -webkit-text-size-adjust: 100%; }
-    body { margin: 0; -webkit-font-smoothing: antialiased; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-thumb { background: rgba(74,124,199,0.25); border-radius: 4px; }
-    * { scrollbar-width: thin; scrollbar-color: rgba(74,124,199,0.25) transparent; }
-    @keyframes pulse  { 0%,100%{opacity:.65} 50%{opacity:1} }
-    @keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    .live   { animation: pulse  2.8s ease-in-out infinite; }
-    .fadein { animation: fadein 0.25s ease; }
-    .row    { transition: background 0.15s, border-color 0.15s; cursor: pointer; }
-    .row:hover { background: rgba(74,124,199,0.06) !important; }
-    .tab    { transition: all 0.2s; cursor: pointer; border: none; outline: none; background: none; }
-    .wcard  { transition: transform 0.18s, box-shadow 0.18s; }
-    .wcard:hover { transform: translateY(-2px); }
-    .ibtn   { transition: all 0.18s; cursor: pointer; border: none; }
-    .ibtn:hover { opacity: .72; transform: scale(1.06); }
-    textarea, input[type="text"] { resize: vertical; outline: none; transition: border-color 0.2s; }
-    @media (max-width: 680px) {
-      .week-cols { grid-template-columns: 1fr !important; }
-      .stat-grid { grid-template-columns: repeat(2,1fr) !important; }
-      .wdots { display: none !important; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Habitus OS · Aderry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --purple:    #6B21A8;
+  --purple-m:  #7F77DD;
+  --purple-l:  rgba(107,33,168,0.08);
+  --blue:      #3A0CA3;
+  --bg:        #0D0910;
+  --surface:   #130C18;
+  --surface2:  #1C1228;
+  --card:      rgba(107,33,168,0.06);
+  --border:    rgba(107,33,168,0.15);
+  --border-h:  rgba(107,33,168,0.32);
+  --glass:     rgba(13,9,16,0.94);
+  --t1:        #EDE8F5;
+  --t2:        #B8A0D0;
+  --t3:        #7A6888;
+  --t4:        #3D2B52;
+  --green:     #4CAF82;
+  --green-bg:  rgba(76,175,130,0.10);
+  --gold:      #C4933F;
+  --gold-bg:   rgba(196,147,63,0.10);
+  --gold-bd:   rgba(196,147,63,0.24);
+  --shadow:    rgba(0,0,0,0.5);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--t1);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(107,33,168,0.3); border-radius: 4px; }
+* { scrollbar-width: thin; scrollbar-color: rgba(107,33,168,0.3) transparent; }
+
+@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse  { 0%,100%{opacity:.6} 50%{opacity:1} }
+@keyframes toastin { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.fadein { animation: fadein 0.22s ease; }
+
+/* ─── TOPBAR ─── */
+#topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--glass);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 20px;
+  height: 48px;
+}
+.tb-logo {
+  display: flex; align-items: center; gap: 8px;
+  margin-right: 28px; flex-shrink: 0;
+}
+.tb-logo-mark {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--blue) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 11px; color: #fff; letter-spacing: 0.02em;
+}
+.tb-logo-text {
+  font-family: 'Montserrat', sans-serif; font-weight: 600;
+  font-size: 12px; color: var(--t2); letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tb-logo-sep {
+  color: var(--t4); font-size: 11px; margin: 0 2px;
+}
+.tb-nav { display: flex; align-items: stretch; flex: 1; }
+.tab-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 10px 16px;
+  border: none; background: none; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: var(--t3);
+  margin-bottom: -1px;
+  transition: color 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--t2); }
+.tab-btn.active { border-bottom-color: var(--purple); color: var(--purple-m); }
+
+.tb-right {
+  display: flex; align-items: center; gap: 14px;
+  margin-left: auto; flex-shrink: 0;
+}
+.week-dots { display: flex; gap: 4px; align-items: center; }
+.wdot {
+  width: 7px; height: 7px; border-radius: 2px;
+  background: var(--t4); transition: background 0.2s;
+  cursor: default;
+}
+.wdot.today { background: var(--purple-m); }
+#clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--t3); letter-spacing: 0.06em;
+}
+
+/* ─── DAY PROGRESS ─── */
+#dayprog {
+  height: 2px; background: var(--border); position: relative; overflow: hidden;
+}
+#dayprogfill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple) 0%, var(--purple-m) 100%);
+  transition: width 1s linear;
+  width: 0%;
+}
+
+/* ─── MAIN ─── */
+#main { max-width: 820px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* ─── PERIOD HEADER ─── */
+.period-hdr {
+  display: flex; align-items: center; gap: 10px;
+  margin: 28px 0 10px;
+}
+.period-icon {
+  font-size: 13px; line-height: 1;
+  font-family: 'JetBrains Mono', monospace;
+}
+.period-label {
+  font-family: 'Montserrat', sans-serif; font-weight: 600;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.period-range {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--t3); margin-left: 2px;
+}
+.period-sub {
+  font-size: 10px; color: var(--t3); margin-left: 4px;
+  font-style: italic;
+}
+.period-line {
+  flex: 1; height: 1px; background: var(--border);
+}
+
+/* ─── BLOCK ROWS ─── */
+.blocks-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.block-row {
+  display: grid;
+  grid-template-columns: 22px 68px 86px 1fr 18px;
+  align-items: center; gap: 10px;
+  padding: 11px 14px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+}
+.block-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+.block-row:hover { background: rgba(107,33,168,0.06) !important; }
+.block-row.is-current { background: rgba(107,33,168,0.10); }
+.block-row.is-open { /* border-left set inline */ }
+.block-row.is-done { opacity: 0.68; }
+
+.block-check {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 1.5px solid var(--border-h);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; transition: all 0.15s;
+  background: transparent;
+}
+.block-check.checked {
+  background: var(--green-bg); border-color: var(--green); color: var(--green);
+}
+
+.block-time {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--t3); letter-spacing: 0.04em; text-align: right;
+}
+.dur-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; padding: 3px 8px; border-radius: 5px;
+  text-align: center; white-space: nowrap;
+  display: inline-block;
+}
+.block-label {
+  font-size: 13px; font-weight: 500; color: var(--t1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.block-row.is-done .block-label { text-decoration: line-through; color: var(--t3); }
+.block-chevron {
+  font-size: 10px; color: var(--t3); text-align: right; transition: transform 0.2s;
+  font-family: 'JetBrains Mono', monospace;
+}
+.block-row.is-open .block-chevron { transform: rotate(180deg); }
+
+/* ─── BLOCK EXPAND ─── */
+.block-expand {
+  padding: 14px 16px 16px 51px;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  animation: fadein 0.18s ease;
+}
+.block-desc {
+  font-size: 12px; color: var(--t3); line-height: 1.6;
+  margin-bottom: 14px; font-style: italic;
+}
+.field-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--t3); letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 5px; display: block;
+}
+.field-input, .field-textarea {
+  width: 100%; background: rgba(107,33,168,0.05);
+  border: 1px solid var(--border); border-radius: 7px;
+  color: var(--t1); font-family: 'Inter', sans-serif;
+  font-size: 13px; padding: 8px 11px;
+  outline: none; resize: vertical;
+  transition: border-color 0.2s;
+  margin-bottom: 10px;
+}
+.field-input:focus, .field-textarea:focus {
+  border-color: var(--border-h);
+  background: rgba(107,33,168,0.08);
+}
+.field-textarea { line-height: 1.6; min-height: 72px; }
+.field-textarea.large { min-height: 110px; }
+.field-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fields-sep { height: 1px; background: var(--border); margin: 10px 0 14px; }
+.field-mini-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--t4); letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 8px; display: block;
+}
+
+/* ─── WEEK THEME BANNER ─── */
+.week-banner {
+  border-radius: 12px; padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex; align-items: flex-start; gap: 16px;
+  border: 1px solid var(--border-h);
+  position: relative;
+}
+.week-banner-tag {
+  font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.week-banner-label {
+  font-size: 11px; color: var(--t3); margin-bottom: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em; text-transform: uppercase; font-size: 9px;
+}
+.week-banner-val { font-size: 12px; color: var(--t2); line-height: 1.5; }
+.week-banner-cols { display: flex; gap: 28px; flex-wrap: wrap; flex: 1; }
+.week-banner-col { min-width: 180px; }
+.export-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 6px 12px; border-radius: 6px;
+  border: 1px solid var(--border-h); background: var(--purple-l);
+  color: var(--purple-m); cursor: pointer; transition: all 0.18s;
+  white-space: nowrap; flex-shrink: 0; align-self: flex-start;
+}
+.export-btn:hover { background: rgba(107,33,168,0.15); border-color: var(--purple-m); }
+
+/* ─── DAY REVIEW ─── */
+.review-card {
+  background: var(--gold-bg); border: 1px solid var(--gold-bd);
+  border-radius: 12px; padding: 20px; margin-top: 28px;
+}
+.review-title {
+  font-family: 'Montserrat', sans-serif; font-weight: 600;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 18px;
+}
+.grat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+.score-row { display: flex; gap: 8px; margin-top: 4px; }
+.score-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid var(--border-h); background: var(--card);
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  color: var(--t2); cursor: pointer; transition: all 0.15s;
+}
+.score-btn.active {
+  background: var(--purple); border-color: var(--purple-m); color: #fff;
+}
+.score-btn:hover:not(.active) { border-color: var(--border-h); color: var(--t1); }
+
+/* ─── SEMANA ─── */
+.semana-intro {
+  font-size: 13px; color: var(--t3); margin-bottom: 24px;
+  line-height: 1.7; font-style: italic;
+}
+.week-grid { display: flex; flex-direction: column; gap: 10px; }
+.wday-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px;
+  display: grid; grid-template-columns: 56px 1fr 1fr;
+  gap: 16px; align-items: start;
+  transition: border-color 0.18s, background 0.18s;
+  cursor: default;
+}
+.wday-card.today {
+  border-color: var(--border-h); background: var(--card);
+}
+.wday-name {
+  font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 16px; line-height: 1.1;
+}
+.wday-full { font-size: 10px; color: var(--t3); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+.wday-badge {
+  display: inline-block; padding: 3px 9px; border-radius: 5px;
+  font-size: 10px; font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em; margin-bottom: 8px;
+  font-weight: 500;
+}
+.wday-sub-label {
+  font-size: 9px; font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--t3);
+  margin-bottom: 4px;
+}
+.wday-sub-val { font-size: 12px; color: var(--t2); line-height: 1.55; }
+.wday-today-pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+  background: rgba(107,33,168,0.15); color: var(--purple-m);
+  border: 1px solid var(--border-h);
+  display: inline-block; margin-left: 8px; vertical-align: middle;
+}
+
+/* ─── ARQUIVO ─── */
+.archive-list { display: flex; flex-direction: column; gap: 8px; }
+.archive-entry {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.archive-entry:hover { background: var(--card); border-color: var(--border-h); }
+.archive-date {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--t2); flex-shrink: 0;
+}
+.archive-day-tag {
+  font-size: 11px; color: var(--t3); flex: 1;
+}
+.archive-score-dots { display: flex; gap: 3px; }
+.archive-sdot {
+  width: 8px; height: 8px; border-radius: 2px;
+  background: var(--t4);
+}
+.archive-sdot.filled { background: var(--gold); }
+.archive-count {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--t3);
+}
+.archive-back-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 7px 14px; border-radius: 7px;
+  border: 1px solid var(--border-h); background: var(--card);
+  color: var(--t2); cursor: pointer; transition: all 0.18s;
+  margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;
+}
+.archive-back-btn:hover { background: var(--purple-l); color: var(--t1); }
+.archive-empty {
+  text-align: center; padding: 60px 20px;
+  color: var(--t3); font-size: 13px; font-style: italic;
+}
+
+/* ─── PERFIL ─── */
+.welcome-banner {
+  background: var(--purple-l); border: 1px solid var(--border-h);
+  border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;
+}
+.welcome-title {
+  font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 15px; color: var(--purple-m); margin-bottom: 6px;
+}
+.welcome-sub { font-size: 13px; color: var(--t2); line-height: 1.6; }
+.profile-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; margin-bottom: 14px;
+}
+.profile-section-title {
+  font-family: 'Montserrat', sans-serif; font-weight: 600;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--purple-m); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.profile-section-letter {
+  width: 20px; height: 20px; border-radius: 5px;
+  background: var(--purple-l); border: 1px solid var(--border-h);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--purple-m);
+}
+.save-profile-btn {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--blue) 100%);
+  color: #fff; border: none; border-radius: 9px;
+  font-family: 'Montserrat', sans-serif; font-weight: 600;
+  font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 12px 28px; cursor: pointer; transition: opacity 0.18s;
+  margin-top: 8px;
+}
+.save-profile-btn:hover { opacity: 0.85; }
+.principles-toggle {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 7px 14px; border-radius: 7px;
+  border: 1px solid var(--border-h); background: var(--purple-l);
+  color: var(--purple-m); cursor: pointer; transition: all 0.18s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.principles-toggle:hover { background: rgba(107,33,168,0.15); }
+.principles-list { margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
+.principle-item {
+  border-left: 2px solid var(--purple);
+  padding-left: 14px;
+}
+.principle-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--purple-m); letter-spacing: 0.08em; margin-bottom: 4px;
+}
+.principle-text { font-size: 13px; color: var(--t2); line-height: 1.6; font-style: italic; }
+.principle-author { font-size: 11px; color: var(--t3); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+
+/* ─── TOAST ─── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--surface2); border: 1px solid var(--border-h);
+  border-radius: 8px; padding: 9px 18px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--t1); z-index: 9999;
+  display: none; letter-spacing: 0.04em;
+  animation: toastin 0.22s ease;
+  box-shadow: 0 4px 24px var(--shadow);
+}
+#toast.show { display: block; }
+
+/* ─── MISC ─── */
+.section-heading {
+  font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 18px; color: var(--t1); margin-bottom: 6px;
+}
+.section-sub { font-size: 12px; color: var(--t3); margin-bottom: 24px; }
+.current-live {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--purple-m);
+  animation: pulse 2.6s ease-in-out infinite;
+  display: inline-block; margin-right: 5px; vertical-align: middle;
+}
+.readonly-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 4px;
+  background: rgba(107,33,168,0.12); color: var(--t3);
+  border: 1px solid var(--border); display: inline-block; margin-left: 8px;
+}
+.day-key-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--t3); margin-bottom: 4px;
+}
+.day-key-date {
+  font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 17px; color: var(--t1); text-transform: capitalize;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .week-banner-cols { flex-direction: column; gap: 12px; }
+  .grat-row { grid-template-columns: 1fr; }
+  .wday-card { grid-template-columns: 46px 1fr; }
+  .wday-card > *:last-child { grid-column: 2; }
+  .field-row2 { grid-template-columns: 1fr; }
+  .week-dots { display: none; }
+  .block-row { grid-template-columns: 22px 52px 68px 1fr 18px; gap: 6px; }
+}
+</style>
 </head>
 <body>
-<div id="root"></div>
+<div id="app">
+  <div id="topbar">
+    <div class="tb-logo">
+      <div class="tb-logo-mark">Ad</div>
+      <span class="tb-logo-text">Habitus</span>
+      <span class="tb-logo-sep">·</span>
+      <span class="tb-logo-text" style="color:var(--purple-m)">Aderry</span>
+    </div>
+    <nav class="tb-nav" id="tb-nav"></nav>
+    <div class="tb-right">
+      <div class="week-dots" id="week-dots"></div>
+      <div id="clock"></div>
+    </div>
+  </div>
+  <div id="dayprog"><div id="dayprogfill"></div></div>
+  <main id="main"></main>
+</div>
+<div id="toast"></div>
 
-<script type="text/babel">
-const { useState, useEffect, useCallback, useRef, useMemo } = React;
-
-/* ─────────────────────────────────────────
-   DESIGN TOKENS — AZUL / SÁBIO
-   (mesmo sistema visual do DailyOS, cor azul em vez de roxo)
-───────────────────────────────────────── */
-const C = {
-  bg:      "linear-gradient(160deg, #07090F 0%, #0C1219 55%, #080C14 100%)",
-  surface: "#0F1620",
-  card:    "rgba(255,255,255,0.04)",
-  border:  "rgba(255,255,255,0.09)",
-  borderA: "rgba(74,124,199,0.22)",
-  glass:   "rgba(7,9,15,0.94)",
-  primary: "#4A7CC7",
-  pSoft:   "#7FAEE0",
-  pDark:   "#2E5A96",
-  p10:     "rgba(74,124,199,0.10)",
-  p15:     "rgba(74,124,199,0.16)",
-  gold:    "#C4933F",
-  goldS:   "#D4A855",
-  goldBg:  "rgba(196,147,63,0.10)",
-  goldBd:  "rgba(196,147,63,0.24)",
-  t1:      "#EEF1F8",
-  t2:      "#A0AABF",
-  t3:      "#5E6882",
-  t4:      "#353E55",
-  green:   "#4A9E7A",
-  greenBg: "rgba(74,158,122,0.12)",
-  shadow:  "rgba(0,0,0,0.4)",
-  inputBg: "rgba(255,255,255,0.04)",
-};
-
-/* ─────────────────────────────────────────
+<script>
+/* ════════════════════════════════════════════════
    DATA
-───────────────────────────────────────── */
-const PERIODS = [
-  { id:"manha", label:"Manhã",  icon:"○", color:"#5B9BD5", range:"06:00 → 10:30", sub:"Profundidade antes de execução" },
-  { id:"tarde", label:"Tarde",  icon:"◈", color:"#4A7CC7", range:"10:30 → 18:00", sub:"Pensamento e Método" },
-  { id:"noite", label:"Noite",  icon:"◎", color:"#6888B8", range:"18:00 → 22:15", sub:"Desaceleração e Contemplação" },
-];
-
+════════════════════════════════════════════════ */
 const BLOCKS = [
   // MANHÃ
-  { id:"m0", p:"manha", time:"06:00", end:"06:15", dur:"15 min",   label:"Acordar e ritual matinal",          desc:"Água, movimento do corpo, presença. Sem ecrãs. Chegada intencional ao dia." },
-  { id:"m1", p:"manha", time:"06:15", end:"06:45", dur:"30 min",   label:"Devocional",                        desc:"Oração, meditação, silêncio. O Sábio começa pelo centro — não pela agenda." },
-  { id:"m2", p:"manha", time:"06:45", end:"08:00", dur:"75 min",   label:"Leitura profunda",                  desc:"Filosofia, estratégia, método. Com lápis, sem pressa, com margem para pensar.",
-    fields:[{k:"titulo",l:"Título"},{k:"autor",l:"Autor"},{k:"pagina",l:"Páginas"},{k:"insight",l:"Insight principal",big:true}] },
-  { id:"m3", p:"manha", time:"08:00", end:"08:30", dur:"30 min",   label:"Reflexão e escrita livre",          desc:"Ideias da leitura, intuições sobre o negócio. O diário de pensamento do Sábio.",
-    fields:[{k:"diario",l:"Diário de pensamento",big:true}] },
-  { id:"m4", p:"manha", time:"08:30", end:"08:50", dur:"20 min",   label:"Planeamento contemplativo",         desc:"Não táctico — perguntar 'o que precisa de acontecer hoje?' antes de listar tarefas.",
-    fields:[{k:"pergunta",l:"O que precisa de acontecer hoje?",big:true},{k:"int1",l:"Intenção 1"},{k:"int2",l:"Intenção 2"},{k:"int3",l:"Intenção 3"}] },
-  { id:"m5", p:"manha", time:"08:50", end:"09:20", dur:"30 min",   label:"Treino leve",                       desc:"Caminhada, mobilidade, yoga. Movimento que liberta o pensamento, não que esgota." },
-  { id:"m6", p:"manha", time:"09:20", end:"09:40", dur:"20 min",   label:"Banho e skincare",                  desc:"Cuidado com o corpo como extensão do cuidado com a mente." },
-  { id:"m7", p:"manha", time:"09:40", end:"10:10", dur:"30 min",   label:"Café da manhã em silêncio",         desc:"Sem ecrãs, presente. A refeição como ritual — não como tarefa." },
-  { id:"m8", p:"manha", time:"10:10", end:"10:30", dur:"20 min",   label:"Transição",                         desc:"Preparação para o trabalho profundo. Fechar a manhã, abrir a tarde." },
+  {id:'m0',p:'manha',t:'06:00',e:'06:15',d:'15 min',label:'Acordar e ritual matinal',desc:'Água com sal, corpo, presença. Sem ecrãs. Chegada intencional ao dia.',fields:[]},
+  {id:'m1',p:'manha',t:'06:15',e:'06:45',d:'30 min',label:'Devocional',desc:'Oração, meditação, silêncio. O Sábio começa pelo centro — não pela agenda.',fields:[{k:'recebeu',l:'O que recebi hoje?',big:true}]},
+  {id:'m2',p:'manha',t:'06:45',e:'08:00',d:'75 min',label:'Leitura profunda',desc:'Livro de filosofia, estratégia ou método. Com lápis, sem pressa, com margem para pensar.',fields:[{k:'titulo',l:'Título do livro',big:false},{k:'autor',l:'Autor',big:false},{k:'pagina',l:'Páginas lidas',big:false},{k:'insight',l:'Insight principal',big:true}]},
+  {id:'m3',p:'manha',t:'08:00',e:'08:30',d:'30 min',label:'Reflexão e escrita livre',desc:'Ideias da leitura, pensamentos sobre o negócio, intuições. O diário de pensamento do Sábio.',fields:[{k:'escrita',l:'Escrita livre',big:true,large:true}]},
+  {id:'m4',p:'manha',t:'08:30',e:'08:50',d:'20 min',label:'Planeamento contemplativo',desc:'Não táctico — perguntar o que precisa de acontecer hoje antes de listar tarefas.',fields:[{k:'pergunta',l:'O que precisa de acontecer hoje?',big:true},{k:'int1',l:'Intenção 1',big:false},{k:'int2',l:'Intenção 2',big:false},{k:'int3',l:'Intenção 3',big:false}]},
+  {id:'m5',p:'manha',t:'08:50',e:'09:20',d:'30 min',label:'Treino leve',desc:'Caminhada, mobilidade, yoga. Movimento que liberta o pensamento, não que esgota.',fields:[{k:'treino',l:'O que fiz / como me senti',big:true}]},
+  {id:'m6',p:'manha',t:'09:20',e:'09:40',d:'20 min',label:'Banho e skincare',desc:'Cuidado com o corpo como extensão do cuidado com a mente.',fields:[]},
+  {id:'m7',p:'manha',t:'09:40',e:'10:10',d:'30 min',label:'Café da manhã em silêncio',desc:'Sem ecrãs. A refeição como ritual — não como tarefa.',fields:[]},
+  {id:'m8',p:'manha',t:'10:10',e:'10:30',d:'20 min',label:'Transição',desc:'Preparação para o trabalho profundo. Fechar a manhã, abrir a tarde.',fields:[]},
   // TARDE
-  { id:"a0", p:"tarde", time:"10:30", end:"13:00", dur:"2h 30min", label:"Trabalho de Método e Posicionamento", desc:"Escrita estratégica, frameworks, metodologia Aderry. O trabalho mais valioso.",
-    fields:[{k:"emQue",l:"Em que trabalhei",big:true},{k:"avancei",l:"O que avancei"},{k:"proximo",l:"Próximo passo"}] },
-  { id:"a1", p:"tarde", time:"13:00", end:"13:45", dur:"45 min",   label:"Almoço e pausa real",               desc:"Pausa verdadeira — não uma pausa entre tarefas. O pensamento precisa de espaço." },
-  { id:"a2", p:"tarde", time:"13:45", end:"15:45", dur:"2h",       label:"Execução e operação",               desc:"Clientes, comunicação, gestão. Com o alicerce intelectual já sólido." },
-  { id:"a3", p:"tarde", time:"15:45", end:"17:00", dur:"1h 15min", label:"Estudo e crescimento",              desc:"Tema do dia — ver sistema semanal. Aprendizado estruturado.",
-    fields:[{k:"tema",l:"Tema / Fonte"},{k:"aprendeu",l:"O que aprendi",big:true},{k:"aplicar",l:"Ideia para aplicar"}] },
-  { id:"a4", p:"tarde", time:"17:00", end:"18:00", dur:"1h",       label:"Fechamento do dia",                 desc:"Revisão, pendências, intenção de amanhã. Fechar o ciclo com clareza." },
+  {id:'a0',p:'tarde',t:'10:30',e:'12:30',d:'2h',label:'Trabalho de Método e Posicionamento',desc:'Foco total. Escrita estratégica, desenvolvimento da metodologia Aderry, criação de frameworks.',fields:[{k:'emque',l:'Em que trabalhei',big:true},{k:'avancei',l:'O que avancei',big:false},{k:'proximo',l:'Próximo passo',big:false}]},
+  {id:'a1',p:'tarde',t:'12:30',e:'14:00',d:'1h 30min',label:'Almoço e descanso real',desc:'Refeição sem ecrãs de trabalho. Pausa mental completa — não uma pausa entre tarefas.',fields:[{k:'almoco',l:'O que almocei',big:false}]},
+  {id:'a2',p:'tarde',t:'14:00',e:'16:00',d:'2h',label:'Execução e operação',desc:'Clientes, comunicação, gestão. Com o alicerce intelectual já sólido.',fields:[{k:'executado',l:'Tarefas executadas',big:true},{k:'pendente',l:'O que ficou pendente',big:true}]},
+  {id:'a3',p:'tarde',t:'16:00',e:'17:15',d:'1h 15min',label:'Estudo e crescimento',desc:'Tema do dia — ver sistema semanal. Aprendizado estruturado.',fields:[{k:'tema',l:'Tema / Fonte',big:false},{k:'aprendeu',l:'O que aprendi',big:true},{k:'aplicar',l:'Ideia para aplicar',big:false}]},
+  {id:'a4',p:'tarde',t:'17:15',e:'18:00',d:'45 min',label:'Fechamento do dia',desc:'Revisão, pendências, intenção de amanhã. Fechar o ciclo com clareza.',fields:[{k:'amanha',l:'O que fica para amanhã',big:true}]},
   // NOITE
-  { id:"n0", p:"noite", time:"18:00", end:"19:30", dur:"1h 30min", label:"Vida pessoal e presença",           desc:"Conexões, lazer, sem agenda. O Sábio precisa do mundo para reflectir sobre ele." },
-  { id:"n1", p:"noite", time:"19:30", end:"20:15", dur:"45 min",   label:"Jantar tranquilo",                  desc:"Refeição presente, com conversas que nutrem." },
-  { id:"n2", p:"noite", time:"20:15", end:"21:00", dur:"45 min",   label:"Leitura leve ou música",            desc:"Não relacionado com trabalho. O pensamento profundo precisa de respirar." },
-  { id:"n3", p:"noite", time:"21:00", end:"21:30", dur:"30 min",   label:"Desligamento digital",              desc:"Transição completa. O Sábio que não para não aprofunda." },
-  { id:"n4", p:"noite", time:"21:30", end:"22:15", dur:"45 min",   label:"Higiene, skincare e revisão",       desc:"Cuidado e fechamento do dia. Espaço para o pensamento assentar." },
-  { id:"n5", p:"noite", time:"22:15", end:"06:00", dur:"—",        label:"Dormir",                            desc:"Sono como pilar da profundidade cognitiva — 7h45min de restauro." },
+  {id:'n0',p:'noite',t:'18:00',e:'19:30',d:'1h 30min',label:'Vida pessoal e presença',desc:'Conexões, lazer, sem agenda de trabalho. O Sábio precisa do mundo para reflectir sobre ele.',fields:[]},
+  {id:'n1',p:'noite',t:'19:30',e:'20:15',d:'45 min',label:'Jantar tranquilo',desc:'Refeição presente, com conversas que nutrem.',fields:[]},
+  {id:'n2',p:'noite',t:'20:15',e:'21:00',d:'45 min',label:'Leitura leve ou música',desc:'Não relacionado com trabalho. O pensamento profundo precisa de respirar.',fields:[]},
+  {id:'n3',p:'noite',t:'21:00',e:'21:30',d:'30 min',label:'Desligamento digital',desc:'Transição completa. Sem ecrãs. O Sábio que não para não aprofunda.',fields:[]},
+  {id:'n4',p:'noite',t:'21:30',e:'22:15',d:'45 min',label:'Higiene, skincare e revisão do dia',desc:'Cuidado e fechamento. Espaço para o pensamento assentar.',fields:[]},
+  {id:'n5',p:'noite',t:'22:15',e:'06:00',d:'—',label:'Dormir',desc:'Sono como pilar da profundidade cognitiva. 7h45min de restauro.',fields:[]},
+];
+
+const PERIODS = [
+  {id:'manha',label:'Manhã',  icon:'○',color:'#7F77DD',range:'06:00 → 10:30',sub:'Profundidade antes de execução'},
+  {id:'tarde',label:'Tarde',  icon:'◈',color:'#6B21A8',range:'10:30 → 18:00',sub:'Pensamento, Método e Operação'},
+  {id:'noite',label:'Noite',  icon:'◎',color:'#3A0CA3',range:'18:00 → 22:15',sub:'Desaceleração e Contemplação'},
 ];
 
 const WEEK = [
-  { day:"Seg", full:"Segunda",  color:"#4A7CC7", tag:"Método & Filosofia",         study:"Filosofia, epistemologia, pensamento sistémico",             content:"Os fundamentos do método Aderry — o porquê das coisas" },
-  { day:"Ter", full:"Terça",    color:"#5B8FC4", tag:"Posicionamento & Marca",      study:"Branding, identidade, valor percebido, semiótica",           content:"Posicionamento, marca pessoal, construção de autoridade" },
-  { day:"Qua", full:"Quarta",   color:"#C4933F", tag:"Estratégia & Negócio",        study:"Estratégia empresarial, crescimento, modelos de negócio",    content:"Visão, frameworks, teses de mercado" },
-  { day:"Qui", full:"Quinta",   color:"#6888B8", tag:"Liderança & Sabedoria",       study:"Liderança, psicologia, comportamento humano, negociação",    content:"Autoridade, comunicação de alto impacto, cultura" },
-  { day:"Sex", full:"Sexta",    color:"#7898C8", tag:"Narrativa & Casos",           study:"Casos reais, biografias, storytelling, comportamento",       content:"Bastidores metodológicos, aprendizados, reflexões" },
-  { day:"Sáb", full:"Sábado",   color:"#8878B8", tag:"Expansão & Espiritualidade",  study:"Espiritualidade, poesia, arte, criatividade expandida",      content:"Opcional — o mais pessoal e filosófico da semana" },
-  { day:"Dom", full:"Domingo",  color:"#4A9E7A", tag:"Síntese & Preparação",        study:"Revisão da semana — foco em insight, não em produtividade",  content:"O que aprendi? O que mudou? Intenção para a próxima semana?" },
+  {day:'Seg',full:'Segunda',color:'#7F77DD',tag:'Método & Filosofia',    study:'Filosofia, epistemologia, pensamento sistémico',content:'Os fundamentos do método Aderry — o porquê das coisas'},
+  {day:'Ter',full:'Terça',  color:'#9B5DE5',tag:'Posicionamento & Marca',study:'Branding, identidade, valor percebido, semiótica',content:'Posicionamento, marca pessoal, construção de autoridade'},
+  {day:'Qua',full:'Quarta', color:'#6B21A8',tag:'Estratégia & Negócio',  study:'Estratégia empresarial, crescimento, modelos de negócio',content:'Visão, frameworks, teses de mercado'},
+  {day:'Qui',full:'Quinta', color:'#5B3CA8',tag:'Liderança & Sabedoria', study:'Liderança, psicologia, comportamento humano, negociação',content:'Autoridade, comunicação de alto impacto, cultura'},
+  {day:'Sex',full:'Sexta',  color:'#4B2CA8',tag:'Narrativa & Casos',     study:'Casos reais, biografias, storytelling, comportamento',content:'Bastidores metodológicos, aprendizados, reflexões profundas'},
+  {day:'Sáb',full:'Sábado', color:'#8B45B5',tag:'Expansão & Espiritualidade',study:'Espiritualidade, poesia, arte, criatividade expandida',content:'Opcional — o mais pessoal e filosófico da semana'},
+  {day:'Dom',full:'Domingo',color:'#3D8C68',tag:'Síntese & Preparação',  study:'Revisão da semana — foco em insight, não em produtividade',content:'O que aprendi? O que mudou? Intenção para a próxima semana?'},
 ];
+const ALL_DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
 const PRINCIPLES = [
-  { n:"I",   quote:"Profundidade antes de velocidade.",      body:"O Sábio que age sem pensar torna-se apenas um executor. A reflexão é o trabalho." },
-  { n:"II",  quote:"O método é o produto.",                  body:"Cada hora de pensamento sobre como a Aderry pensa e ensina é uma hora investida no activo mais valioso do negócio." },
-  { n:"III", quote:"O silêncio é produtivo.",                body:"Dias sem output visível podem ser os dias de maior criação — se o pensamento avançou, o sistema avançou." },
-  { n:"IV",  quote:"Governar o tempo é governar o negócio.", body:"O Governante em ti sabe que a estrutura não limita — liberta. A rotina é o palácio onde o Sábio pensa." },
+  {num:'I',   quote:'Profundidade antes de velocidade.',  body:'O Sábio que age sem pensar torna-se apenas um executor. A reflexão é o trabalho.'},
+  {num:'II',  quote:'O método é o produto.',              body:'Cada hora de pensamento sobre como a Aderry pensa e ensina é uma hora investida no activo mais valioso do negócio.'},
+  {num:'III', quote:'O silêncio é produtivo.',            body:'Dias sem output visível podem ser os dias de maior criação — se o pensamento avançou, o sistema avançou.'},
+  {num:'IV',  quote:'Governar o tempo é governar o negócio.', body:'O Governante em ti sabe que a estrutura não limita — liberta. A rotina é o palácio onde o Sábio pensa.'},
 ];
 
-const ALL_DAYS = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+/* ════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════ */
+let S = { view:'dia', expandedBlock:null, archiveKey:null, showPrinciples:false, isFirstVisit:false };
 
-/* ─────────────────────────────────────────
+/* ════════════════════════════════════════════════
    STORAGE
-───────────────────────────────────────── */
-const STORE_KEY = "habitus-adelson-v2";
-const loadAll  = ()    => { try { return JSON.parse(localStorage.getItem(STORE_KEY)||"{}"); } catch { return {}; } };
-const saveAll  = (d)   => { try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch {} };
-const dateKey  = (d)   => d.toISOString().slice(0,10);
-const fmtTime  = (d)   => d.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
-const hhmm     = (s)   => { const [h,m]=s.split(":").map(Number); return h*60+m; };
+════════════════════════════════════════════════ */
+const PROFILE_KEY = 'habitus-adelson-profile';
+const JOURNAL_KEY = 'habitus-adelson-journal';
 
-function emptyDay() {
-  const blocks = {};
-  BLOCKS.forEach(b => { blocks[b.id] = { done:false, intention:"", notes:"", extras:{} }; });
-  return { blocks, review:{ learned:"", thinking:"", silence:"", gratitude:["","",""], score:0 } };
+function todayKey() { return new Date().toISOString().slice(0,10); }
+function loadProfile() { try { return JSON.parse(localStorage.getItem(PROFILE_KEY)); } catch { return null; } }
+function saveProfile(d) { localStorage.setItem(PROFILE_KEY, JSON.stringify(d)); }
+function loadJournal() { try { return JSON.parse(localStorage.getItem(JOURNAL_KEY)||'{}'); } catch { return {}; } }
+function saveJournal(d) { localStorage.setItem(JOURNAL_KEY, JSON.stringify(d)); }
+
+function getDay(k) {
+  const j = loadJournal();
+  if (j[k]) return j[k];
+  const d = { blocks:{}, review:{learned:'',thinking:'',silence:'',gratitude:['','',''],score:0} };
+  BLOCKS.forEach(b => { d.blocks[b.id] = {done:false,intention:'',notes:'',extras:{}}; });
+  return d;
 }
-function getDay(all, k) { return all[k] || emptyDay(); }
-function uid() { return Math.random().toString(36).slice(2,9); }
-
-/* ─────────────────────────────────────────
-   EXPORT
-───────────────────────────────────────── */
-function buildExport(dayData, dateStr, dayShort) {
-  const ws = WEEK.find(w=>w.day===dayShort) || WEEK[0];
-  let t = `HABITUS OS · ADELSON · ADERRY\n${dateStr}\n${ws.tag}\n${"─".repeat(46)}\n\n`;
-  BLOCKS.forEach(b => {
-    const bd = dayData.blocks[b.id] || {};
-    t += `${bd.done?"[✓]":"[ ]"} ${b.time}  ${b.label} (${b.dur})\n`;
-    if (bd.intention) t += `    Intenção: ${bd.intention}\n`;
-    (b.fields||[]).forEach(f => { const v=(bd.extras||{})[f.k]; if(v) t+=`    ${f.l}: ${v}\n`; });
-    if (bd.notes) t += `    Notas: ${bd.notes}\n`;
-    t += "\n";
-  });
-  const r = dayData.review||{};
-  t += `${"─".repeat(46)}\nREVISÃO\n\n`;
-  if (r.learned)  t += `O que aprendi: ${r.learned}\n\n`;
-  if (r.thinking) t += `Pensamento avançou: ${r.thinking}\n\n`;
-  if (r.silence)  t += `O silêncio mostrou: ${r.silence}\n\n`;
-  if (r.gratitude?.some(g=>g)) t += `Gratidão: ${r.gratitude.filter(Boolean).join(" · ")}\n\n`;
-  if (r.score)    t += `Nota: ${r.score}/5\n`;
-  return t;
+function saveDay(k, data) { const j=loadJournal(); j[k]=data; saveJournal(j); }
+function updateBlockField(dateKey, blockId, field, value) {
+  const d = getDay(dateKey);
+  if (!d.blocks[blockId]) d.blocks[blockId] = {done:false,intention:'',notes:'',extras:{}};
+  d.blocks[blockId][field] = value;
+  saveDay(dateKey, d);
 }
-
-function downloadTxt(content, filename) {
-  const a = document.createElement("a");
-  a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
-  a.download = filename; a.click();
+function updateBlockExtra(dateKey, blockId, extraKey, value) {
+  const d = getDay(dateKey);
+  if (!d.blocks[blockId]) d.blocks[blockId] = {done:false,intention:'',notes:'',extras:{}};
+  if (!d.blocks[blockId].extras) d.blocks[blockId].extras = {};
+  d.blocks[blockId].extras[extraKey] = value;
+  saveDay(dateKey, d);
 }
-
-/* ─────────────────────────────────────────
-   ICONS
-───────────────────────────────────────── */
-const PrevIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>;
-const NextIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>;
-const CheckIco  = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>;
-const DownIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
-const PlusIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>;
-const TrashIco  = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>;
-
-/* ─────────────────────────────────────────
-   SMALL HELPERS
-───────────────────────────────────────── */
-function Tag({ label, color, bg, border }) {
-  return (
-    <span style={{
-      fontFamily:"'JetBrains Mono',monospace", fontSize:"8px",
-      letterSpacing:"0.14em", textTransform:"uppercase", fontWeight:600,
-      color:color||C.pSoft, background:bg||C.p10,
-      border:`1px solid ${border||C.borderA}`,
-      padding:"2px 8px", borderRadius:"4px",
-    }}>{label}</span>
-  );
+function updateReview(dateKey, field, value) {
+  const d = getDay(dateKey);
+  if (!d.review) d.review = {learned:'',thinking:'',silence:'',gratitude:['','',''],score:0};
+  d.review[field] = value;
+  saveDay(dateKey, d);
+}
+function updateGratitude(dateKey, idx, value) {
+  const d = getDay(dateKey);
+  if (!d.review) d.review = {learned:'',thinking:'',silence:'',gratitude:['','',''],score:0};
+  if (!d.review.gratitude) d.review.gratitude = ['','',''];
+  d.review.gratitude[idx] = value;
+  saveDay(dateKey, d);
 }
 
-function SectionHead({ icon, label, color, right }) {
-  return (
-    <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"10px" }}>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", letterSpacing:"0.2em", textTransform:"uppercase", color, fontWeight:600 }}>
-        {icon} {label}
-      </div>
-      <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, ${color}35, transparent)` }}/>
-      {right && <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4 }}>{right}</div>}
-    </div>
-  );
+/* ════════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════════ */
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function hhmm(s) { const [h,m]=s.split(':').map(Number); return h*60+m; }
+function fmtTime(d) { return d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDateLong(k) {
+  const d = new Date(k+'T06:00:00');
+  return d.toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function getCurrentBlockId() {
+  const now = new Date();
+  const m = now.getHours()*60+now.getMinutes();
+  for (const b of BLOCKS) {
+    if (b.id==='n5') continue;
+    const s=hhmm(b.t), e=hhmm(b.e);
+    if (m>=s && m<e) return b.id;
+  }
+  return null;
+}
+function getTodayWeek() {
+  const d = new Date();
+  const s = ALL_DAYS[d.getDay()];
+  return WEEK.find(w=>w.day===s) || WEEK[0];
+}
+function checkSVG() {
+  return '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+}
+function showToast(msg, duration=2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
 }
 
-/* ─────────────────────────────────────────
-   VIEW: HUB
-───────────────────────────────────────── */
-function HubView({ todayWS }) {
-  const dc = todayWS.color;
-  return (
-    <div className="fadein">
-
-      {/* Hero */}
-      <div style={{ background:C.p10, border:`1px solid ${C.borderA}`, borderRadius:"14px", padding:"26px 28px", marginBottom:"22px" }}>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", letterSpacing:"0.18em", textTransform:"uppercase", color:C.t4, marginBottom:"10px" }}>
-          Sistema Operacional Pessoal
-        </div>
-        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(22px,4vw,32px)", fontWeight:700, color:C.t1, lineHeight:1.15, marginBottom:"6px" }}>
-          Habitus OS <span style={{ color:C.pSoft }}>· Adelson</span>
-        </div>
-        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", color:C.t3, marginBottom:"18px" }}>
-          Co-fundador da Aderry · Consultora de Posicionamento e Crescimento
-        </div>
-        <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
-          <Tag label="O Sábio"       color={C.gold} bg={C.goldBg} border={C.goldBd} />
-          <Tag label="O Governante"  color={C.gold} bg={C.goldBg} border={C.goldBd} />
-          <Tag label="CEO · Head de Posicionamento" />
-        </div>
-      </div>
-
-      {/* Why */}
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"13px", padding:"22px 24px", marginBottom:"18px" }}>
-        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:600, color:C.t1, marginBottom:"10px" }}>
-          Porque este sistema foi desenhado para ti
-        </div>
-        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:C.t3, lineHeight:1.75, marginBottom:"8px" }}>
-          O Sábio não performa melhor sob pressão de execução — performa melhor com espaço para contemplar.
-          Este sistema protege a tua produção mais valiosa: o pensamento conceptual, o desenvolvimento metodológico
-          e a profundidade estratégica que é a espinha dorsal da Aderry.
-        </p>
-        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:C.t3, lineHeight:1.75 }}>
-          A manhã é longa e deliberadamente não executiva. O Governante em ti estrutura o dia —
-          o Sábio define primeiro <em style={{ color:C.pSoft }}>o que merece acontecer</em> antes de o fazer acontecer.
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="stat-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"10px", marginBottom:"22px" }}>
-        {[
-          { n:"4h30", l:"Manhã contemplativa",  s:"06:00 → 10:30" },
-          { n:"7h30", l:"Tarde de trabalho",    s:"10:30 → 18:00" },
-          { n:"2h",   l:"Leitura total/dia",    s:"profunda + leve" },
-          { n:"7h45", l:"Sono",                 s:"22:15 → 06:00" },
-        ].map((s,i) => (
-          <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"11px", padding:"16px", textAlign:"center" }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"22px", fontWeight:700, color:C.pSoft, lineHeight:1 }}>{s.n}</div>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"11px", fontWeight:600, color:C.t2, marginTop:"5px" }}>{s.l}</div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, marginTop:"3px" }}>{s.s}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Schedule overview */}
-      {PERIODS.map(pr => {
-        const pBlocks = BLOCKS.filter(b=>b.p===pr.id);
-        return (
-          <div key={pr.id} style={{ marginBottom:"20px" }}>
-            <SectionHead icon={pr.icon} label={`${pr.label} · ${pr.range}`} color={pr.color} />
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", fontStyle:"italic", color:C.t4, marginBottom:"9px", marginLeft:"2px" }}>
-              "{pr.sub}"
-            </div>
-            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"12px", overflow:"hidden" }}>
-              {pBlocks.map((b,bi) => (
-                <div key={b.id} style={{
-                  display:"grid", gridTemplateColumns:"68px 88px 1fr",
-                  gap:"12px", alignItems:"center", padding:"11px 16px",
-                  borderBottom: bi<pBlocks.length-1 ? `1px solid ${C.border}` : "none",
-                }}>
-                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:pr.color }}>{b.time}</div>
-                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:pr.color, background:`${pr.color}16`, borderRadius:"5px", padding:"3px 8px", textAlign:"center" }}>{b.dur}</div>
-                  <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"13px", color:C.t2 }}>{b.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Principles */}
-      <div style={{ marginTop:"28px" }}>
-        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:700, color:C.t1, marginBottom:"14px" }}>
-          Os quatro princípios do sistema
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"12px" }}>
-          {PRINCIPLES.map((p,i) => (
-            <div key={i} style={{
-              background:C.goldBg, border:`1px solid ${C.goldBd}`,
-              borderRadius:"13px", padding:"20px 22px",
-            }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.gold, letterSpacing:"0.16em", marginBottom:"9px" }}>{p.n}</div>
-              <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:700, color:C.goldS, lineHeight:1.35, marginBottom:"9px" }}>"{p.quote}"</div>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.t3, lineHeight:1.7 }}>{p.body}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+/* ════════════════════════════════════════════════
+   DAY PROGRESS
+════════════════════════════════════════════════ */
+function updateDayProgress() {
+  const now = new Date();
+  const m = now.getHours()*60+now.getMinutes();
+  const dayStart = 6*60, dayEnd = 22*60+15;
+  const pct = Math.max(0, Math.min(100, ((m - dayStart)/(dayEnd - dayStart))*100));
+  const fill = document.getElementById('dayprogfill');
+  if (fill) fill.style.width = pct + '%';
 }
 
-/* ─────────────────────────────────────────
-   VIEW: ROTINA
-───────────────────────────────────────── */
-function RotinaView({ now, todayWS }) {
-  const [expanded, setExpanded] = useState(null);
-  const nowMin = now.getHours()*60+now.getMinutes();
-
-  const isCur = b => {
-    if (b.id==="n5") return false;
-    const s=hhmm(b.time), e=hhmm(b.end);
-    return nowMin>=s && nowMin<e;
-  };
-
-  return (
-    <div className="fadein">
-      {/* Today banner */}
-      <div style={{
-        background:`linear-gradient(135deg, ${todayWS.color}12, ${todayWS.color}06)`,
-        border:`1px solid ${todayWS.color}28`,
-        borderRadius:"13px", padding:"16px 20px", marginBottom:"22px",
-      }}>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:"14px", alignItems:"center" }}>
-          <div>
-            <div style={{ display:"flex", alignItems:"center", gap:"9px", marginBottom:"8px" }}>
-              <Tag label={todayWS.tag} color={todayWS.color} bg={`${todayWS.color}18`} border={`${todayWS.color}35`}/>
-              <span className="live" style={{ width:"5px",height:"5px",borderRadius:"50%",background:todayWS.color,display:"inline-block" }}/>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t3,letterSpacing:"0.08em" }}>HOJE · {todayWS.full.toUpperCase()}</span>
-            </div>
-            <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:C.t1,fontWeight:600,marginBottom:"4px" }}>{todayWS.study.split(",")[0]}</div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3 }}>Conteúdo → {todayWS.content.split(",")[0]}</div>
-          </div>
-          <div style={{ textAlign:"right" }}>
-            <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"42px",fontWeight:700,color:`${todayWS.color}25`,lineHeight:1 }}>{now.getDate()}</div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,marginTop:"2px",letterSpacing:"0.08em" }}>
-              {now.toLocaleDateString("pt-PT",{month:"short"}).toUpperCase()} {now.getFullYear()}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {PERIODS.map(pr => {
-        const pB = BLOCKS.filter(b=>b.p===pr.id);
-        return (
-          <div key={pr.id} style={{ marginBottom:"26px" }}>
-            <SectionHead icon={pr.icon} label={pr.label} color={pr.color} right={pr.range} />
-            <div style={{ background:C.surface,border:`1px solid ${C.border}`,borderRadius:"13px",overflow:"hidden",boxShadow:`0 2px 14px ${C.shadow}` }}>
-              {pB.map((b,bi) => {
-                const cur  = isCur(b);
-                const open = expanded===b.id;
-                return (
-                  <div key={b.id} className="row"
-                    onClick={() => setExpanded(open?null:b.id)}
-                    style={{
-                      display:"grid", gridTemplateColumns:"70px 88px 1fr 18px",
-                      alignItems:"center", gap:"12px", padding:"13px 17px",
-                      background: cur?`${pr.color}14`:open?`${pr.color}09`:"transparent",
-                      borderBottom: bi<pB.length-1?`1px solid ${C.border}`:"none",
-                      borderLeft: cur?`3px solid ${pr.color}`:open?`3px solid ${pr.color}70`:"3px solid transparent",
-                    }}>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"11px",color:(cur||open)?pr.color:C.t3,fontWeight:(cur||open)?600:400,display:"flex",alignItems:"center",gap:"5px" }}>
-                      {cur && <span className="live" style={{ width:"5px",height:"5px",borderRadius:"50%",background:pr.color,display:"inline-block",flexShrink:0 }}/>}
-                      {b.time}
-                    </div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:pr.color,background:`${pr.color}18`,borderRadius:"5px",padding:"3px 8px",textAlign:"center",whiteSpace:"nowrap" }}>{b.dur}</div>
-                    <div>
-                      <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:(cur||open)?C.t1:C.t2,fontWeight:(cur||open)?600:400,lineHeight:1.3 }}>{b.label}</div>
-                      {open && <div className="fadein" style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3,marginTop:"5px",lineHeight:1.65 }}>{b.desc}</div>}
-                    </div>
-                    <div style={{ color:open?pr.color:C.t4,fontSize:"15px",transition:"transform 0.2s",transform:open?"rotate(90deg)":"none",textAlign:"center",userSelect:"none" }}>›</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────
-   VIEW: TEMPLATE
-───────────────────────────────────────── */
-function TemplateView({ now, todayWS, allData, setAllData }) {
-  const [vDate, setVDate] = useState(new Date(now));
-  const vKey   = dateKey(vDate);
-  const vShort = ALL_DAYS[vDate.getDay()];
-  const vWS    = WEEK.find(w=>w.day===vShort) || WEEK[0];
-  const isToday= vKey===dateKey(now);
-
-  const dayData = useMemo(()=>getDay(allData,vKey),[allData,vKey]);
-
-  const upd = useCallback(fn => {
-    setAllData(a=>{const n={...a,[vKey]:fn(getDay(a,vKey))};saveAll(n);return n;});
-  },[vKey]);
-
-  const setBF   = (id,f,v) => upd(d=>({...d,blocks:{...d.blocks,[id]:{...d.blocks[id],[f]:v}}}));
-  const setExtr = (id,k,v) => upd(d=>({...d,blocks:{...d.blocks,[id]:{...d.blocks[id],extras:{...(d.blocks[id]?.extras||{}),[k]:v}}}}));
-  const setRev  = (f,v)    => upd(d=>({...d,review:{...(d.review||{}),[f]:v}}));
-  const setGrat = (i,v)    => upd(d=>{const g=[...((d.review||{}).gratitude||["","",""])];g[i]=v;return{...d,review:{...(d.review||{}),gratitude:g}};});
-
-  const shiftDay= n=>setVDate(d=>{const nd=new Date(d);nd.setDate(nd.getDate()+n);return nd;});
-  const rev     = dayData.review||{};
-  const doneCnt = BLOCKS.filter(b=>(dayData.blocks[b.id]||{}).done).length;
-
-  const doExport = ()=>{
-    const txt = buildExport(dayData, vDate.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long",year:"numeric"}), vShort);
-    downloadTxt(txt, `habitus-adelson-${vKey}.txt`);
-  };
-
-  return (
-    <div className="fadein">
-      {/* Date nav */}
-      <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",background:C.surface,border:`1px solid ${C.border}`,borderRadius:"12px",padding:"11px 17px",marginBottom:"16px",boxShadow:`0 2px 12px ${C.shadow}` }}>
-        <button className="ibtn" onClick={()=>shiftDay(-1)} style={{ width:"32px",height:"32px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.t3,display:"flex",alignItems:"center",justifyContent:"center" }}><PrevIco/></button>
-        <div style={{ textAlign:"center" }}>
-          <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.t1 }}>
-            {vDate.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
-          </div>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,marginTop:"2px" }}>
-            {isToday&&<span style={{ color:C.green }}>HOJE · </span>}
-            <span style={{ color:vWS.color }}>{vWS.tag}</span>
-            {" · "}{doneCnt}/{BLOCKS.length} blocos
-          </div>
-        </div>
-        <div style={{ display:"flex",gap:"7px" }}>
-          <button className="ibtn" onClick={()=>shiftDay(1)} style={{ width:"32px",height:"32px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.t3,display:"flex",alignItems:"center",justifyContent:"center" }}><NextIco/></button>
-          <button className="ibtn" onClick={doExport} title="Exportar" style={{ width:"32px",height:"32px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.pSoft,display:"flex",alignItems:"center",justifyContent:"center" }}><DownIco/></button>
-        </div>
-      </div>
-
-      {/* Progress */}
-      <div style={{ height:"3px",background:C.border,borderRadius:"2px",marginBottom:"20px" }}>
-        <div style={{ height:"100%",width:`${(doneCnt/BLOCKS.length)*100}%`,background:`linear-gradient(90deg,${C.primary},${C.green})`,borderRadius:"2px",transition:"width 0.3s" }}/>
-      </div>
-
-      {PERIODS.map(pr => {
-        const pB = BLOCKS.filter(b=>b.p===pr.id);
-        return (
-          <div key={pr.id} style={{ marginBottom:"26px" }}>
-            <SectionHead icon={pr.icon} label={pr.label} color={pr.color} />
-            <div style={{ display:"flex",flexDirection:"column",gap:"7px" }}>
-              {pB.map(b => (
-                <BlockCard key={b.id} b={b} data={dayData.blocks[b.id]||{}} pc={pr.color}
-                  onDone  ={v=>setBF(b.id,"done",v)}
-                  onIntent={v=>setBF(b.id,"intention",v)}
-                  onNotes ={v=>setBF(b.id,"notes",v)}
-                  onExtr  ={(k,v)=>setExtr(b.id,k,v)}
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Revisão */}
-      <div style={{ background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:"13px",padding:"22px 24px" }}>
-        <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.goldS,marginBottom:"18px" }}>
-          Revisão do Dia
-        </div>
-        {[
-          { f:"learned",  l:"O que aprendi hoje que não sabia ontem?" },
-          { f:"thinking", l:"O meu pensamento avançou? Em que direcção?" },
-          { f:"silence",  l:"O que o silêncio de hoje me mostrou?" },
-        ].map(({f,l})=>(
-          <div key={f} style={{ marginBottom:"12px" }}>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"5px" }}>{l}</div>
-            <textarea rows={2} value={(rev[f])||""} onChange={e=>setRev(f,e.target.value)}
-              onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border}
-              style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"9px 12px",fontSize:"12px",color:C.t2,lineHeight:1.65,fontFamily:"'JetBrains Mono',monospace" }}
-            />
-          </div>
-        ))}
-        <div style={{ marginBottom:"14px" }}>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"8px" }}>Gratidão (3 coisas)</div>
-          <div style={{ display:"flex",flexDirection:"column",gap:"5px" }}>
-            {[0,1,2].map(i=>(
-              <input key={i} type="text" value={(rev.gratitude||["","",""])[i]||""} onChange={e=>setGrat(i,e.target.value)}
-                placeholder={`${i+1}.`}
-                onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border}
-                style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"8px 12px",fontSize:"12px",color:C.t2,fontFamily:"'JetBrains Mono',monospace" }}
-              />
-            ))}
-          </div>
-        </div>
-        <div>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"8px" }}>Nota do dia</div>
-          <div style={{ display:"flex",gap:"7px" }}>
-            {[1,2,3,4,5].map(n=>(
-              <button key={n} className="ibtn" onClick={()=>setRev("score",rev.score===n?0:n)} style={{
-                width:"40px",height:"40px",borderRadius:"10px",
-                background:rev.score>=n?`${C.gold}22`:C.card,
-                border:`1px solid ${rev.score>=n?C.gold:C.border}`,
-                color:rev.score>=n?C.gold:C.t4,
-                fontFamily:"'Syne',sans-serif",fontSize:"16px",fontWeight:700,
-              }}>{n}</button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BlockCard({ b, data:bd, pc, onDone, onIntent, onNotes, onExtr }) {
-  const [open, setOpen] = useState(false);
-  const done = bd.done||false;
-  return (
-    <div style={{
-      background:done?C.greenBg:C.card,
-      border:`1px solid ${done?C.green+"28":(open?`${pc}28`:C.border)}`,
-      borderRadius:"12px",overflow:"hidden",
-      boxShadow:`0 1px 8px ${C.shadow}`,
-    }}>
-      {/* Header */}
-      <div onClick={()=>setOpen(!open)} style={{ display:"grid",gridTemplateColumns:"auto 68px 86px 1fr auto",alignItems:"center",gap:"12px",padding:"12px 16px",cursor:"pointer" }}>
-        <button className="ibtn" onClick={e=>{e.stopPropagation();onDone(!done)}} style={{
-          width:"22px",height:"22px",borderRadius:"6px",background:done?C.green:"transparent",
-          border:`2px solid ${done?C.green:C.t4}`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",flexShrink:0,
-        }}>{done&&<CheckIco/>}</button>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"11px",color:done?C.t3:pc }}>{b.time}</div>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:pc,background:`${pc}18`,borderRadius:"5px",padding:"3px 8px",textAlign:"center",whiteSpace:"nowrap" }}>{b.dur}</div>
-        <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:done?C.t3:(open?C.t1:C.t2),fontWeight:open?600:400,textDecoration:done?"line-through":"none",lineHeight:1.3 }}>{b.label}</div>
-        <div style={{ color:open?pc:C.t4,fontSize:"15px",transition:"transform 0.2s",transform:open?"rotate(90deg)":"none",userSelect:"none" }}>›</div>
-      </div>
-
-      {/* Expanded */}
-      {open && (
-        <div className="fadein" style={{ borderTop:`1px solid ${C.border}`,padding:"15px 17px" }}>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3,lineHeight:1.65,marginBottom:"14px" }}>{b.desc}</div>
-
-          {/* Special fields */}
-          {(b.fields||[]).map(f=>(
-            <div key={f.k} style={{ marginBottom:"10px" }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"4px" }}>{f.l}</div>
-              {f.big
-                ? <textarea rows={3} value={(bd.extras||{})[f.k]||""} onChange={e=>onExtr(f.k,e.target.value)}
-                    onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
-                    style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"9px 12px",fontSize:"12px",color:C.t2,lineHeight:1.65,fontFamily:"'JetBrains Mono',monospace" }}/>
-                : <input type="text" value={(bd.extras||{})[f.k]||""} onChange={e=>onExtr(f.k,e.target.value)}
-                    onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
-                    style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"8px 12px",fontSize:"12px",color:C.t2,fontFamily:"'JetBrains Mono',monospace" }}/>
-              }
-            </div>
-          ))}
-
-          {/* Common fields */}
-          <div style={{ marginBottom:"10px" }}>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"4px" }}>Intenção do bloco</div>
-            <input type="text" value={bd.intention||""} onChange={e=>onIntent(e.target.value)} placeholder="O que quero que este tempo produza?"
-              onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
-              style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"8px 12px",fontSize:"12px",color:C.t2,fontFamily:"'JetBrains Mono',monospace" }}/>
-          </div>
-          <div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"4px" }}>Notas livres</div>
-            <textarea rows={2} value={bd.notes||""} onChange={e=>onNotes(e.target.value)} placeholder="Pensamentos, observações, o que surgiu..."
-              onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
-              style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"9px 12px",fontSize:"12px",color:C.t2,lineHeight:1.65,fontFamily:"'JetBrains Mono',monospace" }}/>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────
-   VIEW: SEMANA
-───────────────────────────────────────── */
-function SemanaView({ todayShort }) {
-  return (
-    <div className="fadein">
-      <div style={{ background:C.p10,border:`1px solid ${C.borderA}`,borderRadius:"11px",padding:"14px 18px",marginBottom:"20px",display:"flex",gap:"10px" }}>
-        <span style={{ fontSize:"14px",flexShrink:0 }}>📖</span>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3,lineHeight:1.65 }}>
-          <strong style={{ color:C.pSoft }}>Sistema semanal do Sábio</strong> — A semana começa em Método & Filosofia, não em execução.
-          Cada dia aprofunda um pilar diferente do mesmo sistema.
-        </div>
-      </div>
-      <div style={{ display:"flex",flexDirection:"column",gap:"8px" }}>
-        {WEEK.map((w,i)=>{
-          const isT=w.day===todayShort;
-          return (
-            <div key={i} className="wcard" style={{
-              background:isT?`linear-gradient(135deg,${w.color}12,${w.color}06)`:C.surface,
-              border:`1px solid ${isT?w.color+"30":C.border}`,
-              borderRadius:"13px",padding:"15px 18px",
-              display:"grid",gridTemplateColumns:"110px 1fr 1fr",
-              gap:"18px",alignItems:"start",boxShadow:`0 2px 10px ${C.shadow}`,
-            }}>
-              <div>
-                <div style={{ display:"flex",alignItems:"center",gap:"7px",marginBottom:"6px" }}>
-                  {isT&&<span className="live" style={{ width:"6px",height:"6px",borderRadius:"50%",background:w.color,display:"inline-block",flexShrink:0 }}/>}
-                  <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:isT?w.color:C.t2 }}>{w.full}</div>
-                </div>
-                <Tag label={w.tag} color={w.color} bg={`${w.color}18`} border={`${w.color}30`}/>
-              </div>
-              <div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:"5px" }}>Estudo</div>
-                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"11px",color:C.t3,lineHeight:1.6 }}>{w.study}</div>
-              </div>
-              <div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:"5px" }}>Conteúdo</div>
-                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"11px",color:C.t3,lineHeight:1.6 }}>{w.content}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────
-   VIEW: ARQUIVO
-───────────────────────────────────────── */
-function ArquivoView({ allData }) {
-  const keys = Object.keys(allData).sort((a,b)=>b.localeCompare(a)).slice(0,30);
-  if (!keys.length) return (
-    <div className="fadein" style={{ textAlign:"center",padding:"60px 0" }}>
-      <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"16px",color:C.t3,marginBottom:"8px" }}>Arquivo vazio</div>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t4 }}>Os dias preenchidos no Template aparecem aqui.</div>
-    </div>
-  );
-  return (
-    <div className="fadein">
-      <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.t1,marginBottom:"16px" }}>Arquivo de Dias</div>
-      <div style={{ display:"flex",flexDirection:"column",gap:"7px" }}>
-        {keys.map(k=>{
-          const d  = allData[k];
-          const dt = new Date(k+"T06:00:00");
-          const ws = WEEK.find(w=>w.day===ALL_DAYS[dt.getDay()])||WEEK[0];
-          const dn = BLOCKS.filter(b=>(d.blocks||{})[b.id]?.done).length;
-          const sc = (d.review||{}).score||0;
-          return (
-            <div key={k} style={{ background:C.surface,border:`1px solid ${C.border}`,borderRadius:"11px",padding:"13px 17px",display:"grid",gridTemplateColumns:"1fr auto auto auto",gap:"16px",alignItems:"center" }}>
-              <div>
-                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:C.t1,marginBottom:"3px" }}>
-                  {dt.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
-                </div>
-                <Tag label={ws.tag} color={ws.color} bg={`${ws.color}16`} border={`${ws.color}28`}/>
-              </div>
-              <div style={{ textAlign:"center" }}>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"13px",color:dn===BLOCKS.length?C.green:C.pSoft }}>{dn}/{BLOCKS.length}</div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4 }}>blocos</div>
-              </div>
-              {sc>0&&<div style={{ textAlign:"center" }}>
-                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"18px",color:C.gold,lineHeight:1 }}>{sc}</div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4 }}>nota</div>
-              </div>}
-              <button className="ibtn" onClick={()=>{
-                const txt=buildExport(d,dt.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long",year:"numeric"}),ALL_DAYS[dt.getDay()]);
-                downloadTxt(txt,`habitus-adelson-${k}.txt`);
-              }} style={{ width:"30px",height:"30px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.t3,display:"flex",alignItems:"center",justifyContent:"center" }}>
-                <DownIco/>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────
-   MAIN APP
-───────────────────────────────────────── */
-function HabitusAdelson() {
-  const [tab, setTab]         = useState("hub");
-  const [now, setNow]         = useState(new Date());
-  const [allData, setAllData] = useState(()=>loadAll());
-
-  useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
-
-  const todayShort = ALL_DAYS[now.getDay()];
-  const todayWS    = WEEK.find(w=>w.day===todayShort)||WEEK[0];
-  const dayFrac    = (now.getHours()*60+now.getMinutes())/(24*60);
-
-  const TABS = [
-    { k:"hub",      l:"Hub"      },
-    { k:"rotina",   l:"Rotina"   },
-    { k:"template", l:"Template" },
-    { k:"semana",   l:"Semana"   },
-    { k:"arquivo",  l:"Arquivo"  },
+/* ════════════════════════════════════════════════
+   TOPBAR
+════════════════════════════════════════════════ */
+function renderTopbar() {
+  const nav = document.getElementById('tb-nav');
+  const tabs = [
+    {id:'dia',    label:'Dia a Dia'},
+    {id:'semana', label:'Semana'},
+    {id:'arquivo',label:'Arquivo'},
+    {id:'perfil', label:'Perfil'},
   ];
+  nav.innerHTML = tabs.map(t =>
+    `<button class="tab-btn${S.view===t.id?' active':''}" data-nav="${t.id}">${t.label}</button>`
+  ).join('');
 
-  return (
-    <div style={{ minHeight:"100vh",background:C.bg,color:C.t1,fontFamily:"'Syne',system-ui,sans-serif" }}>
+  // week dots
+  const dotsEl = document.getElementById('week-dots');
+  const todayIdx = new Date().getDay(); // 0=Sun
+  dotsEl.innerHTML = ALL_DAYS.map((d,i) => {
+    const isToday = i === todayIdx;
+    const w = WEEK.find(x=>x.day===d);
+    const color = w ? w.color : '#7F77DD';
+    return `<div class="wdot${isToday?' today':''}" title="${d}" style="${isToday?'background:'+color+';box-shadow:0 0 6px '+color+'66':''}"></div>`;
+  }).join('');
 
-      {/* ── TOPBAR ── */}
-      <div style={{ padding:"0 22px",borderBottom:`1px solid ${C.border}`,background:C.glass,backdropFilter:"blur(24px)",position:"sticky",top:0,zIndex:20 }}>
-        <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",height:"54px" }}>
+  // clock
+  const clockEl = document.getElementById('clock');
+  if (clockEl) clockEl.textContent = fmtTime(new Date());
+}
 
-          {/* Logo */}
-          <div style={{ display:"flex",alignItems:"center",gap:"10px" }}>
-            <div style={{
-              width:"28px",height:"28px",borderRadius:"8px",
-              background:`linear-gradient(135deg,${C.primary},${C.pDark})`,
-              display:"flex",alignItems:"center",justifyContent:"center",
-              fontSize:"13px",color:"#fff",
-              boxShadow:`0 3px 12px rgba(74,124,199,0.45)`,
-            }}>◈</div>
-            <div>
-              <span style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.t1 }}>Habitus OS</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.1em",display:"block",marginTop:"1px" }}>ADELSON · ADERRY</span>
-            </div>
-          </div>
+function updateTabActive() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.nav === S.view);
+  });
+}
 
-          {/* Week dots + clock */}
-          <div style={{ display:"flex",alignItems:"center",gap:"14px" }}>
-            <div className="wdots" style={{ display:"flex",gap:"3px" }}>
-              {WEEK.map(w=>{
-                const isT=w.day===todayShort;
-                return (
-                  <div key={w.day} title={`${w.full} · ${w.tag}`} style={{
-                    width:"26px",height:"26px",borderRadius:"7px",
-                    background:isT?w.color:C.card,
-                    border:`1px solid ${isT?w.color:C.border}`,
-                    display:"flex",alignItems:"center",justifyContent:"center",
-                    fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",
-                    fontWeight:isT?700:400,color:isT?"#fff":C.t4,
-                  }}>{w.day.charAt(0)}</div>
-                );
-              })}
-            </div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"12px",color:C.t2,letterSpacing:"0.04em" }}>
-              {fmtTime(now)}
-            </div>
-          </div>
+/* ════════════════════════════════════════════════
+   RENDER MAIN
+════════════════════════════════════════════════ */
+function renderMain() {
+  const main = document.getElementById('main');
+  if (S.view === 'dia') {
+    main.innerHTML = renderDia(false, todayKey());
+  } else if (S.view === 'semana') {
+    main.innerHTML = renderSemana();
+  } else if (S.view === 'arquivo') {
+    main.innerHTML = renderArquivo();
+  } else if (S.view === 'perfil') {
+    main.innerHTML = renderPerfil();
+  }
+  main.classList.remove('fadein');
+  void main.offsetWidth;
+  main.classList.add('fadein');
+  updateTabActive();
+}
+
+/* ════════════════════════════════════════════════
+   renderDia
+════════════════════════════════════════════════ */
+function renderDia(readonly, dayKey) {
+  const ddata = getDay(dayKey);
+  const currentId = readonly ? null : getCurrentBlockId();
+  const tw = getTodayWeek();
+  const isToday = dayKey === todayKey();
+
+  // Week banner
+  let html = '';
+  html += `<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:20px">`;
+  if (!readonly && isToday) {
+    html += `<div>
+      <div class="day-key-label">Hoje</div>
+      <div class="day-key-date">${fmtDateLong(dayKey)}</div>
+    </div>`;
+  } else {
+    html += `<div>
+      <div class="day-key-label">${readonly ? '<span class="readonly-badge">arquivo</span>' : ''}</div>
+      <div class="day-key-date">${fmtDateLong(dayKey)}</div>
+    </div>`;
+  }
+  html += `</div>`;
+
+  // Week theme banner
+  html += `<div class="week-banner" style="background:linear-gradient(135deg,${tw.color}14 0%,${tw.color}08 100%);border-color:${tw.color}40">
+    <div style="flex:1">
+      <div class="week-banner-tag" style="color:${tw.color}">${esc(tw.tag)}</div>
+      <div class="week-banner-cols">
+        <div class="week-banner-col">
+          <div class="week-banner-label">Estudo do dia</div>
+          <div class="week-banner-val">${esc(tw.study)}</div>
         </div>
-
-        {/* Day progress */}
-        <div style={{ height:"2px",background:C.border }}>
-          <div style={{ height:"100%",width:`${dayFrac*100}%`,background:`linear-gradient(90deg,${C.primary},${todayWS.color})`,transition:"width 60s linear" }}/>
-        </div>
-
-        {/* Tabs */}
-        <div style={{ display:"flex",overflowX:"auto" }}>
-          {TABS.map(t=>(
-            <button key={t.k} className="tab" onClick={()=>setTab(t.k)} style={{
-              padding:"10px 16px",fontFamily:"'JetBrains Mono',monospace",
-              fontSize:"9px",letterSpacing:"0.14em",textTransform:"uppercase",
-              color:tab===t.k?C.pSoft:C.t3,
-              borderBottom:tab===t.k?`2px solid ${C.primary}`:"2px solid transparent",
-              marginBottom:"-1px",whiteSpace:"nowrap",
-            }}>{t.l}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── CONTENT ── */}
-      <div style={{ padding:"24px 22px 64px",maxWidth:"900px",margin:"0 auto" }}>
-        {tab==="hub"      && <HubView      todayWS={todayWS} />}
-        {tab==="rotina"   && <RotinaView   now={now} todayWS={todayWS} />}
-        {tab==="template" && <TemplateView now={now} todayWS={todayWS} allData={allData} setAllData={setAllData} />}
-        {tab==="semana"   && <SemanaView   todayShort={todayShort} />}
-        {tab==="arquivo"  && <ArquivoView  allData={allData} />}
-      </div>
-
-      {/* ── FOOTER ── */}
-      <div style={{ borderTop:`1px solid ${C.border}`,padding:"15px 22px",display:"flex",justifyContent:"space-between",alignItems:"center",background:C.glass,backdropFilter:"blur(12px)" }}>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.1em" }}>HABITUS OS · ADELSON · ADERRY</div>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4 }}>
-          {now.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
+        <div class="week-banner-col">
+          <div class="week-banner-label">Conteúdo / Foco</div>
+          <div class="week-banner-val">${esc(tw.content)}</div>
         </div>
       </div>
     </div>
-  );
+    ${!readonly ? `<button class="export-btn" data-export>Exportar</button>` : ''}
+  </div>`;
+
+  // Periods
+  PERIODS.forEach(period => {
+    const blocks = BLOCKS.filter(b => b.p === period.id);
+    html += `<div class="period-hdr">
+      <span class="period-icon" style="color:${period.color}">${period.icon}</span>
+      <span class="period-label" style="color:${period.color}">${period.label}</span>
+      <span class="period-range">${period.range}</span>
+      <span class="period-sub">· ${period.sub}</span>
+      <div class="period-line"></div>
+    </div>`;
+    html += `<div class="blocks-card">`;
+    blocks.forEach((block, bi) => {
+      const bd = ddata.blocks[block.id] || {done:false,intention:'',notes:'',extras:{}};
+      const isCurrent = !readonly && currentId === block.id;
+      const isOpen = S.expandedBlock === block.id;
+      const isDone = bd.done;
+      let rowClass = 'block-row';
+      if (isCurrent) rowClass += ' is-current';
+      if (isOpen) rowClass += ' is-open';
+      if (isDone) rowClass += ' is-done';
+      const borderColor = (isCurrent || isOpen) ? period.color : 'transparent';
+
+      html += `<div class="${rowClass}" style="--period-color:${period.color};border-left-color:${borderColor}" data-toggle-block="${block.id}">`;
+      // Checkbox
+      if (!readonly) {
+        html += `<div class="block-check${isDone?' checked':''}" data-toggle-done="${block.id}" title="Marcar como feito">
+          ${isDone ? checkSVG() : ''}
+        </div>`;
+      } else {
+        html += `<div class="block-check${isDone?' checked':''}" style="cursor:default">
+          ${isDone ? checkSVG() : ''}
+        </div>`;
+      }
+      // Time
+      html += `<div class="block-time">${block.t}</div>`;
+      // Dur badge
+      html += `<div class="dur-badge" style="background:${period.color}20;color:${period.color}">${block.d}</div>`;
+      // Label
+      if (isCurrent) {
+        html += `<div class="block-label"><span class="current-live"></span>${esc(block.label)}</div>`;
+      } else {
+        html += `<div class="block-label">${esc(block.label)}</div>`;
+      }
+      // Chevron
+      html += `<div class="block-chevron">${isOpen ? '▲' : '▼'}</div>`;
+      html += `</div>`; // .block-row
+
+      // Expanded content
+      if (isOpen) {
+        html += `<div class="block-expand" style="border-left-color:${period.color}">`;
+        html += `<div class="block-desc">${esc(block.desc)}</div>`;
+
+        // Custom fields
+        if (block.fields && block.fields.length > 0) {
+          const smallFields = block.fields.filter(f => !f.big);
+          const bigFields = block.fields.filter(f => f.big);
+
+          if (smallFields.length > 0) {
+            if (smallFields.length >= 2) {
+              html += `<div class="field-row2">`;
+              smallFields.forEach(f => {
+                const val = bd.extras ? (bd.extras[f.k] || '') : '';
+                html += `<div><label class="field-label">${esc(f.l)}</label>
+                  <input class="field-input" type="text" placeholder="${esc(f.l)}" value="${esc(val)}"
+                    data-extra="${f.k}" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}></div>`;
+              });
+              html += `</div>`;
+            } else {
+              smallFields.forEach(f => {
+                const val = bd.extras ? (bd.extras[f.k] || '') : '';
+                html += `<label class="field-label">${esc(f.l)}</label>
+                  <input class="field-input" type="text" placeholder="${esc(f.l)}" value="${esc(val)}"
+                    data-extra="${f.k}" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}><br>`;
+              });
+            }
+          }
+          bigFields.forEach(f => {
+            const val = bd.extras ? (bd.extras[f.k] || '') : '';
+            html += `<label class="field-label">${esc(f.l)}</label>
+              <textarea class="field-textarea${f.large?' large':''}" placeholder="${esc(f.l)}"
+                data-extra="${f.k}" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(val)}</textarea>`;
+          });
+          html += `<div class="fields-sep"></div>`;
+        }
+
+        // Intention
+        html += `<label class="field-mini-label">Intenção para este bloco</label>
+          <input class="field-input" type="text" placeholder="O que quero realizar neste bloco..."
+            value="${esc(bd.intention||'')}" data-field="intention" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}><br>`;
+        // Notes
+        html += `<label class="field-mini-label">Notas / Reflexão</label>
+          <textarea class="field-textarea" placeholder="Notas livres sobre este bloco..."
+            data-field="notes" data-bid="${block.id}" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(bd.notes||'')}</textarea>`;
+
+        html += `</div>`; // .block-expand
+      }
+    });
+    html += `</div>`; // .blocks-card
+  });
+
+  // Day Review
+  const rev = ddata.review || {learned:'',thinking:'',silence:'',gratitude:['','',''],score:0};
+  html += `<div class="review-card">
+    <div class="review-title">◈ Revisão do Dia</div>
+    <label class="field-label" style="color:var(--gold)">O que aprendi hoje?</label>
+    <textarea class="field-textarea" placeholder="Insights, aprendizados, surpresas do dia..."
+      data-review="learned" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(rev.learned||'')}</textarea>
+    <label class="field-label" style="color:var(--gold)">O que ocupou o meu pensamento?</label>
+    <textarea class="field-textarea" placeholder="Ideias, questões abertas, reflexões..."
+      data-review="thinking" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(rev.thinking||'')}</textarea>
+    <label class="field-label" style="color:var(--gold)">Que silêncio foi produtivo hoje?</label>
+    <textarea class="field-textarea" placeholder="Momentos de quietude que criaram algo..."
+      data-review="silence" data-dkey="${dayKey}" ${readonly?'disabled':''}>${esc(rev.silence||'')}</textarea>
+    <label class="field-label" style="color:var(--gold);margin-top:4px">Gratidão (3 itens)</label>
+    <div class="grat-row">
+      ${[0,1,2].map(i => `<input class="field-input" type="text" placeholder="Gratidão ${i+1}..."
+        value="${esc((rev.gratitude&&rev.gratitude[i])||'')}" data-grat="${i}" data-dkey="${dayKey}" ${readonly?'disabled':''}>`).join('')}
+    </div>
+    <label class="field-label" style="color:var(--gold)">Score do dia</label>
+    <div class="score-row">
+      ${[1,2,3,4,5].map(n => `<button class="score-btn${(rev.score||0)===n?' active':''}"
+        data-score="${n}" data-dkey="${dayKey}" ${readonly?'disabled':''}>${n}</button>`).join('')}
+    </div>
+  </div>`;
+
+  return html;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<HabitusAdelson />);
+/* ════════════════════════════════════════════════
+   renderSemana
+════════════════════════════════════════════════ */
+function renderSemana() {
+  const todayDayIdx = new Date().getDay();
+  const todayDayShort = ALL_DAYS[todayDayIdx];
+  let html = `<div class="section-heading">Sistema Semanal</div>
+  <div class="section-sub" style="margin-bottom:20px">Cada dia tem um tema de estudo e foco de conteúdo — a arquitectura do pensamento Aderry.</div>
+  <p class="semana-intro">O Sábio não aprende ao acaso — tem um sistema. Cada dia da semana alimenta uma dimensão diferente do método Aderry.</p>
+  <div class="week-grid">`;
+
+  WEEK.forEach(w => {
+    const isToday = w.day === todayDayShort;
+    html += `<div class="wday-card${isToday?' today':''}">
+      <div>
+        <div class="wday-name" style="color:${w.color}">${w.day}${isToday ? `<span class="wday-today-pill">hoje</span>` : ''}</div>
+        <div class="wday-full">${w.full}</div>
+      </div>
+      <div>
+        <div class="wday-badge" style="background:${w.color}18;color:${w.color};border:1px solid ${w.color}30">${esc(w.tag)}</div>
+        <div class="wday-sub-label">Estudo</div>
+        <div class="wday-sub-val">${esc(w.study)}</div>
+      </div>
+      <div>
+        <div class="wday-sub-label" style="margin-top:26px">Conteúdo / Foco</div>
+        <div class="wday-sub-val">${esc(w.content)}</div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+/* ════════════════════════════════════════════════
+   renderArquivo
+════════════════════════════════════════════════ */
+function renderArquivo() {
+  if (S.archiveKey) {
+    const ddata = getDay(S.archiveKey);
+    const rev = ddata.review || {};
+    let html = `<button class="archive-back-btn" data-archive-back>← Voltar ao arquivo</button>`;
+    html += renderDia(true, S.archiveKey);
+    return html;
+  }
+
+  const journal = loadJournal();
+  const keys = Object.keys(journal).sort().reverse();
+  const today = todayKey();
+
+  let html = `<div class="section-heading">Arquivo</div>
+  <div class="section-sub">Todos os dias registados no sistema Habitus OS · Aderry.</div>`;
+
+  if (keys.length === 0) {
+    html += `<div class="archive-empty">Nenhum dia arquivado ainda.<br>Começa por registar o teu dia na aba "Dia a Dia".</div>`;
+    return html;
+  }
+
+  html += `<div class="archive-list">`;
+  keys.forEach(k => {
+    if (k === today) return; // today shown in dia tab
+    const d = journal[k];
+    const rev = d.review || {};
+    const score = rev.score || 0;
+    const blocks = d.blocks || {};
+    const doneCount = Object.values(blocks).filter(b => b.done).length;
+    const totalBlocks = BLOCKS.length;
+    const dateStr = fmtDateLong(k);
+
+    const dayIdx = new Date(k+'T06:00:00').getDay();
+    const dayShort = ALL_DAYS[dayIdx];
+    const weekDay = WEEK.find(w => w.day === dayShort);
+    const dayTag = weekDay ? weekDay.tag : '';
+    const dayColor = weekDay ? weekDay.color : '#7F77DD';
+
+    html += `<div class="archive-entry" data-archive-open="${k}">
+      <div class="archive-date">${k}</div>
+      <div>
+        <div style="font-size:12px;color:var(--t1);margin-bottom:3px">${dateStr}</div>
+        <div class="archive-day-tag" style="color:${dayColor}">${esc(dayTag)}</div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="archive-count">${doneCount}/${totalBlocks}</div>
+      <div class="archive-score-dots">
+        ${[1,2,3,4,5].map(n => `<div class="archive-sdot${n<=score?' filled':''}"></div>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+/* ════════════════════════════════════════════════
+   renderPerfil
+════════════════════════════════════════════════ */
+function renderPerfil() {
+  const p = loadProfile() || {};
+  let html = '';
+
+  if (S.isFirstVisit) {
+    html += `<div class="welcome-banner">
+      <div class="welcome-title">Bem-vindo ao Habitus OS · Aderry</div>
+      <div class="welcome-sub">Antes de começar, conta-nos um pouco sobre ti. Este perfil ajuda o sistema a personalizar a tua experiência e a manter o contexto do teu percurso.</div>
+    </div>`;
+  } else {
+    html += `<div class="section-heading">Perfil</div>
+    <div class="section-sub">O teu contexto, identidade e princípios orientadores.</div>`;
+  }
+
+  const sec = (letter, title, inner) => `
+    <div class="profile-section">
+      <div class="profile-section-title">
+        <div class="profile-section-letter">${letter}</div>
+        ${title}
+      </div>
+      ${inner}
+    </div>`;
+
+  const inp = (id, label, val, placeholder='') => `
+    <label class="field-label">${label}</label>
+    <input class="field-input" type="text" id="pf-${id}" value="${esc(val||'')}" placeholder="${esc(placeholder||label)}">`;
+
+  const ta = (id, label, val, placeholder='') => `
+    <label class="field-label">${label}</label>
+    <textarea class="field-textarea" id="pf-${id}" placeholder="${esc(placeholder||label)}">${esc(val||'')}</textarea>`;
+
+  html += sec('A', 'Identidade',
+    inp('nome',     'Nome',                 p.nome,     'O teu nome completo') +
+    inp('cidade',   'Cidade',               p.cidade,   'Onde vives e trabalhas') +
+    inp('empresa',  'Empresa / Projecto',   p.empresa,  'Nome do negócio ou projecto')
+  );
+
+  html += sec('B', 'Sobre o teu Negócio',
+    ta('negocio',    'O que é a Aderry?', p.negocio, 'Descreve o negócio, o método, o propósito...') +
+    ta('mercado',    'A quem serves?',    p.mercado,  'Público-alvo, clientes ideais, contexto...')
+  );
+
+  html += sec('C', 'Visão e Posicionamento',
+    ta('visao',      'A tua visão a 3 anos', p.visao,      'O que queres construir? Onde queres estar?') +
+    inp('posicao',   'Como te defines profissionalmente', p.posicao, 'Ex: Estratega, Mentor, Fundador...')
+  );
+
+  html += sec('D', 'Filosofia Pessoal',
+    ta('filosofia',  'A tua filosofia de vida e trabalho', p.filosofia, 'O que guia as tuas decisões?') +
+    inp('inspiracao','Figura ou referência que te inspira',  p.inspiracao,'Ex: Marco Aurélio, Schopenhauer...')
+  );
+
+  html += sec('E', 'Rotina e Energia',
+    inp('pico',      'O teu pico de energia',             p.pico,     'Ex: Manhã cedo, 07h-10h') +
+    inp('desafio',   'Maior desafio com a rotina actual', p.desafio,  'O que te tira do caminho?') +
+    ta('ritual',     'Ritual matinal actual',              p.ritual,   'Como começas o dia hoje?')
+  );
+
+  html += sec('F', 'Intenção Actual',
+    ta('intencao',   'O que precisas de construir nos próximos 90 dias?', p.intencao, 'Foco, objectivo, projecto...') +
+    ta('obstaculos', 'Que obstáculos prevês?',                            p.obstaculos,'O que pode sair do caminho?')
+  );
+
+  // Section G — Principles (collapsible)
+  html += `<div class="profile-section">
+    <div class="profile-section-title">
+      <div class="profile-section-letter">G</div>
+      Princípios do Sistema
+    </div>
+    <button class="principles-toggle" data-toggle-principles>
+      ${S.showPrinciples ? '▲ Ocultar princípios' : '▼ Ver princípios do sistema'}
+    </button>
+    ${S.showPrinciples ? `<div class="principles-list">
+      ${PRINCIPLES.map(pr => `<div class="principle-item">
+        <div class="principle-num">Princípio ${pr.num}</div>
+        <div class="principle-text">"${esc(pr.quote)}"</div>
+        <div class="principle-author" style="margin-top:5px;color:var(--t3);font-size:11px">${esc(pr.body)}</div>
+      </div>`).join('')}
+    </div>` : ''}
+  </div>`;
+
+  html += `<button class="save-profile-btn" data-save-profile>Guardar Perfil</button>`;
+  return html;
+}
+
+/* ════════════════════════════════════════════════
+   EXPORT
+════════════════════════════════════════════════ */
+function exportDay(dayKey) {
+  const ddata = getDay(dayKey);
+  const rev = ddata.review || {};
+  let lines = [];
+  lines.push(`HABITUS OS · ADERRY — ${fmtDateLong(dayKey)}`);
+  lines.push('═'.repeat(50));
+  lines.push('');
+
+  PERIODS.forEach(period => {
+    lines.push(`${period.icon} ${period.label.toUpperCase()} (${period.range})`);
+    lines.push('─'.repeat(40));
+    BLOCKS.filter(b => b.p === period.id).forEach(b => {
+      const bd = ddata.blocks[b.id] || {};
+      const done = bd.done ? '[✓]' : '[ ]';
+      lines.push(`${done} ${b.t}  ${b.label}  (${b.d})`);
+      if (bd.intention) lines.push(`    Intenção: ${bd.intention}`);
+      if (bd.notes) lines.push(`    Notas: ${bd.notes}`);
+      if (bd.extras) {
+        Object.entries(bd.extras).forEach(([k,v]) => {
+          if (v) lines.push(`    ${k}: ${v}`);
+        });
+      }
+    });
+    lines.push('');
+  });
+
+  lines.push('◈ REVISÃO DO DIA');
+  lines.push('─'.repeat(40));
+  if (rev.learned) lines.push(`Aprendi: ${rev.learned}`);
+  if (rev.thinking) lines.push(`Pensamentos: ${rev.thinking}`);
+  if (rev.silence) lines.push(`Silêncio produtivo: ${rev.silence}`);
+  if (rev.gratitude) lines.push(`Gratidão: ${rev.gratitude.filter(Boolean).join(' · ')}`);
+  if (rev.score) lines.push(`Score: ${rev.score}/5`);
+
+  return lines.join('\n');
+}
+
+/* ════════════════════════════════════════════════
+   EVENT HANDLERS
+════════════════════════════════════════════════ */
+function handleClick(e) {
+  const t = e.target;
+
+  // Nav tabs
+  const navBtn = t.closest('[data-nav]');
+  if (navBtn) {
+    S.view = navBtn.dataset.nav;
+    S.expandedBlock = null;
+    S.archiveKey = null;
+    renderMain();
+    return;
+  }
+
+  // Toggle block expand
+  const toggleBlock = t.closest('[data-toggle-block]');
+  if (toggleBlock && !t.closest('[data-toggle-done]') && !t.closest('input') && !t.closest('textarea') && !t.closest('button[data-score]') && !t.closest('[data-export]')) {
+    const bid = toggleBlock.dataset.toggleBlock;
+    S.expandedBlock = S.expandedBlock === bid ? null : bid;
+    renderMain();
+    return;
+  }
+
+  // Toggle done
+  const toggleDone = t.closest('[data-toggle-done]');
+  if (toggleDone) {
+    e.stopPropagation();
+    const bid = toggleDone.dataset.toggleDone;
+    const dk = todayKey();
+    const d = getDay(dk);
+    if (!d.blocks[bid]) d.blocks[bid] = {done:false,intention:'',notes:'',extras:{}};
+    d.blocks[bid].done = !d.blocks[bid].done;
+    saveDay(dk, d);
+    // Update just the checkbox without full re-render
+    const checkEl = toggleDone;
+    const isDone = d.blocks[bid].done;
+    checkEl.classList.toggle('checked', isDone);
+    checkEl.innerHTML = isDone ? checkSVG() : '';
+    const row = checkEl.closest('.block-row');
+    if (row) {
+      row.classList.toggle('is-done', isDone);
+      const label = row.querySelector('.block-label');
+      if (label) label.style.textDecoration = isDone ? 'line-through' : '';
+    }
+    return;
+  }
+
+  // Score button
+  const scoreBtn = t.closest('[data-score]');
+  if (scoreBtn && !scoreBtn.disabled) {
+    const score = parseInt(scoreBtn.dataset.score);
+    const dk = scoreBtn.dataset.dkey || todayKey();
+    updateReview(dk, 'score', score);
+    // Update all score buttons
+    const scoreRow = scoreBtn.closest('.score-row');
+    if (scoreRow) {
+      scoreRow.querySelectorAll('.score-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.score) === score);
+      });
+    }
+    return;
+  }
+
+  // Export
+  const exportBtn = t.closest('[data-export]');
+  if (exportBtn) {
+    const dk = todayKey();
+    const text = exportDay(dk);
+    navigator.clipboard.writeText(text).then(() => {
+      exportBtn.textContent = '✓ Copiado!';
+      setTimeout(() => { exportBtn.textContent = 'Exportar'; }, 2000);
+    }).catch(() => {
+      showToast('Não foi possível copiar — tenta manualmente.');
+    });
+    return;
+  }
+
+  // Archive open
+  const archiveOpen = t.closest('[data-archive-open]');
+  if (archiveOpen) {
+    S.archiveKey = archiveOpen.dataset.archiveOpen;
+    S.expandedBlock = null;
+    renderMain();
+    return;
+  }
+
+  // Archive back
+  if (t.closest('[data-archive-back]')) {
+    S.archiveKey = null;
+    S.expandedBlock = null;
+    renderMain();
+    return;
+  }
+
+  // Toggle principles
+  if (t.closest('[data-toggle-principles]')) {
+    S.showPrinciples = !S.showPrinciples;
+    renderMain();
+    return;
+  }
+
+  // Save profile
+  if (t.closest('[data-save-profile]')) {
+    const fields = ['nome','cidade','empresa','negocio','mercado','visao','posicao','filosofia','inspiracao','pico','desafio','ritual','intencao','obstaculos'];
+    const profile = {};
+    fields.forEach(f => {
+      const el = document.getElementById('pf-'+f);
+      if (el) profile[f] = el.value;
+    });
+    saveProfile(profile);
+    S.isFirstVisit = false;
+    showToast('Perfil guardado');
+    setTimeout(() => {
+      S.view = 'dia';
+      renderMain();
+    }, 800);
+    return;
+  }
+}
+
+function handleInput(e) {
+  const t = e.target;
+
+  // Block field (intention / notes)
+  if (t.dataset.field && t.dataset.bid) {
+    const dk = t.dataset.dkey || todayKey();
+    updateBlockField(dk, t.dataset.bid, t.dataset.field, t.value);
+    return;
+  }
+
+  // Block extra field
+  if (t.dataset.extra && t.dataset.bid) {
+    const dk = t.dataset.dkey || todayKey();
+    updateBlockExtra(dk, t.dataset.bid, t.dataset.extra, t.value);
+    return;
+  }
+
+  // Review fields
+  if (t.dataset.review) {
+    const dk = t.dataset.dkey || todayKey();
+    updateReview(dk, t.dataset.review, t.value);
+    return;
+  }
+
+  // Gratitude
+  if (t.dataset.grat !== undefined) {
+    const dk = t.dataset.dkey || todayKey();
+    updateGratitude(dk, parseInt(t.dataset.grat), t.value);
+    return;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   CLOCK TICK
+════════════════════════════════════════════════ */
+function startClock() {
+  updateDayProgress();
+  const tick = () => {
+    const clockEl = document.getElementById('clock');
+    if (clockEl) clockEl.textContent = fmtTime(new Date());
+    updateDayProgress();
+    // Update current block highlight if on dia view
+    if (S.view === 'dia') {
+      const currentId = getCurrentBlockId();
+      document.querySelectorAll('.block-row').forEach(row => {
+        const bid = row.dataset.toggleBlock;
+        if (!bid) return;
+        const wasCurrent = row.classList.contains('is-current');
+        const isCurrent = bid === currentId;
+        if (wasCurrent !== isCurrent) {
+          row.classList.toggle('is-current', isCurrent);
+          const period = PERIODS.find(p => BLOCKS.find(b => b.id === bid && b.p === p.id));
+          if (isCurrent && period) {
+            row.style.borderLeftColor = period.color;
+          } else if (!row.classList.contains('is-open')) {
+            row.style.borderLeftColor = 'transparent';
+          }
+        }
+      });
+    }
+  };
+  setInterval(tick, 60000);
+}
+
+/* ════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════ */
+function init() {
+  renderTopbar();
+  const profile = loadProfile();
+  if (!profile || !profile.nome) {
+    S.view = 'perfil';
+    S.isFirstVisit = true;
+  }
+  renderMain();
+  startClock();
+  document.addEventListener('click', handleClick);
+  document.addEventListener('input', handleInput);
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
