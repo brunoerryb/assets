@@ -10,160 +10,442 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { -webkit-text-size-adjust: 100%; }
-    body { margin: 0; -webkit-font-smoothing: antialiased; transition: background 0.35s ease; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-thumb { border-radius: 4px; }
-    * { scrollbar-width: thin; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { -webkit-text-size-adjust:100%; }
+    body { margin:0; -webkit-font-smoothing:antialiased; }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-thumb { border-radius:4px; }
+    * { scrollbar-width:thin; }
     @keyframes pulse  { 0%,100%{opacity:.7} 50%{opacity:1} }
     @keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    .live   { animation: pulse  2.5s ease-in-out infinite; }
-    .fadein { animation: fadein 0.25s ease; }
-    .row    { transition: background 0.15s, border-color 0.15s; cursor: pointer; }
-    .tab    { transition: all 0.2s; cursor: pointer; border: none; outline: none; background: none; }
-    .wcard  { transition: transform 0.18s, box-shadow 0.18s; }
-    .wcard:hover { transform: translateY(-2px); }
-    .theme-btn { transition: all 0.22s; cursor: pointer; border: none; background: none; display:flex; align-items:center; justify-content:center; }
-    .theme-btn:hover { opacity: 0.72; transform: scale(1.1); }
+    @keyframes slideup{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .live     { animation:pulse   2.5s ease-in-out infinite; }
+    .fadein   { animation:fadein  0.22s ease; }
+    .slideup  { animation:slideup 0.28s ease; }
+    .row      { transition:background 0.15s; cursor:pointer; }
+    .tab      { transition:all 0.2s; cursor:pointer; border:none; outline:none; background:none; }
+    .wcard    { transition:transform 0.18s, box-shadow 0.18s; }
+    .wcard:hover { transform:translateY(-2px); }
+    .ibtn     { transition:all 0.18s; cursor:pointer; border:none; }
+    .ibtn:hover { opacity:.75; transform:scale(1.06); }
+    .task-row { transition:background 0.15s, opacity 0.2s; }
+    .lesson-row { transition:background 0.15s; }
+    textarea  { resize:vertical; }
   </style>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useCallback } = React;
+const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
-/* ─────────────────────────────────────────
-   DESIGN TOKENS
-───────────────────────────────────────── */
+/* ─────────────────────────────────────
+   TOKENS
+───────────────────────────────────── */
 const DARK = {
-  id:      "dark",
-  bg:      "linear-gradient(160deg, #070A10 0%, #0D1219 55%, #090E15 100%)",
-  base:    "#0B0F18",
-  surface: "#111620",
-  card:    "rgba(255,255,255,0.04)",
-  border:  "rgba(255,255,255,0.09)",
-  glass:   "rgba(9,12,20,0.94)",
-  primary: "#8B9BF4",
-  pSoft:   "#B4BEF8",
-  pDark:   "#6070D0",
-  p10:     "rgba(139,155,244,0.10)",
-  p15:     "rgba(139,155,244,0.16)",
-  t1:      "#EFF1FA",
-  t2:      "#A6AABF",
-  t3:      "#686B82",
-  t4:      "#3E4158",
-  shadow:  "rgba(0,0,0,0.35)",
-  scroll:  "rgba(139,155,244,0.22)",
-  rowHov:  "rgba(255,255,255,0.045)",
+  id:"dark",
+  bg:"linear-gradient(160deg,#070A10 0%,#0D1219 55%,#090E15 100%)",
+  surface:"#111620", card:"rgba(255,255,255,0.04)",
+  border:"rgba(255,255,255,0.09)", glass:"rgba(9,12,20,0.94)",
+  primary:"#8B9BF4", pSoft:"#B4BEF8", pDark:"#6070D0",
+  p10:"rgba(139,155,244,0.10)", p15:"rgba(139,155,244,0.16)",
+  t1:"#EFF1FA", t2:"#A6AABF", t3:"#686B82", t4:"#3E4158",
+  green:"#6DCFA0", greenBg:"rgba(109,207,160,0.12)",
+  orange:"#EAB46A", orangeBg:"rgba(234,180,106,0.12)",
+  red:"#F07070",   redBg:"rgba(240,112,112,0.10)",
+  shadow:"rgba(0,0,0,0.35)",
+  scroll:"rgba(139,155,244,0.22)",
+  rowHov:"rgba(255,255,255,0.045)",
+  inputBg:"rgba(255,255,255,0.04)",
 };
-
 const LIGHT = {
-  id:      "light",
-  bg:      "linear-gradient(160deg, #F0F2FA 0%, #FAFBFF 55%, #EEF0F8 100%)",
-  base:    "#F4F5FC",
-  surface: "#FFFFFF",
-  card:    "rgba(0,0,0,0.025)",
-  border:  "rgba(0,0,0,0.09)",
-  glass:   "rgba(248,249,254,0.96)",
-  primary: "#5B6FE8",
-  pSoft:   "#3A50D4",
-  pDark:   "#8090F2",
-  p10:     "rgba(91,111,232,0.10)",
-  p15:     "rgba(91,111,232,0.16)",
-  t1:      "#13172E",
-  t2:      "#3D4265",
-  t3:      "#7278A0",
-  t4:      "#B0B5D2",
-  shadow:  "rgba(80,90,180,0.10)",
-  scroll:  "rgba(91,111,232,0.22)",
-  rowHov:  "rgba(0,0,0,0.035)",
+  id:"light",
+  bg:"linear-gradient(160deg,#F0F2FA 0%,#FAFBFF 55%,#EEF0F8 100%)",
+  surface:"#FFFFFF", card:"rgba(0,0,0,0.025)",
+  border:"rgba(0,0,0,0.09)", glass:"rgba(248,249,254,0.96)",
+  primary:"#5B6FE8", pSoft:"#3A50D4", pDark:"#8090F2",
+  p10:"rgba(91,111,232,0.10)", p15:"rgba(91,111,232,0.16)",
+  t1:"#13172E", t2:"#3D4265", t3:"#7278A0", t4:"#B0B5D2",
+  green:"#2E9E6E", greenBg:"rgba(46,158,110,0.10)",
+  orange:"#C87A20", orangeBg:"rgba(200,122,32,0.10)",
+  red:"#CC4444",   redBg:"rgba(204,68,68,0.08)",
+  shadow:"rgba(80,90,180,0.10)",
+  scroll:"rgba(91,111,232,0.22)",
+  rowHov:"rgba(0,0,0,0.035)",
+  inputBg:"rgba(0,0,0,0.025)",
 };
 
-/* ─────────────────────────────────────────
-   DATA — ROTINA DO UTILIZADOR
-───────────────────────────────────────── */
+/* ─────────────────────────────────────
+   STATIC DATA
+───────────────────────────────────── */
 const schedule = [
-  {
-    period: "Manhã", icon: "◌",
-    colorD: "#8B9BF4", colorL: "#5B6FE8",
-    blocks: [
-      { time: "05:30", duration: "15 min",   label: "Acordar",            detail: "Água com sal, banheiro, dentes e rosto" },
-      { time: "05:45", duration: "25 min",   label: "Devocional",         detail: "Oração, meditação, respiração" },
-      { time: "06:10", duration: "50 min",   label: "Café & leitura",     detail: "Café da manhã com leitura tranquila, sem ecrã" },
-      { time: "07:00", duration: "20 min",   label: "Planeamento",        detail: "Definir prioridades e estrutura do dia" },
-      { time: "07:20", duration: "40 min",   label: "Preparação",         detail: "Preparação leve para o dia" },
-      { time: "08:00", duration: "30 min",   label: "Treino",             detail: "Exercício físico — movimento intencional" },
-      { time: "08:30", duration: "20 min",   label: "Banho & skincare",   detail: "Higiene e cuidados matinais" },
-      { time: "09:00", duration: "20 min",   label: "Café da manhã",      detail: "Refeição matinal — sem ecrã" },
-      { time: "09:30", duration: "30 min",   label: "Meggy",              detail: "Tempo com a Meggy, presença total" },
-    ],
-  },
-  {
-    period: "Tarde", icon: "◈",
-    colorD: "#B87DD4", colorL: "#8050B8",
-    blocks: [
-      { time: "10:00", duration: "2h 30min", label: "Trabalho profundo",    detail: "Foco total, sem interrupções, modo avião" },
-      { time: "12:30", duration: "45 min",   label: "Almoço & reset",       detail: "Refeição e pausa mental intencional" },
-      { time: "13:15", duration: "2h 15min", label: "Execução & operação",  detail: "Tarefas operacionais, reuniões e entregas" },
-      { time: "15:30", duration: "1h 15min", label: "Estudo & crescimento", detail: "Aprendizado estruturado — tema do dia da semana" },
-      { time: "16:45", duration: "1h 15min", label: "Fechamento do dia",    detail: "Revisão, pendências e encerramento do trabalho" },
-    ],
-  },
-  {
-    period: "Noite", icon: "◎",
-    colorD: "#6AAAE8", colorL: "#2D6EC8",
-    blocks: [
-      { time: "18:00", duration: "1h 30min", label: "Vida pessoal",          detail: "Desaceleração e tempo livre" },
-      { time: "19:30", duration: "45 min",   label: "Jantar",                detail: "Refeição noturna — com presença" },
-      { time: "20:30", duration: "30 min",   label: "Desligamento digital",  detail: "Sem ecrãs, transição suave para repouso" },
-      { time: "21:00", duration: "1h",       label: "Higiene & revisão",     detail: "Skincare noite, preparação e revisão do dia" },
-      { time: "22:00", duration: "—",        label: "Dormir",                detail: "Sono reparador — 7 a 8 horas" },
-    ],
-  },
+  { period:"Manhã", icon:"◌", colorD:"#8B9BF4", colorL:"#5B6FE8",
+    blocks:[
+      {time:"05:30",duration:"15 min",  label:"Acordar",           detail:"Água com sal, banheiro, dentes e rosto"},
+      {time:"05:45",duration:"25 min",  label:"Devocional",        detail:"Oração, meditação, respiração"},
+      {time:"06:10",duration:"50 min",  label:"Café & leitura",    detail:"Café da manhã com leitura tranquila, sem ecrã"},
+      {time:"07:00",duration:"20 min",  label:"Planeamento",       detail:"Definir prioridades e estrutura do dia"},
+      {time:"07:20",duration:"40 min",  label:"Preparação",        detail:"Preparação leve para o dia"},
+      {time:"08:00",duration:"30 min",  label:"Treino",            detail:"Exercício físico — movimento intencional"},
+      {time:"08:30",duration:"20 min",  label:"Banho & skincare",  detail:"Higiene e cuidados matinais"},
+      {time:"09:00",duration:"20 min",  label:"Café da manhã",     detail:"Refeição matinal — sem ecrã"},
+      {time:"09:30",duration:"30 min",  label:"Meggy",             detail:"Tempo com a Meggy, presença total"},
+    ]},
+  { period:"Tarde", icon:"◈", colorD:"#B87DD4", colorL:"#8050B8",
+    blocks:[
+      {time:"10:00",duration:"2h 30min",label:"Trabalho profundo",   detail:"Foco total, sem interrupções, modo avião"},
+      {time:"12:30",duration:"45 min",  label:"Almoço & reset",      detail:"Refeição e pausa mental intencional"},
+      {time:"13:15",duration:"2h 15min",label:"Execução & operação", detail:"Tarefas operacionais, reuniões e entregas"},
+      {time:"15:30",duration:"1h 15min",label:"Estudo & crescimento",detail:"Aprendizado estruturado — tema do dia da semana"},
+      {time:"16:45",duration:"1h 15min",label:"Fechamento do dia",   detail:"Revisão, pendências e encerramento do trabalho"},
+    ]},
+  { period:"Noite", icon:"◎", colorD:"#6AAAE8", colorL:"#2D6EC8",
+    blocks:[
+      {time:"18:00",duration:"1h 30min",label:"Vida pessoal",         detail:"Desaceleração e tempo livre"},
+      {time:"19:30",duration:"45 min",  label:"Jantar",               detail:"Refeição noturna — com presença"},
+      {time:"20:30",duration:"30 min",  label:"Desligamento digital", detail:"Sem ecrãs, transição suave para repouso"},
+      {time:"21:00",duration:"1h",      label:"Higiene & revisão",    detail:"Skincare noite, preparação e revisão do dia"},
+      {time:"22:00",duration:"—",       label:"Dormir",               detail:"Sono reparador — 7 a 8 horas"},
+    ]},
 ];
 
 const weekSystem = [
-  { day: "Seg", full: "Segunda", colorD: "#9490F0", colorL: "#4A45C0", study: "Estratégia empresarial, crescimento, posicionamento",  content: "Visão de negócio, tese, diferenciação",             tag: "Estratégia" },
-  { day: "Ter", full: "Terça",   colorD: "#C080D8", colorL: "#8040A8", study: "Copywriting, branding, comunicação, valor percebido",  content: "Posicionamento, marketing, construção de marca",    tag: "Marketing"  },
-  { day: "Qua", full: "Quarta",  colorD: "#7090E0", colorL: "#2850B0", study: "IA, automação, ferramentas, produtividade",            content: "Inovação, tendências, tecnologia aplicada",         tag: "Tecnologia" },
-  { day: "Qui", full: "Quinta",  colorD: "#C07AB4", colorL: "#903080", study: "Liderança, gestão, psicologia, negociação",            content: "Opinião forte, autoridade, cultura, comunicação",   tag: "Liderança"  },
-  { day: "Sex", full: "Sexta",   colorD: "#8C98F2", colorL: "#4A5ACC", study: "Casos reais, biografias, comportamento humano",        content: "Bastidores, aprendizados, storytelling, reflexões", tag: "Narrativa"  },
-  { day: "Sáb", full: "Sábado",  colorD: "#A880D8", colorL: "#6838A8", study: "Espiritualidade, filosofia, criatividade",             content: "Opcional — mais pessoal ou reflexivo",              tag: "Expansão"   },
-  { day: "Dom", full: "Domingo", colorD: "#6898E8", colorL: "#2658B8", study: "Revisar semana · Definir prioridades · Planear conteúdos", content: "Ajustar o sistema, semana seguinte",            tag: "Revisão"    },
+  {day:"Seg",full:"Segunda",colorD:"#9490F0",colorL:"#4A45C0",study:"Estratégia empresarial, crescimento, posicionamento",  content:"Visão de negócio, tese, diferenciação",            tag:"Estratégia"},
+  {day:"Ter",full:"Terça",  colorD:"#C080D8",colorL:"#8040A8",study:"Copywriting, branding, comunicação, valor percebido",  content:"Posicionamento, marketing, construção de marca",   tag:"Marketing" },
+  {day:"Qua",full:"Quarta", colorD:"#7090E0",colorL:"#2850B0",study:"IA, automação, ferramentas, produtividade",            content:"Inovação, tendências, tecnologia aplicada",        tag:"Tecnologia"},
+  {day:"Qui",full:"Quinta", colorD:"#C07AB4",colorL:"#903080",study:"Liderança, gestão, psicologia, negociação",            content:"Opinião forte, autoridade, cultura, comunicação",  tag:"Liderança" },
+  {day:"Sex",full:"Sexta",  colorD:"#8C98F2",colorL:"#4A5ACC",study:"Casos reais, biografias, comportamento humano",        content:"Bastidores, aprendizados, storytelling, reflexões",tag:"Narrativa" },
+  {day:"Sáb",full:"Sábado", colorD:"#A880D8",colorL:"#6838A8",study:"Espiritualidade, filosofia, criatividade",             content:"Opcional — mais pessoal ou reflexivo",             tag:"Expansão"  },
+  {day:"Dom",full:"Domingo",colorD:"#6898E8",colorL:"#2658B8",study:"Revisar semana · Definir prioridades · Planear conteúdos",content:"Ajustar o sistema, semana seguinte",          tag:"Revisão"   },
 ];
-
 const allDays = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 
-/* ─────────────────────────────────────────
+/* ─────────────────────────────────────
+   STORAGE HELPERS
+───────────────────────────────────── */
+const STORE_KEY = "habitus-journal";
+
+function loadJournal() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch { return {}; }
+}
+function saveJournal(data) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch {}
+}
+
+function dateKey(d) {
+  return d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+}
+
+function getDay(journal, key) {
+  return journal[key] || { tasks: [], lessons: [], notes: "" };
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+function fmtTime(d) {
+  return d.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+}
+
+/* ─────────────────────────────────────
    ICONS
-───────────────────────────────────────── */
-const SunIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="4"/>
-    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-  </svg>
-);
+───────────────────────────────────── */
+const SunIcon  = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>;
+const MoonIcon = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+const PrevIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>;
+const NextIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>;
+const CheckIcon= () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>;
+const TrashIcon= () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>;
+const PlusIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>;
+const BookIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>;
+const NoteIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
 
-const MoonIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-  </svg>
-);
+/* ─────────────────────────────────────
+   SECTION COMPONENTS
+───────────────────────────────────── */
+function SectionLabel({ icon: Icon, label, color, C }) {
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"12px" }}>
+      <div style={{
+        width:"26px", height:"26px", borderRadius:"7px",
+        background:`${color}18`, border:`1px solid ${color}30`,
+        display:"flex", alignItems:"center", justifyContent:"center", color,
+      }}><Icon /></div>
+      <span style={{
+        fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
+        letterSpacing:"0.18em", textTransform:"uppercase", color, fontWeight:600,
+      }}>{label}</span>
+    </div>
+  );
+}
 
-/* ─────────────────────────────────────────
-   APP
-───────────────────────────────────────── */
+/* TASKS */
+function TasksSection({ C, tasks, onAdd, onToggle, onDelete }) {
+  const [input, setInput] = useState("");
+  const ref = useRef();
+
+  const submit = () => {
+    const t = input.trim();
+    if (!t) return;
+    onAdd(t);
+    setInput("");
+    ref.current?.focus();
+  };
+
+  const done  = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+
+  return (
+    <div style={{ marginBottom:"28px" }}>
+      <SectionLabel icon={CheckIcon} label="Tarefas do Dia" color={C.primary} C={C} />
+
+      {/* Progress */}
+      {total > 0 && (
+        <div style={{ marginBottom:"12px" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"5px" }}>
+            <span style={{ fontFamily:"'JetBrains Mono', monospace", fontSize:"9px", color:C.t4 }}>
+              {done}/{total} concluídas
+            </span>
+            <span style={{ fontFamily:"'JetBrains Mono', monospace", fontSize:"9px", color:done===total ? C.green : C.t4 }}>
+              {Math.round((done/total)*100)}%
+            </span>
+          </div>
+          <div style={{ height:"3px", background:C.border, borderRadius:"2px" }}>
+            <div style={{
+              height:"100%", borderRadius:"2px",
+              width:`${(done/total)*100}%`,
+              background:`linear-gradient(90deg, ${C.primary}, ${C.green})`,
+              transition:"width 0.3s ease",
+            }}/>
+          </div>
+        </div>
+      )}
+
+      {/* Input */}
+      <div style={{ display:"flex", gap:"8px", marginBottom:"12px" }}>
+        <input ref={ref} value={input} onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key==="Enter" && submit()}
+          placeholder="Adicionar tarefa..."
+          style={{
+            flex:1, background:C.inputBg, border:`1px solid ${C.border}`,
+            borderRadius:"9px", padding:"9px 14px",
+            fontFamily:"'Syne', sans-serif", fontSize:"13px", color:C.t1,
+            outline:"none",
+          }}
+        />
+        <button className="ibtn" onClick={submit} style={{
+          width:"38px", height:"38px", borderRadius:"9px",
+          background:`linear-gradient(135deg, ${C.primary}, ${C.pDark})`,
+          color:"#fff", display:"flex", alignItems:"center", justifyContent:"center",
+          boxShadow:`0 3px 12px ${C.primary}40`,
+        }}><PlusIcon /></button>
+      </div>
+
+      {/* List */}
+      {tasks.length === 0 ? (
+        <div style={{
+          textAlign:"center", padding:"22px 0",
+          fontFamily:"'JetBrains Mono', monospace", fontSize:"10px", color:C.t4,
+        }}>Nenhuma tarefa ainda</div>
+      ) : (
+        <div style={{ display:"flex", flexDirection:"column", gap:"5px" }}>
+          {tasks.map(task => (
+            <div key={task.id} className="task-row" style={{
+              display:"flex", alignItems:"center", gap:"10px",
+              padding:"9px 12px", borderRadius:"9px",
+              background: task.done ? C.greenBg : C.card,
+              border:`1px solid ${task.done ? C.green+"28" : C.border}`,
+              opacity: task.done ? 0.7 : 1,
+            }}>
+              {/* Checkbox */}
+              <button className="ibtn" onClick={() => onToggle(task.id)} style={{
+                width:"20px", height:"20px", borderRadius:"6px", flexShrink:0,
+                background: task.done ? C.green : "transparent",
+                border:`2px solid ${task.done ? C.green : C.t4}`,
+                display:"flex", alignItems:"center", justifyContent:"center",
+                color:"#fff",
+              }}>
+                {task.done && <CheckIcon />}
+              </button>
+
+              {/* Text */}
+              <span style={{
+                flex:1, fontFamily:"'Syne', sans-serif", fontSize:"13px",
+                color: task.done ? C.t3 : C.t2,
+                textDecoration: task.done ? "line-through" : "none",
+                lineHeight:1.3,
+              }}>{task.text}</span>
+
+              {/* Time */}
+              <span style={{
+                fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
+                color:C.t4, flexShrink:0,
+              }}>{task.time}</span>
+
+              {/* Delete */}
+              <button className="ibtn" onClick={() => onDelete(task.id)} style={{
+                width:"22px", height:"22px", borderRadius:"6px",
+                background:"transparent", border:"none",
+                color:C.t4, display:"flex", alignItems:"center", justifyContent:"center",
+              }}><TrashIcon /></button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* LESSONS */
+function LessonsSection({ C, lessons, onAdd, onDelete }) {
+  const [text,    setText]    = useState("");
+  const [subject, setSubject] = useState("");
+  const ref = useRef();
+
+  const submit = () => {
+    const t = text.trim();
+    if (!t) return;
+    onAdd(t, subject.trim());
+    setText(""); setSubject("");
+    ref.current?.focus();
+  };
+
+  return (
+    <div style={{ marginBottom:"28px" }}>
+      <SectionLabel icon={BookIcon} label="Aulas & Aprendizados" color={C.orange} C={C} />
+
+      {/* Input */}
+      <div style={{ display:"flex", flexDirection:"column", gap:"6px", marginBottom:"12px" }}>
+        <div style={{ display:"flex", gap:"8px" }}>
+          <input
+            placeholder="Assunto / Fonte (opcional)"
+            value={subject} onChange={e => setSubject(e.target.value)}
+            style={{
+              width:"160px", flexShrink:0,
+              background:C.inputBg, border:`1px solid ${C.border}`,
+              borderRadius:"9px", padding:"9px 12px",
+              fontFamily:"'JetBrains Mono', monospace", fontSize:"10px", color:C.t2,
+              outline:"none",
+            }}
+          />
+          <input ref={ref} value={text} onChange={e => setText(e.target.value)}
+            onKeyDown={e => e.key==="Enter" && submit()}
+            placeholder="O que aprendi hoje..."
+            style={{
+              flex:1, background:C.inputBg, border:`1px solid ${C.border}`,
+              borderRadius:"9px", padding:"9px 14px",
+              fontFamily:"'Syne', sans-serif", fontSize:"13px", color:C.t1,
+              outline:"none",
+            }}
+          />
+          <button className="ibtn" onClick={submit} style={{
+            width:"38px", height:"38px", borderRadius:"9px",
+            background:`linear-gradient(135deg, ${C.orange}, ${C.orange}BB)`,
+            color:"#fff", display:"flex", alignItems:"center", justifyContent:"center",
+            boxShadow:`0 3px 12px ${C.orange}40`, flexShrink:0,
+          }}><PlusIcon /></button>
+        </div>
+      </div>
+
+      {/* List */}
+      {lessons.length === 0 ? (
+        <div style={{
+          textAlign:"center", padding:"22px 0",
+          fontFamily:"'JetBrains Mono', monospace", fontSize:"10px", color:C.t4,
+        }}>Nenhum aprendizado registado ainda</div>
+      ) : (
+        <div style={{ display:"flex", flexDirection:"column", gap:"6px" }}>
+          {lessons.map((les, i) => (
+            <div key={les.id} className="lesson-row slideup" style={{
+              padding:"11px 14px", borderRadius:"10px",
+              background:C.orangeBg, border:`1px solid ${C.orange}28`,
+              display:"flex", alignItems:"flex-start", gap:"10px",
+            }}>
+              {/* Index */}
+              <div style={{
+                width:"20px", height:"20px", borderRadius:"5px",
+                background:`${C.orange}22`, flexShrink:0, marginTop:"1px",
+                display:"flex", alignItems:"center", justifyContent:"center",
+                fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
+                color:C.orange, fontWeight:600,
+              }}>{i+1}</div>
+
+              <div style={{ flex:1, minWidth:0 }}>
+                {les.subject && (
+                  <div style={{
+                    fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
+                    color:C.orange, letterSpacing:"0.1em", textTransform:"uppercase",
+                    marginBottom:"3px", fontWeight:600,
+                  }}>{les.subject}</div>
+                )}
+                <div style={{
+                  fontFamily:"'Syne', sans-serif", fontSize:"13px",
+                  color:C.t2, lineHeight:1.5,
+                }}>{les.text}</div>
+              </div>
+
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"6px", flexShrink:0 }}>
+                <span style={{
+                  fontFamily:"'JetBrains Mono', monospace", fontSize:"9px", color:C.t4,
+                }}>{les.time}</span>
+                <button className="ibtn" onClick={() => onDelete(les.id)} style={{
+                  background:"transparent", border:"none",
+                  color:C.t4, display:"flex", alignItems:"center", justifyContent:"center",
+                  padding:"2px",
+                }}><TrashIcon /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* NOTES */
+function NotesSection({ C, notes, onChange }) {
+  return (
+    <div style={{ marginBottom:"28px" }}>
+      <SectionLabel icon={NoteIcon} label="Anotações do Dia" color={C.pSoft} C={C} />
+      <textarea
+        value={notes}
+        onChange={e => onChange(e.target.value)}
+        placeholder={"Reflexões, insights, ideias, o que sentes...\n\nEste espaço é teu — escreve livremente."}
+        rows={7}
+        style={{
+          width:"100%", background:C.inputBg,
+          border:`1px solid ${C.border}`,
+          borderRadius:"12px", padding:"14px 16px",
+          fontFamily:"'Syne', sans-serif", fontSize:"13px",
+          color:C.t2, lineHeight:1.7, outline:"none",
+          transition:"border-color 0.2s",
+        }}
+        onFocus={e  => e.target.style.borderColor = C.primary}
+        onBlur={e   => e.target.style.borderColor = C.border}
+      />
+      <div style={{
+        marginTop:"6px", textAlign:"right",
+        fontFamily:"'JetBrains Mono', monospace", fontSize:"9px", color:C.t4,
+      }}>
+        {notes.trim() ? `${notes.trim().split(/\s+/).length} palavras · guardado automaticamente` : "começa a escrever — guarda automaticamente"}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────
+   MAIN APP
+───────────────────────────────────── */
 function HabitusOS() {
   const [theme, setTheme] = useState(() => {
     try { return localStorage.getItem("habitus-theme") || "dark"; } catch { return "dark"; }
   });
-  const [tab, setTab]         = useState("dia");
+  const [tab, setTab]           = useState("dia");
   const [expanded, setExpanded] = useState(null);
-  const [now, setNow]         = useState(new Date());
+  const [now, setNow]           = useState(new Date());
+  const [viewDate, setViewDate] = useState(new Date());
+  const [journal, setJournal]   = useState(() => loadJournal());
 
   const C = theme === "dark" ? DARK : LIGHT;
 
@@ -180,76 +462,92 @@ function HabitusOS() {
     });
   }, []);
 
-  const todayShort = allDays[now.getDay()];
-  const todayData  = weekSystem.find(w => w.day === todayShort) || weekSystem[0];
-  const dayColor   = theme === "dark" ? todayData.colorD : todayData.colorL;
-  const timeStr    = now.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+  /* journal helpers */
+  const vKey    = dateKey(viewDate);
+  const dayData = useMemo(() => getDay(journal, vKey), [journal, vKey]);
 
-  /* day progress */
-  const dayFrac = (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
+  const updateDay = useCallback((fn) => {
+    setJournal(j => {
+      const next = { ...j, [vKey]: fn(getDay(j, vKey)) };
+      saveJournal(next);
+      return next;
+    });
+  }, [vKey]);
+
+  const addTask   = t  => updateDay(d => ({...d, tasks:   [...d.tasks,   {id:uid(),text:t, done:false, time:fmtTime(now)}]}));
+  const togTask   = id => updateDay(d => ({...d, tasks:   d.tasks.map(t => t.id===id ? {...t,done:!t.done} : t)}));
+  const delTask   = id => updateDay(d => ({...d, tasks:   d.tasks.filter(t => t.id!==id)}));
+  const addLesson = (text, subject) => updateDay(d => ({...d, lessons: [...d.lessons, {id:uid(),text,subject,time:fmtTime(now)}]}));
+  const delLesson = id => updateDay(d => ({...d, lessons: d.lessons.filter(l => l.id!==id)}));
+  const setNotes  = v  => updateDay(d => ({...d, notes:v}));
+
+  /* date navigation */
+  const shiftDate = delta => setViewDate(d => {
+    const n = new Date(d); n.setDate(n.getDate() + delta); return n;
+  });
+  const isToday = dateKey(viewDate) === dateKey(now);
+
+  /* today info */
+  const todayShort = allDays[now.getDay()];
+  const viewShort  = allDays[viewDate.getDay()];
+  const viewWS     = weekSystem.find(w => w.day === viewShort) || weekSystem[0];
+  const todayWS    = weekSystem.find(w => w.day === todayShort) || weekSystem[0];
+  const dayColor   = theme==="dark" ? todayWS.colorD : todayWS.colorL;
+  const timeStr    = fmtTime(now);
+  const dayFrac    = (now.getHours()*60 + now.getMinutes()) / (24*60);
 
   /* current block */
-  const hhmm = s => { const [h,m] = s.split(":").map(Number); return h*60+m; };
-  const nowMin = now.getHours()*60 + now.getMinutes();
-  let curSec = null, curBlk = null;
-  schedule.forEach((sec, si) => {
-    sec.blocks.forEach((b, bi) => {
-      const start = hhmm(b.time);
-      const end   = sec.blocks[bi+1] ? hhmm(sec.blocks[bi+1].time)
-                  : (schedule[si+1] ? hhmm(schedule[si+1].blocks[0].time) : 24*60);
-      if (nowMin >= start && nowMin < end) { curSec = si; curBlk = bi; }
+  const hhmm = s => { const [h,m]=s.split(":").map(Number); return h*60+m; };
+  const nowMin = now.getHours()*60+now.getMinutes();
+  let curSec=null, curBlk=null;
+  schedule.forEach((sec,si) => {
+    sec.blocks.forEach((b,bi) => {
+      const st = hhmm(b.time);
+      const en = sec.blocks[bi+1] ? hhmm(sec.blocks[bi+1].time)
+               : (schedule[si+1] ? hhmm(schedule[si+1].blocks[0].time) : 24*60);
+      if (nowMin>=st && nowMin<en) { curSec=si; curBlk=bi; }
     });
   });
+
+  /* stats for diary header */
+  const tasksDone  = dayData.tasks.filter(t=>t.done).length;
+  const tasksTotal = dayData.tasks.length;
+  const lessonsN   = dayData.lessons.length;
+  const hasNotes   = dayData.notes.trim().length > 0;
 
   return (
     <div style={{ minHeight:"100vh", background:C.bg, color:C.t1,
                   fontFamily:"'Syne', system-ui, sans-serif" }}>
-
-      {/* Dynamic scrollbar color */}
       <style>{`
-        ::-webkit-scrollbar-thumb { background: ${C.scroll}; }
-        * { scrollbar-color: ${C.scroll} transparent; }
-        .row:hover { background: ${C.rowHov} !important; }
-        .wcard:hover { box-shadow: 0 10px 36px ${C.shadow}; }
+        ::-webkit-scrollbar-thumb { background:${C.scroll}; }
+        * { scrollbar-color:${C.scroll} transparent; }
+        .row:hover { background:${C.rowHov} !important; }
+        .wcard:hover { box-shadow:0 10px 36px ${C.shadow}; }
+        input::placeholder, textarea::placeholder { color:${C.t4}; opacity:1; }
+        input, textarea { color-scheme:${theme}; }
       `}</style>
 
       {/* ── TOPBAR ── */}
       <div style={{
-        padding: "0 22px",
-        borderBottom: `1px solid ${C.border}`,
-        background: C.glass,
-        backdropFilter: "blur(24px)",
-        position: "sticky", top: 0, zIndex: 20,
+        padding:"0 22px", borderBottom:`1px solid ${C.border}`,
+        background:C.glass, backdropFilter:"blur(24px)",
+        position:"sticky", top:0, zIndex:20,
       }}>
-
-        {/* Bar row */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:"54px" }}>
 
           {/* Logo */}
           <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
             <div style={{
               width:"28px", height:"28px", borderRadius:"8px",
-              background:`linear-gradient(135deg, ${C.primary}, ${C.pDark})`,
+              background:`linear-gradient(135deg,${C.primary},${C.pDark})`,
               display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:"13px", color:"#fff",
-              boxShadow:`0 3px 12px ${C.primary}45`,
+              fontSize:"13px", color:"#fff", boxShadow:`0 3px 12px ${C.primary}45`,
             }}>◈</div>
-            <span style={{
-              fontFamily:"'Syne', sans-serif", fontSize:"15px",
-              fontWeight:700, letterSpacing:"0.03em", color:C.t1,
-            }}>Habitus OS</span>
-            <span style={{
-              fontFamily:"'JetBrains Mono', monospace", fontSize:"8px",
-              letterSpacing:"0.13em", textTransform:"uppercase",
-              color:C.t4, background:C.card, border:`1px solid ${C.border}`,
-              padding:"2px 7px", borderRadius:"4px",
-            }}>exemplo</span>
+            <span style={{ fontFamily:"'Syne',sans-serif", fontSize:"15px", fontWeight:700, color:C.t1 }}>Habitus OS</span>
           </div>
 
-          {/* Right side: week dots + clock + toggle */}
+          {/* Right */}
           <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
-
-            {/* Week dots */}
             <div style={{ display:"flex", gap:"3px" }}>
               {weekSystem.map(w => {
                 const wc = theme==="dark" ? w.colorD : w.colorL;
@@ -257,49 +555,41 @@ function HabitusOS() {
                 return (
                   <div key={w.day} title={w.full} style={{
                     width:"26px", height:"26px", borderRadius:"7px",
-                    background: isT ? wc : C.card,
-                    border:`1px solid ${isT ? wc : C.border}`,
+                    background: isT ? wc : C.card, border:`1px solid ${isT ? wc : C.border}`,
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    fontFamily:"'JetBrains Mono', monospace",
-                    fontSize:"8px", fontWeight: isT ? 700 : 400,
-                    color: isT ? "#fff" : C.t4,
+                    fontFamily:"'JetBrains Mono',monospace", fontSize:"8px",
+                    fontWeight:isT?700:400, color:isT?"#fff":C.t4,
                   }}>{w.day.charAt(0)}</div>
                 );
               })}
             </div>
-
-            {/* Clock */}
-            <div style={{
-              fontFamily:"'JetBrains Mono', monospace", fontSize:"12px",
-              color:C.t2, letterSpacing:"0.05em",
-            }}>{timeStr}</div>
-
-            {/* Theme toggle */}
-            <button className="theme-btn" onClick={toggleTheme} style={{
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"12px", color:C.t2 }}>{timeStr}</div>
+            <button className="ibtn" onClick={toggleTheme} style={{
               width:"32px", height:"32px", borderRadius:"9px",
               border:`1px solid ${C.border}`, background:C.card, color:C.t2,
+              display:"flex", alignItems:"center", justifyContent:"center",
             }}>
               {theme==="dark" ? <SunIcon /> : <MoonIcon />}
             </button>
           </div>
         </div>
 
-        {/* Day progress */}
+        {/* Progress */}
         <div style={{ height:"2px", background:C.border }}>
           <div style={{
             height:"100%", width:`${dayFrac*100}%`,
-            background:`linear-gradient(90deg, ${C.primary}, ${dayColor})`,
+            background:`linear-gradient(90deg,${C.primary},${dayColor})`,
             transition:"width 60s linear",
           }}/>
         </div>
 
         {/* Tabs */}
         <div style={{ display:"flex" }}>
-          {[["dia","Rotina do Dia"],["semana","Sistema Semanal"]].map(([key,label]) => (
+          {[["dia","Rotina"],["diario","Diário"],["semana","Semana"]].map(([key,label]) => (
             <button key={key} className="tab" onClick={() => setTab(key)} style={{
-              padding:"10px 18px",
-              fontFamily:"'JetBrains Mono', monospace",
-              fontSize:"10px", letterSpacing:"0.12em", textTransform:"uppercase",
+              padding:"10px 16px",
+              fontFamily:"'JetBrains Mono',monospace", fontSize:"10px",
+              letterSpacing:"0.12em", textTransform:"uppercase",
               color: tab===key ? C.primary : C.t3,
               borderBottom: tab===key ? `2px solid ${C.primary}` : "2px solid transparent",
               marginBottom:"-1px",
@@ -309,164 +599,102 @@ function HabitusOS() {
       </div>
 
       {/* ── MAIN ── */}
-      <div style={{ padding:"24px 22px 56px", maxWidth:"860px", margin:"0 auto" }}>
+      <div style={{ padding:"22px 22px 56px", maxWidth:"860px", margin:"0 auto" }}>
 
-        {/* Today banner */}
+        {/* Today banner (shared) */}
         <div style={{
           background: theme==="dark"
-            ? `linear-gradient(135deg, ${dayColor}12, ${dayColor}06)`
-            : `linear-gradient(135deg, ${dayColor}0D, ${dayColor}04)`,
+            ? `linear-gradient(135deg,${dayColor}12,${dayColor}06)`
+            : `linear-gradient(135deg,${dayColor}0D,${dayColor}04)`,
           border:`1px solid ${dayColor}28`,
-          borderRadius:"14px", padding:"16px 20px", marginBottom:"24px",
+          borderRadius:"14px", padding:"15px 20px", marginBottom:"22px",
         }}>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:"16px", alignItems:"center" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:"14px", alignItems:"center" }}>
             <div>
-              <div style={{ display:"flex", alignItems:"center", gap:"9px", marginBottom:"8px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"9px", marginBottom:"7px" }}>
                 <span style={{
-                  fontFamily:"'JetBrains Mono', monospace", fontSize:"8px",
+                  fontFamily:"'JetBrains Mono',monospace", fontSize:"8px",
                   letterSpacing:"0.15em", textTransform:"uppercase",
                   color:dayColor, background:`${dayColor}1E`,
                   padding:"3px 9px", borderRadius:"5px", fontWeight:600,
-                }}>{todayData.tag}</span>
-                <span className="live" style={{
-                  width:"5px", height:"5px", borderRadius:"50%",
-                  background:dayColor, display:"inline-block",
-                }}/>
-                <span style={{
-                  fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
-                  color:C.t3, letterSpacing:"0.08em",
-                }}>HOJE · {todayData.full.toUpperCase()}</span>
+                }}>{todayWS.tag}</span>
+                <span className="live" style={{ width:"5px", height:"5px", borderRadius:"50%", background:dayColor, display:"inline-block" }}/>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t3, letterSpacing:"0.08em" }}>
+                  HOJE · {todayWS.full.toUpperCase()}
+                </span>
               </div>
-              <div style={{
-                fontFamily:"'Syne', sans-serif", fontSize:"14px",
-                color:C.t1, fontWeight:600, marginBottom:"4px", lineHeight:1.4,
-              }}>{todayData.study.split(",")[0]}</div>
-              <div style={{
-                fontFamily:"'JetBrains Mono', monospace", fontSize:"10px", color:C.t3,
-              }}>Conteúdo → {todayData.content.split(",")[0]}</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"13px", color:C.t1, fontWeight:600, marginBottom:"3px", lineHeight:1.4 }}>
+                {todayWS.study.split(",")[0]}
+              </div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.t3 }}>
+                {todayWS.content.split(",")[0]}
+              </div>
             </div>
             <div style={{ textAlign:"right" }}>
-              <div style={{
-                fontFamily:"'Syne', sans-serif", fontSize:"44px", fontWeight:700,
-                color:`${dayColor}28`, lineHeight:1,
-              }}>{now.getDate()}</div>
-              <div style={{
-                fontFamily:"'JetBrains Mono', monospace", fontSize:"8px",
-                color:C.t4, marginTop:"2px", letterSpacing:"0.08em",
-              }}>{now.toLocaleDateString("pt-PT",{month:"short"}).toUpperCase()} {now.getFullYear()}</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"44px", fontWeight:700, color:`${dayColor}28`, lineHeight:1 }}>
+                {now.getDate()}
+              </div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, marginTop:"2px", letterSpacing:"0.08em" }}>
+                {now.toLocaleDateString("pt-PT",{month:"short"}).toUpperCase()} {now.getFullYear()}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ── DAY VIEW ── */}
+        {/* ══════════════════════════
+            TAB: DIA
+        ══════════════════════════ */}
         {tab==="dia" && (
           <div className="fadein">
-
-            {/* Info note */}
             <div style={{
               background:C.p10, border:`1px solid ${C.p15}`,
-              borderRadius:"10px", padding:"12px 16px", marginBottom:"22px",
-              display:"flex", alignItems:"flex-start", gap:"10px",
+              borderRadius:"10px", padding:"11px 15px", marginBottom:"20px",
+              display:"flex", gap:"10px", alignItems:"flex-start",
             }}>
-              <span style={{ fontSize:"14px", marginTop:"1px", flexShrink:0 }}>💡</span>
-              <div style={{
-                fontFamily:"'JetBrains Mono', monospace", fontSize:"10px",
-                color:C.t3, lineHeight:1.65,
-              }}>
-                <strong style={{ color:C.pSoft }}>Rotina de exemplo</strong> — Esta é a rotina real do criador do Habitus OS.
-                Clica em qualquer bloco para ver os detalhes.
-                {curSec !== null && <> O bloco actual está <strong style={{ color:C.pSoft }}>destacado a azul</strong>.</>}
+              <span style={{ fontSize:"14px", flexShrink:0 }}>💡</span>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.t3, lineHeight:1.65 }}>
+                <strong style={{ color:C.pSoft }}>Rotina de exemplo</strong> — Rotina real do criador.
+                Clica em qualquer bloco para ver detalhes.
+                {curSec!==null && <> Bloco actual <strong style={{ color:C.pSoft }}>destacado</strong>.</>}
               </div>
             </div>
 
-            {schedule.map((sec, si) => {
+            {schedule.map((sec,si) => {
               const sc = theme==="dark" ? sec.colorD : sec.colorL;
               return (
-                <div key={si} style={{ marginBottom:"26px" }}>
-
-                  {/* Section header */}
-                  <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"10px" }}>
-                    <div style={{
-                      fontFamily:"'JetBrains Mono', monospace",
-                      fontSize:"9px", letterSpacing:"0.2em", textTransform:"uppercase",
-                      color:sc, fontWeight:600,
-                    }}>{sec.icon} {sec.period}</div>
-                    <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, ${sc}35, transparent)` }}/>
-                    <div style={{
-                      fontFamily:"'JetBrains Mono', monospace", fontSize:"9px", color:C.t4,
-                    }}>{sec.blocks.length} blocos</div>
+                <div key={si} style={{ marginBottom:"24px" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"9px" }}>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", letterSpacing:"0.2em", textTransform:"uppercase", color:sc, fontWeight:600 }}>
+                      {sec.icon} {sec.period}
+                    </div>
+                    <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg,${sc}35,transparent)` }}/>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4 }}>{sec.blocks.length} blocos</div>
                   </div>
-
-                  {/* Block list */}
-                  <div style={{
-                    border:`1px solid ${C.border}`,
-                    borderRadius:"13px", overflow:"hidden",
-                    boxShadow:`0 2px 16px ${C.shadow}`,
-                    background:C.surface,
-                  }}>
-                    {sec.blocks.map((block, bi) => {
+                  <div style={{ border:`1px solid ${C.border}`, borderRadius:"13px", overflow:"hidden", background:C.surface, boxShadow:`0 2px 14px ${C.shadow}` }}>
+                    {sec.blocks.map((block,bi) => {
                       const key   = `${si}-${bi}`;
-                      const open  = expanded === key;
+                      const open  = expanded===key;
                       const isCur = curSec===si && curBlk===bi;
                       return (
                         <div key={bi} className="row"
                           onClick={() => setExpanded(open ? null : key)}
                           style={{
-                            display:"grid",
-                            gridTemplateColumns:"70px 86px 1fr 20px",
-                            alignItems:"center", gap:"12px",
-                            padding:"12px 16px",
+                            display:"grid", gridTemplateColumns:"70px 86px 1fr 18px",
+                            alignItems:"center", gap:"12px", padding:"12px 15px",
                             background: isCur ? `${sc}18` : open ? `${sc}0D` : "transparent",
-                            borderBottom: bi < sec.blocks.length-1 ? `1px solid ${C.border}` : "none",
+                            borderBottom: bi<sec.blocks.length-1 ? `1px solid ${C.border}` : "none",
                             borderLeft: isCur ? `3px solid ${sc}` : open ? `3px solid ${sc}80` : "3px solid transparent",
                           }}>
-
-                          {/* Time */}
-                          <div style={{
-                            fontFamily:"'JetBrains Mono', monospace", fontSize:"11px",
-                            color:(open||isCur) ? sc : C.t3,
-                            fontWeight:(open||isCur) ? 600 : 400,
-                            display:"flex", alignItems:"center", gap:"5px",
-                          }}>
-                            {isCur && (
-                              <span className="live" style={{
-                                width:"5px", height:"5px", borderRadius:"50%",
-                                background:sc, display:"inline-block", flexShrink:0,
-                              }}/>
-                            )}
+                          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:(open||isCur)?sc:C.t3, fontWeight:(open||isCur)?600:400, display:"flex", alignItems:"center", gap:"5px" }}>
+                            {isCur && <span className="live" style={{ width:"5px", height:"5px", borderRadius:"50%", background:sc, display:"inline-block", flexShrink:0 }}/>}
                             {block.time}
                           </div>
-
-                          {/* Duration */}
-                          <div style={{
-                            fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
-                            color:sc, background:`${sc}18`,
-                            borderRadius:"5px", padding:"3px 8px", textAlign:"center",
-                            letterSpacing:"0.04em", whiteSpace:"nowrap",
-                          }}>{block.duration}</div>
-
-                          {/* Label + detail */}
+                          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:sc, background:`${sc}18`, borderRadius:"5px", padding:"3px 8px", textAlign:"center", letterSpacing:"0.04em", whiteSpace:"nowrap" }}>{block.duration}</div>
                           <div>
-                            <div style={{
-                              fontFamily:"'Syne', sans-serif", fontSize:"13px",
-                              color:(open||isCur) ? C.t1 : C.t2,
-                              fontWeight:(open||isCur) ? 600 : 400, lineHeight:1.3,
-                            }}>{block.label}</div>
-                            {open && (
-                              <div className="fadein" style={{
-                                fontFamily:"'JetBrains Mono', monospace",
-                                fontSize:"10px", color:C.t3, marginTop:"5px", lineHeight:1.65,
-                              }}>{block.detail}</div>
-                            )}
+                            <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"13px", color:(open||isCur)?C.t1:C.t2, fontWeight:(open||isCur)?600:400, lineHeight:1.3 }}>{block.label}</div>
+                            {open && <div className="fadein" style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.t3, marginTop:"5px", lineHeight:1.65 }}>{block.detail}</div>}
                           </div>
-
-                          {/* Chevron */}
-                          <div style={{
-                            color: open ? sc : C.t4, fontSize:"15px",
-                            transition:"transform 0.2s, color 0.15s",
-                            transform: open ? "rotate(90deg)" : "none",
-                            textAlign:"center", userSelect:"none",
-                          }}>›</div>
+                          <div style={{ color:open?sc:C.t4, fontSize:"15px", transition:"transform 0.2s,color 0.15s", transform:open?"rotate(90deg)":"none", textAlign:"center", userSelect:"none" }}>›</div>
                         </div>
                       );
                     })}
@@ -477,35 +705,90 @@ function HabitusOS() {
           </div>
         )}
 
-        {/* ── WEEK VIEW ── */}
-        {tab==="semana" && (
-          <div className="fadein" style={{ display:"flex", flexDirection:"column", gap:"7px" }}>
+        {/* ══════════════════════════
+            TAB: DIÁRIO
+        ══════════════════════════ */}
+        {tab==="diario" && (
+          <div className="fadein">
 
-            {/* Info note */}
+            {/* Date navigator */}
             <div style={{
-              background:C.p10, border:`1px solid ${C.p15}`,
-              borderRadius:"10px", padding:"12px 16px", marginBottom:"10px",
-              display:"flex", alignItems:"flex-start", gap:"10px",
+              display:"flex", alignItems:"center", justifyContent:"space-between",
+              background:C.surface, border:`1px solid ${C.border}`,
+              borderRadius:"12px", padding:"11px 16px", marginBottom:"20px",
+              boxShadow:`0 2px 12px ${C.shadow}`,
             }}>
-              <span style={{ fontSize:"14px", marginTop:"1px", flexShrink:0 }}>📅</span>
-              <div style={{
-                fontFamily:"'JetBrains Mono', monospace", fontSize:"10px",
-                color:C.t3, lineHeight:1.65,
-              }}>
-                <strong style={{ color:C.pSoft }}>Sistema semanal</strong> — Cada dia tem um tema de estudo e um foco de conteúdo.
-                Consistência diária cria profundidade ao longo do tempo.
+              <button className="ibtn" onClick={() => shiftDate(-1)} style={{
+                width:"30px", height:"30px", borderRadius:"8px",
+                background:C.card, border:`1px solid ${C.border}`,
+                color:C.t3, display:"flex", alignItems:"center", justifyContent:"center",
+              }}><PrevIcon /></button>
+
+              <div style={{ textAlign:"center" }}>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:700, color:C.t1 }}>
+                  {viewDate.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
+                </div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, marginTop:"2px", letterSpacing:"0.1em" }}>
+                  {isToday ? "HOJE" : vKey}
+                  {" · "}
+                  <span style={{ color:C.green }}>{tasksDone}/{tasksTotal} tarefas</span>
+                  {" · "}
+                  <span style={{ color:C.orange }}>{lessonsN} aulas</span>
+                  {" · "}
+                  <span style={{ color:C.pSoft }}>{hasNotes ? "notas ✓" : "sem notas"}</span>
+                </div>
               </div>
+
+              <button className="ibtn" onClick={() => shiftDate(1)} style={{
+                width:"30px", height:"30px", borderRadius:"8px",
+                background:C.card, border:`1px solid ${C.border}`,
+                color:C.t3, display:"flex", alignItems:"center", justifyContent:"center",
+              }}><NextIcon /></button>
             </div>
 
-            {weekSystem.map((w, i) => {
+            {/* Sections */}
+            <TasksSection   C={C} tasks={dayData.tasks}     onAdd={addTask}   onToggle={togTask} onDelete={delTask} />
+            <LessonsSection C={C} lessons={dayData.lessons} onAdd={addLesson} onDelete={delLesson} />
+            <NotesSection   C={C} notes={dayData.notes}     onChange={setNotes} />
+
+            {/* Export note */}
+            <div style={{
+              background:C.p10, border:`1px solid ${C.p15}`,
+              borderRadius:"10px", padding:"11px 15px",
+              display:"flex", gap:"10px", alignItems:"flex-start",
+            }}>
+              <span style={{ fontSize:"14px", flexShrink:0 }}>💾</span>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.t3, lineHeight:1.65 }}>
+                <strong style={{ color:C.pSoft }}>Guardado localmente</strong> — Todos os dados são guardados no teu browser (localStorage).
+                Podes navegar entre dias com as setas. Os dados persistem entre sessões.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════
+            TAB: SEMANA
+        ══════════════════════════ */}
+        {tab==="semana" && (
+          <div className="fadein" style={{ display:"flex", flexDirection:"column", gap:"7px" }}>
+            <div style={{
+              background:C.p10, border:`1px solid ${C.p15}`,
+              borderRadius:"10px", padding:"11px 15px", marginBottom:"10px",
+              display:"flex", gap:"10px", alignItems:"flex-start",
+            }}>
+              <span style={{ fontSize:"14px", flexShrink:0 }}>📅</span>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.t3, lineHeight:1.65 }}>
+                <strong style={{ color:C.pSoft }}>Sistema semanal</strong> — Cada dia tem tema de estudo e foco de conteúdo.
+                Consistência diária cria profundidade.
+              </div>
+            </div>
+            {weekSystem.map((w,i) => {
               const wc  = theme==="dark" ? w.colorD : w.colorL;
               const isT = w.day === todayShort;
               return (
                 <div key={i} className="wcard" style={{
                   background: isT
-                    ? (theme==="dark"
-                        ? `linear-gradient(135deg, ${wc}12, ${wc}06)`
-                        : `linear-gradient(135deg, ${wc}0D, ${wc}04)`)
+                    ? (theme==="dark"?`linear-gradient(135deg,${wc}12,${wc}06)`:`linear-gradient(135deg,${wc}0D,${wc}04)`)
                     : C.surface,
                   border:`1px solid ${isT ? wc+"30" : C.border}`,
                   borderRadius:"13px", padding:"14px 18px",
@@ -514,49 +797,19 @@ function HabitusOS() {
                   boxShadow:`0 2px 12px ${C.shadow}`,
                 }}>
                   <div>
-                    <div style={{ display:"flex", alignItems:"center", gap:"7px", marginBottom:"7px" }}>
-                      {isT && (
-                        <span className="live" style={{
-                          width:"6px", height:"6px", borderRadius:"50%",
-                          background:wc, display:"inline-block", flexShrink:0,
-                        }}/>
-                      )}
-                      <div style={{
-                        fontFamily:"'Syne', sans-serif", fontSize:"14px", fontWeight:700,
-                        color: isT ? wc : C.t2,
-                      }}>{w.full}</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:"7px", marginBottom:"6px" }}>
+                      {isT && <span className="live" style={{ width:"6px", height:"6px", borderRadius:"50%", background:wc, display:"inline-block", flexShrink:0 }}/>}
+                      <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:700, color:isT?wc:C.t2 }}>{w.full}</div>
                     </div>
-                    <div style={{
-                      fontFamily:"'JetBrains Mono', monospace", fontSize:"8px",
-                      letterSpacing:"0.14em", textTransform:"uppercase",
-                      color:wc, background:`${wc}18`,
-                      borderRadius:"5px", padding:"2px 8px",
-                      display:"inline-block", fontWeight:600,
-                    }}>{w.tag}</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", letterSpacing:"0.14em", textTransform:"uppercase", color:wc, background:`${wc}18`, borderRadius:"5px", padding:"2px 8px", display:"inline-block", fontWeight:600 }}>{w.tag}</div>
                   </div>
-
                   <div>
-                    <div style={{
-                      fontFamily:"'JetBrains Mono', monospace", fontSize:"8px",
-                      color:C.t4, letterSpacing:"0.12em", textTransform:"uppercase",
-                      marginBottom:"5px",
-                    }}>Estudo</div>
-                    <div style={{
-                      fontFamily:"'Syne', sans-serif", fontSize:"11px",
-                      color:C.t3, lineHeight:1.6,
-                    }}>{w.study}</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:"5px" }}>Estudo</div>
+                    <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"11px", color:C.t3, lineHeight:1.6 }}>{w.study}</div>
                   </div>
-
                   <div>
-                    <div style={{
-                      fontFamily:"'JetBrains Mono', monospace", fontSize:"8px",
-                      color:C.t4, letterSpacing:"0.12em", textTransform:"uppercase",
-                      marginBottom:"5px",
-                    }}>Conteúdo</div>
-                    <div style={{
-                      fontFamily:"'Syne', sans-serif", fontSize:"11px",
-                      color:C.t3, lineHeight:1.6,
-                    }}>{w.content}</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:"5px" }}>Conteúdo</div>
+                    <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"11px", color:C.t3, lineHeight:1.6 }}>{w.content}</div>
                   </div>
                 </div>
               );
@@ -567,19 +820,12 @@ function HabitusOS() {
 
       {/* Footer */}
       <div style={{
-        borderTop:`1px solid ${C.border}`,
-        padding:"16px 22px",
+        borderTop:`1px solid ${C.border}`, padding:"15px 22px",
         display:"flex", justifyContent:"space-between", alignItems:"center",
-        background: C.glass, backdropFilter:"blur(12px)",
+        background:C.glass, backdropFilter:"blur(12px)",
       }}>
-        <div style={{
-          fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
-          color:C.t4, letterSpacing:"0.1em",
-        }}>HABITUS OS · SISTEMA DE ROTINA</div>
-        <div style={{
-          fontFamily:"'JetBrains Mono', monospace", fontSize:"9px",
-          color:C.t4,
-        }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, letterSpacing:"0.1em" }}>HABITUS OS · SISTEMA DE ROTINA</div>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4 }}>
           {now.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
         </div>
       </div>
