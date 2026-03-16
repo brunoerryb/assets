@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Habitus OS · Adelson</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,34 +13,25 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-text-size-adjust: 100%; }
     body { margin: 0; -webkit-font-smoothing: antialiased; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(43,107,176,0.25); border-radius: 4px; }
-    * { scrollbar-width: thin; scrollbar-color: rgba(43,107,176,0.25) transparent; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(74,124,199,0.25); border-radius: 4px; }
+    * { scrollbar-width: thin; scrollbar-color: rgba(74,124,199,0.25) transparent; }
     @keyframes pulse  { 0%,100%{opacity:.65} 50%{opacity:1} }
-    @keyframes fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes glow   { 0%,100%{box-shadow:0 0 0 0 rgba(43,107,176,0)} 50%{box-shadow:0 0 18px 2px rgba(43,107,176,0.28)} }
-    .live     { animation: pulse  2.8s ease-in-out infinite; }
-    .fadein   { animation: fadein 0.28s ease; }
-    .current  { animation: glow   3s ease-in-out infinite; }
-    .ibtn     { transition: all 0.18s; cursor: pointer; border: none; }
-    .ibtn:hover { opacity: .72; transform: scale(1.05); }
-    .tab-btn  { transition: all 0.2s; cursor: pointer; border: none; outline: none; background: none; }
-    .block-row { transition: background 0.15s, border-color 0.15s; cursor: pointer; }
-    .block-row:hover { background: rgba(43,107,176,0.06) !important; }
-    .wday     { transition: transform 0.18s, box-shadow 0.18s; }
-    .wday:hover { transform: translateY(-2px); }
-    textarea, input[type="text"], input[type="number"] {
-      font-family: 'Inter', sans-serif;
-      resize: vertical;
-      transition: border-color 0.2s;
-    }
-    textarea:focus, input:focus { outline: none; }
-    @media (max-width: 700px) {
-      .week-grid { grid-template-columns: 1fr !important; }
-      .hub-stats { grid-template-columns: repeat(2,1fr) !important; }
-      .topbar-right { gap: 8px !important; }
-      .week-dots { display: none !important; }
+    @keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    .live   { animation: pulse  2.8s ease-in-out infinite; }
+    .fadein { animation: fadein 0.25s ease; }
+    .row    { transition: background 0.15s, border-color 0.15s; cursor: pointer; }
+    .row:hover { background: rgba(74,124,199,0.06) !important; }
+    .tab    { transition: all 0.2s; cursor: pointer; border: none; outline: none; background: none; }
+    .wcard  { transition: transform 0.18s, box-shadow 0.18s; }
+    .wcard:hover { transform: translateY(-2px); }
+    .ibtn   { transition: all 0.18s; cursor: pointer; border: none; }
+    .ibtn:hover { opacity: .72; transform: scale(1.06); }
+    textarea, input[type="text"] { resize: vertical; outline: none; transition: border-color 0.2s; }
+    @media (max-width: 680px) {
+      .week-cols { grid-template-columns: 1fr !important; }
+      .stat-grid { grid-template-columns: repeat(2,1fr) !important; }
+      .wdots { display: none !important; }
     }
   </style>
 </head>
@@ -50,307 +41,257 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
-/* ═══════════════════════════════════════
-   DESIGN TOKENS — SÁBIO / SLATE EDITORIAL
-═══════════════════════════════════════ */
+/* ─────────────────────────────────────────
+   DESIGN TOKENS — AZUL / SÁBIO
+   (mesmo sistema visual do DailyOS, cor azul em vez de roxo)
+───────────────────────────────────────── */
 const C = {
-  bg:       "linear-gradient(160deg, #08101A 0%, #0D1926 60%, #091018 100%)",
-  base:     "#08101A",
-  surface:  "#0F1C2E",
-  card:     "rgba(255,255,255,0.032)",
-  cardHov:  "rgba(43,107,176,0.06)",
-  border:   "rgba(255,255,255,0.08)",
-  borderB:  "rgba(43,107,176,0.22)",
-  glass:    "rgba(8,14,24,0.94)",
-  primary:  "#2B6CB0",
-  pSoft:    "#5B9BD5",
-  pLight:   "#A8C8EC",
-  pGlow:    "rgba(43,107,176,0.18)",
-  gold:     "#C4933F",
-  goldSoft: "#D4A855",
-  goldBg:   "rgba(196,147,63,0.12)",
-  goldBrd:  "rgba(196,147,63,0.25)",
-  t1:       "#E8ECF2",
-  t2:       "#9BA5B5",
-  t3:       "#5C6578",
-  t4:       "#323B4D",
-  green:    "#3D8C68",
-  greenBg:  "rgba(61,140,104,0.12)",
-  red:      "#B05555",
-  redBg:    "rgba(176,85,85,0.10)",
-  shadow:   "rgba(0,0,0,0.5)",
-  shadowB:  "rgba(0,0,0,0.3)",
-  inputBg:  "rgba(255,255,255,0.035)",
+  bg:      "linear-gradient(160deg, #07090F 0%, #0C1219 55%, #080C14 100%)",
+  surface: "#0F1620",
+  card:    "rgba(255,255,255,0.04)",
+  border:  "rgba(255,255,255,0.09)",
+  borderA: "rgba(74,124,199,0.22)",
+  glass:   "rgba(7,9,15,0.94)",
+  primary: "#4A7CC7",
+  pSoft:   "#7FAEE0",
+  pDark:   "#2E5A96",
+  p10:     "rgba(74,124,199,0.10)",
+  p15:     "rgba(74,124,199,0.16)",
+  gold:    "#C4933F",
+  goldS:   "#D4A855",
+  goldBg:  "rgba(196,147,63,0.10)",
+  goldBd:  "rgba(196,147,63,0.24)",
+  t1:      "#EEF1F8",
+  t2:      "#A0AABF",
+  t3:      "#5E6882",
+  t4:      "#353E55",
+  green:   "#4A9E7A",
+  greenBg: "rgba(74,158,122,0.12)",
+  shadow:  "rgba(0,0,0,0.4)",
+  inputBg: "rgba(255,255,255,0.04)",
 };
 
-/* ═══════════════════════════════════════
-   DATA — SCHEDULE
-═══════════════════════════════════════ */
+/* ─────────────────────────────────────────
+   DATA
+───────────────────────────────────────── */
 const PERIODS = [
-  { id: "manha", label: "Manhã",  subtitle: "Profundidade antes de execução",  icon: "○", color: "#5B9BD5", timeRange: "06:00 → 10:30" },
-  { id: "tarde", label: "Tarde",  subtitle: "Pensamento e Método",              icon: "◈", color: "#C4933F", timeRange: "10:30 → 18:00" },
-  { id: "noite", label: "Noite",  subtitle: "Desaceleração e Contemplação",     icon: "◎", color: "#7090B8", timeRange: "18:00 → 22:30" },
+  { id:"manha", label:"Manhã",  icon:"○", color:"#5B9BD5", range:"06:00 → 10:30", sub:"Profundidade antes de execução" },
+  { id:"tarde", label:"Tarde",  icon:"◈", color:"#4A7CC7", range:"10:30 → 18:00", sub:"Pensamento e Método" },
+  { id:"noite", label:"Noite",  icon:"◎", color:"#6888B8", range:"18:00 → 22:15", sub:"Desaceleração e Contemplação" },
 ];
 
 const BLOCKS = [
-  // ── MANHÃ
-  { id:"m0", period:"manha", time:"06:00", end:"06:15", dur:"15 min",   label:"Acordar e ritual matinal",       desc:"Água, movimento do corpo, presença. Sem ecrãs. Chegada intencional ao dia.",          type:"ritual"    },
-  { id:"m1", period:"manha", time:"06:15", end:"06:45", dur:"30 min",   label:"Devocional",                     desc:"Oração, meditação, silêncio. O Sábio começa pelo centro — não pela agenda.",         type:"devocional" },
-  { id:"m2", period:"manha", time:"06:45", end:"08:00", dur:"75 min",   label:"Leitura profunda",               desc:"Filosofia, estratégia, método. Com lápis, sem pressa, com margem para pensar.",      type:"leitura",
-    fields:[{key:"titulo",label:"Título do livro"},{key:"autor",label:"Autor"},{key:"pagina",label:"Páginas lidas"},{key:"insight",label:"Insight principal",big:true}] },
-  { id:"m3", period:"manha", time:"08:00", end:"08:30", dur:"30 min",   label:"Reflexão e escrita livre",       desc:"Ideias da leitura, intuições sobre o negócio. O diário de pensamento do Sábio.",      type:"reflexao"  },
-  { id:"m4", period:"manha", time:"08:30", end:"08:50", dur:"20 min",   label:"Planeamento contemplativo",      desc:"Não táctico. Perguntar \"o que precisa de acontecer hoje?\" antes de listar tarefas.", type:"planeamento",
-    fields:[{key:"pergunta",label:"O que precisa de acontecer hoje?",big:true},{key:"int1",label:"Intenção 1"},{key:"int2",label:"Intenção 2"},{key:"int3",label:"Intenção 3"}] },
-  { id:"m5", period:"manha", time:"08:50", end:"09:20", dur:"30 min",   label:"Treino leve",                    desc:"Caminhada, mobilidade, yoga. Movimento que liberta o pensamento, não que esgota.",    type:"ritual"    },
-  { id:"m6", period:"manha", time:"09:20", end:"09:40", dur:"20 min",   label:"Banho e skincare",               desc:"Cuidado com o corpo como extensão do cuidado com a mente.",                          type:"ritual"    },
-  { id:"m7", period:"manha", time:"09:40", end:"10:10", dur:"30 min",   label:"Café da manhã em silêncio",      desc:"Sem ecrãs, presente. A refeição como ritual — não como tarefa.",                      type:"ritual"    },
-  { id:"m8", period:"manha", time:"10:10", end:"10:30", dur:"20 min",   label:"Transição",                      desc:"Preparação para o trabalho profundo. Fechar a manhã, abrir a tarde.",                 type:"ritual"    },
-  // ── TARDE
-  { id:"a0", period:"tarde", time:"10:30", end:"13:00", dur:"2h 30min", label:"Trabalho de Método e Posicionamento", desc:"Escrita estratégica, frameworks, metodologia Aderry. O trabalho mais valioso — construção intelectual.", type:"metodo",
-    fields:[{key:"emQue",label:"Em que trabalhei",big:true},{key:"avancei",label:"O que avancei"},{key:"proximo",label:"Próximo passo"}] },
-  { id:"a1", period:"tarde", time:"13:00", end:"13:45", dur:"45 min",   label:"Almoço e pausa real",             desc:"Pausa verdadeira — não uma pausa entre tarefas. O pensamento precisa de espaço.",     type:"ritual"    },
-  { id:"a2", period:"tarde", time:"13:45", end:"15:45", dur:"2h",       label:"Execução e operação",             desc:"Clientes, comunicação, gestão. Com o alicerce intelectual já sólido.",                type:"execucao"  },
-  { id:"a3", period:"tarde", time:"15:45", end:"17:00", dur:"1h 15min", label:"Estudo e crescimento",            desc:"Tema do dia — ver sistema semanal. Aprendizado estruturado.",                        type:"estudo",
-    fields:[{key:"tema",label:"Tema / Fonte"},{key:"aprendeu",label:"O que aprendi",big:true},{key:"aplicar",label:"Ideia para aplicar"}] },
-  { id:"a4", period:"tarde", time:"17:00", end:"18:00", dur:"1h",       label:"Fechamento do dia",               desc:"Revisão, pendências, intenção de amanhã. Fechar o ciclo com clareza e deliberação.", type:"fechamento" },
-  // ── NOITE
-  { id:"n0", period:"noite", time:"18:00", end:"19:30", dur:"1h 30min", label:"Vida pessoal e presença",         desc:"Conexões, lazer, sem agenda. O Sábio precisa do mundo para poder reflectir sobre ele.", type:"ritual"    },
-  { id:"n1", period:"noite", time:"19:30", end:"20:15", dur:"45 min",   label:"Jantar tranquilo",                desc:"Refeição presente, com conversas que nutrem.",                                       type:"ritual"    },
-  { id:"n2", period:"noite", time:"20:15", end:"21:00", dur:"45 min",   label:"Leitura leve ou música",          desc:"Não relacionado com trabalho. O pensamento profundo precisa de respirar.",            type:"ritual"    },
-  { id:"n3", period:"noite", time:"21:00", end:"21:30", dur:"30 min",   label:"Desligamento digital",            desc:"Transição completa. O Sábio que não para não aprofunda.",                            type:"ritual"    },
-  { id:"n4", period:"noite", time:"21:30", end:"22:15", dur:"45 min",   label:"Higiene, skincare e revisão",     desc:"Cuidado e fechamento do dia. Espaço para o pensamento assentar.",                    type:"ritual"    },
-  { id:"n5", period:"noite", time:"22:15", end:"06:00", dur:"—",        label:"Dormir",                          desc:"Sono como pilar da profundidade cognitiva. 7h45min de restauro.",                    type:"dormir"    },
+  // MANHÃ
+  { id:"m0", p:"manha", time:"06:00", end:"06:15", dur:"15 min",   label:"Acordar e ritual matinal",          desc:"Água, movimento do corpo, presença. Sem ecrãs. Chegada intencional ao dia." },
+  { id:"m1", p:"manha", time:"06:15", end:"06:45", dur:"30 min",   label:"Devocional",                        desc:"Oração, meditação, silêncio. O Sábio começa pelo centro — não pela agenda." },
+  { id:"m2", p:"manha", time:"06:45", end:"08:00", dur:"75 min",   label:"Leitura profunda",                  desc:"Filosofia, estratégia, método. Com lápis, sem pressa, com margem para pensar.",
+    fields:[{k:"titulo",l:"Título"},{k:"autor",l:"Autor"},{k:"pagina",l:"Páginas"},{k:"insight",l:"Insight principal",big:true}] },
+  { id:"m3", p:"manha", time:"08:00", end:"08:30", dur:"30 min",   label:"Reflexão e escrita livre",          desc:"Ideias da leitura, intuições sobre o negócio. O diário de pensamento do Sábio.",
+    fields:[{k:"diario",l:"Diário de pensamento",big:true}] },
+  { id:"m4", p:"manha", time:"08:30", end:"08:50", dur:"20 min",   label:"Planeamento contemplativo",         desc:"Não táctico — perguntar 'o que precisa de acontecer hoje?' antes de listar tarefas.",
+    fields:[{k:"pergunta",l:"O que precisa de acontecer hoje?",big:true},{k:"int1",l:"Intenção 1"},{k:"int2",l:"Intenção 2"},{k:"int3",l:"Intenção 3"}] },
+  { id:"m5", p:"manha", time:"08:50", end:"09:20", dur:"30 min",   label:"Treino leve",                       desc:"Caminhada, mobilidade, yoga. Movimento que liberta o pensamento, não que esgota." },
+  { id:"m6", p:"manha", time:"09:20", end:"09:40", dur:"20 min",   label:"Banho e skincare",                  desc:"Cuidado com o corpo como extensão do cuidado com a mente." },
+  { id:"m7", p:"manha", time:"09:40", end:"10:10", dur:"30 min",   label:"Café da manhã em silêncio",         desc:"Sem ecrãs, presente. A refeição como ritual — não como tarefa." },
+  { id:"m8", p:"manha", time:"10:10", end:"10:30", dur:"20 min",   label:"Transição",                         desc:"Preparação para o trabalho profundo. Fechar a manhã, abrir a tarde." },
+  // TARDE
+  { id:"a0", p:"tarde", time:"10:30", end:"13:00", dur:"2h 30min", label:"Trabalho de Método e Posicionamento", desc:"Escrita estratégica, frameworks, metodologia Aderry. O trabalho mais valioso.",
+    fields:[{k:"emQue",l:"Em que trabalhei",big:true},{k:"avancei",l:"O que avancei"},{k:"proximo",l:"Próximo passo"}] },
+  { id:"a1", p:"tarde", time:"13:00", end:"13:45", dur:"45 min",   label:"Almoço e pausa real",               desc:"Pausa verdadeira — não uma pausa entre tarefas. O pensamento precisa de espaço." },
+  { id:"a2", p:"tarde", time:"13:45", end:"15:45", dur:"2h",       label:"Execução e operação",               desc:"Clientes, comunicação, gestão. Com o alicerce intelectual já sólido." },
+  { id:"a3", p:"tarde", time:"15:45", end:"17:00", dur:"1h 15min", label:"Estudo e crescimento",              desc:"Tema do dia — ver sistema semanal. Aprendizado estruturado.",
+    fields:[{k:"tema",l:"Tema / Fonte"},{k:"aprendeu",l:"O que aprendi",big:true},{k:"aplicar",l:"Ideia para aplicar"}] },
+  { id:"a4", p:"tarde", time:"17:00", end:"18:00", dur:"1h",       label:"Fechamento do dia",                 desc:"Revisão, pendências, intenção de amanhã. Fechar o ciclo com clareza." },
+  // NOITE
+  { id:"n0", p:"noite", time:"18:00", end:"19:30", dur:"1h 30min", label:"Vida pessoal e presença",           desc:"Conexões, lazer, sem agenda. O Sábio precisa do mundo para reflectir sobre ele." },
+  { id:"n1", p:"noite", time:"19:30", end:"20:15", dur:"45 min",   label:"Jantar tranquilo",                  desc:"Refeição presente, com conversas que nutrem." },
+  { id:"n2", p:"noite", time:"20:15", end:"21:00", dur:"45 min",   label:"Leitura leve ou música",            desc:"Não relacionado com trabalho. O pensamento profundo precisa de respirar." },
+  { id:"n3", p:"noite", time:"21:00", end:"21:30", dur:"30 min",   label:"Desligamento digital",              desc:"Transição completa. O Sábio que não para não aprofunda." },
+  { id:"n4", p:"noite", time:"21:30", end:"22:15", dur:"45 min",   label:"Higiene, skincare e revisão",       desc:"Cuidado e fechamento do dia. Espaço para o pensamento assentar." },
+  { id:"n5", p:"noite", time:"22:15", end:"06:00", dur:"—",        label:"Dormir",                            desc:"Sono como pilar da profundidade cognitiva — 7h45min de restauro." },
 ];
 
 const WEEK = [
-  { day:"Seg", full:"Segunda",  color:"#2B6CB0", tag:"Método & Filosofia",
-    study:"Filosofia, epistemologia, pensamento sistémico",
-    content:"Os fundamentos do método Aderry — o porquê das coisas",
-    note:"O Sábio começa pelo fundamento, não pela execução." },
-  { day:"Ter", full:"Terça",    color:"#4A7FB5", tag:"Posicionamento & Marca",
-    study:"Branding, identidade, valor percebido, semiótica",
-    content:"Posicionamento, marca pessoal, construção de autoridade",
-    note:"A autoridade que o Sábio constrói é intelectual antes de ser comercial." },
-  { day:"Qua", full:"Quarta",   color:"#C4933F", tag:"Estratégia & Negócio",
-    study:"Estratégia empresarial, crescimento, modelos de negócio",
-    content:"Visão, frameworks, teses de mercado",
-    note:"A estratégia não precede o método — confirma-o." },
-  { day:"Qui", full:"Quinta",   color:"#5B7FA6", tag:"Liderança & Sabedoria",
-    study:"Liderança, psicologia, comportamento humano, negociação",
-    content:"Autoridade, comunicação de alto impacto, cultura",
-    note:"Governar requer compreender as pessoas antes de as dirigir." },
-  { day:"Sex", full:"Sexta",    color:"#6B8FAA", tag:"Narrativa & Casos",
-    study:"Casos reais, biografias, storytelling, comportamento",
-    content:"Bastidores metodológicos, aprendizados, reflexões profundas",
-    note:"O Sábio conta histórias que contêm método." },
-  { day:"Sáb", full:"Sábado",   color:"#8C6FAA", tag:"Expansão & Espiritualidade",
-    study:"Espiritualidade, poesia, arte, criatividade expandida",
-    content:"Opcional — o mais pessoal e filosófico da semana",
-    note:"A expansão do Sábio alimenta a profundidade do sistema." },
-  { day:"Dom", full:"Domingo",  color:"#3D8C68", tag:"Síntese & Preparação",
-    study:"Revisão da semana — foco em insight, não em produtividade",
-    content:"O que aprendi? O que mudou? Que intenção levo para amanhã?",
-    note:"Preparação como acto de sabedoria, não de organização táctica." },
+  { day:"Seg", full:"Segunda",  color:"#4A7CC7", tag:"Método & Filosofia",         study:"Filosofia, epistemologia, pensamento sistémico",             content:"Os fundamentos do método Aderry — o porquê das coisas" },
+  { day:"Ter", full:"Terça",    color:"#5B8FC4", tag:"Posicionamento & Marca",      study:"Branding, identidade, valor percebido, semiótica",           content:"Posicionamento, marca pessoal, construção de autoridade" },
+  { day:"Qua", full:"Quarta",   color:"#C4933F", tag:"Estratégia & Negócio",        study:"Estratégia empresarial, crescimento, modelos de negócio",    content:"Visão, frameworks, teses de mercado" },
+  { day:"Qui", full:"Quinta",   color:"#6888B8", tag:"Liderança & Sabedoria",       study:"Liderança, psicologia, comportamento humano, negociação",    content:"Autoridade, comunicação de alto impacto, cultura" },
+  { day:"Sex", full:"Sexta",    color:"#7898C8", tag:"Narrativa & Casos",           study:"Casos reais, biografias, storytelling, comportamento",       content:"Bastidores metodológicos, aprendizados, reflexões" },
+  { day:"Sáb", full:"Sábado",   color:"#8878B8", tag:"Expansão & Espiritualidade",  study:"Espiritualidade, poesia, arte, criatividade expandida",      content:"Opcional — o mais pessoal e filosófico da semana" },
+  { day:"Dom", full:"Domingo",  color:"#4A9E7A", tag:"Síntese & Preparação",        study:"Revisão da semana — foco em insight, não em produtividade",  content:"O que aprendi? O que mudou? Intenção para a próxima semana?" },
 ];
 
 const PRINCIPLES = [
-  { quote:"Profundidade antes de velocidade.", body:"O Sábio que age sem pensar torna-se apenas um executor. A reflexão é o trabalho.", num:"I" },
-  { quote:"O método é o produto.", body:"Cada hora de pensamento sobre como a Aderry pensa e ensina é uma hora investida no activo mais valioso do negócio.", num:"II" },
-  { quote:"O silêncio é produtivo.", body:"Dias sem output visível podem ser os dias de maior criação — se o pensamento avançou, o sistema avançou.", num:"III" },
-  { quote:"Governar o tempo é governar o negócio.", body:"O Governante em ti sabe que a estrutura não limita — liberta. A rotina é o palácio onde o Sábio pensa.", num:"IV" },
+  { n:"I",   quote:"Profundidade antes de velocidade.",      body:"O Sábio que age sem pensar torna-se apenas um executor. A reflexão é o trabalho." },
+  { n:"II",  quote:"O método é o produto.",                  body:"Cada hora de pensamento sobre como a Aderry pensa e ensina é uma hora investida no activo mais valioso do negócio." },
+  { n:"III", quote:"O silêncio é produtivo.",                body:"Dias sem output visível podem ser os dias de maior criação — se o pensamento avançou, o sistema avançou." },
+  { n:"IV",  quote:"Governar o tempo é governar o negócio.", body:"O Governante em ti sabe que a estrutura não limita — liberta. A rotina é o palácio onde o Sábio pensa." },
 ];
 
 const ALL_DAYS = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 
-/* ═══════════════════════════════════════
+/* ─────────────────────────────────────────
    STORAGE
-═══════════════════════════════════════ */
-const STORE = "habitus-adelson";
-const loadAll  = ()      => { try { return JSON.parse(localStorage.getItem(STORE)||"{}"); } catch { return {}; } };
-const saveAll  = (data)  => { try { localStorage.setItem(STORE, JSON.stringify(data)); } catch {} };
-const dateKey  = (d)     => d.toISOString().slice(0,10);
-const fmtDate  = (d)     => d.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-const fmtTime  = (d)     => d.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
-const hhmm     = (s)     => { const [h,m]=s.split(":").map(Number); return h*60+m; };
+───────────────────────────────────────── */
+const STORE_KEY = "habitus-adelson-v2";
+const loadAll  = ()    => { try { return JSON.parse(localStorage.getItem(STORE_KEY)||"{}"); } catch { return {}; } };
+const saveAll  = (d)   => { try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch {} };
+const dateKey  = (d)   => d.toISOString().slice(0,10);
+const fmtTime  = (d)   => d.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
+const hhmm     = (s)   => { const [h,m]=s.split(":").map(Number); return h*60+m; };
 
 function emptyDay() {
   const blocks = {};
   BLOCKS.forEach(b => { blocks[b.id] = { done:false, intention:"", notes:"", extras:{} }; });
   return { blocks, review:{ learned:"", thinking:"", silence:"", gratitude:["","",""], score:0 } };
 }
-function loadDay(k, all) { return all[k] || emptyDay(); }
+function getDay(all, k) { return all[k] || emptyDay(); }
+function uid() { return Math.random().toString(36).slice(2,9); }
 
-/* ═══════════════════════════════════════
-   ICONS
-═══════════════════════════════════════ */
-const Prev = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>;
-const Next = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>;
-const CheckIco = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>;
-const ExportIco = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
-
-/* ═══════════════════════════════════════
-   SMALL COMPONENTS
-═══════════════════════════════════════ */
-function Field({ label, value, onChange, big, placeholder }) {
-  const base = {
-    width:"100%", background:C.inputBg, border:`1px solid ${C.border}`,
-    borderRadius:"8px", padding: big ? "10px 13px" : "8px 12px",
-    fontSize:"13px", color:C.t2, lineHeight:1.6,
-  };
-  return (
-    <div style={{ marginBottom:"10px" }}>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, letterSpacing:"0.14em", textTransform:"uppercase", marginBottom:"5px" }}>{label}</div>
-      {big
-        ? <textarea rows={3} value={value} onChange={e=>onChange(e.target.value)}
-            placeholder={placeholder||""}
-            onFocus={e=>e.target.style.borderColor=C.pSoft} onBlur={e=>e.target.style.borderColor=C.border}
-            style={{...base, resize:"vertical"}} />
-        : <input type="text" value={value} onChange={e=>onChange(e.target.value)}
-            placeholder={placeholder||""}
-            onFocus={e=>e.target.style.borderColor=C.pSoft} onBlur={e=>e.target.style.borderColor=C.border}
-            style={{...base}} />
-      }
-    </div>
-  );
+/* ─────────────────────────────────────────
+   EXPORT
+───────────────────────────────────────── */
+function buildExport(dayData, dateStr, dayShort) {
+  const ws = WEEK.find(w=>w.day===dayShort) || WEEK[0];
+  let t = `HABITUS OS · ADELSON · ADERRY\n${dateStr}\n${ws.tag}\n${"─".repeat(46)}\n\n`;
+  BLOCKS.forEach(b => {
+    const bd = dayData.blocks[b.id] || {};
+    t += `${bd.done?"[✓]":"[ ]"} ${b.time}  ${b.label} (${b.dur})\n`;
+    if (bd.intention) t += `    Intenção: ${bd.intention}\n`;
+    (b.fields||[]).forEach(f => { const v=(bd.extras||{})[f.k]; if(v) t+=`    ${f.l}: ${v}\n`; });
+    if (bd.notes) t += `    Notas: ${bd.notes}\n`;
+    t += "\n";
+  });
+  const r = dayData.review||{};
+  t += `${"─".repeat(46)}\nREVISÃO\n\n`;
+  if (r.learned)  t += `O que aprendi: ${r.learned}\n\n`;
+  if (r.thinking) t += `Pensamento avançou: ${r.thinking}\n\n`;
+  if (r.silence)  t += `O silêncio mostrou: ${r.silence}\n\n`;
+  if (r.gratitude?.some(g=>g)) t += `Gratidão: ${r.gratitude.filter(Boolean).join(" · ")}\n\n`;
+  if (r.score)    t += `Nota: ${r.score}/5\n`;
+  return t;
 }
 
-function Label({ text, color, bg, border }) {
+function downloadTxt(content, filename) {
+  const a = document.createElement("a");
+  a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(content);
+  a.download = filename; a.click();
+}
+
+/* ─────────────────────────────────────────
+   ICONS
+───────────────────────────────────────── */
+const PrevIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>;
+const NextIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>;
+const CheckIco  = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>;
+const DownIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+const PlusIco   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>;
+const TrashIco  = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>;
+
+/* ─────────────────────────────────────────
+   SMALL HELPERS
+───────────────────────────────────────── */
+function Tag({ label, color, bg, border }) {
   return (
     <span style={{
       fontFamily:"'JetBrains Mono',monospace", fontSize:"8px",
       letterSpacing:"0.14em", textTransform:"uppercase", fontWeight:600,
-      color:color||C.pSoft, background:bg||C.pGlow,
-      border:`1px solid ${border||C.borderB}`,
+      color:color||C.pSoft, background:bg||C.p10,
+      border:`1px solid ${border||C.borderA}`,
       padding:"2px 8px", borderRadius:"4px",
-    }}>{text}</span>
+    }}>{label}</span>
   );
 }
 
-/* ═══════════════════════════════════════
-   EXPORT
-═══════════════════════════════════════ */
-function exportDay(dayData, dateStr, weekDay) {
-  const wd = WEEK.find(w=>w.day===weekDay) || WEEK[0];
-  let out = `HABITUS OS · ADELSON\n${dateStr.toUpperCase()}\nTema: ${wd.tag}\n${"─".repeat(48)}\n\n`;
-  BLOCKS.forEach(b => {
-    const bd = dayData.blocks[b.id] || {};
-    const icon = bd.done ? "[✓]" : "[ ]";
-    out += `${icon} ${b.time}  ${b.label} (${b.dur})\n`;
-    if (bd.intention) out += `    Intenção: ${bd.intention}\n`;
-    if (b.fields) b.fields.forEach(f => {
-      const v = (bd.extras||{})[f.key];
-      if (v) out += `    ${f.label}: ${v}\n`;
-    });
-    if (bd.notes) out += `    Notas: ${bd.notes}\n`;
-    out += "\n";
-  });
-  const rev = dayData.review || {};
-  out += `${"─".repeat(48)}\nREVISÃO DO DIA\n\n`;
-  if (rev.learned)   out += `O que aprendi: ${rev.learned}\n\n`;
-  if (rev.thinking)  out += `O meu pensamento avançou: ${rev.thinking}\n\n`;
-  if (rev.silence)   out += `O silêncio mostrou: ${rev.silence}\n\n`;
-  if (rev.gratitude?.some(g=>g)) out += `Gratidão: ${rev.gratitude.filter(g=>g).join(" · ")}\n\n`;
-  if (rev.score)     out += `Nota do dia: ${rev.score}/5\n`;
-  return out;
+function SectionHead({ icon, label, color, right }) {
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"10px" }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", letterSpacing:"0.2em", textTransform:"uppercase", color, fontWeight:600 }}>
+        {icon} {label}
+      </div>
+      <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, ${color}35, transparent)` }}/>
+      {right && <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4 }}>{right}</div>}
+    </div>
+  );
 }
 
-/* ═══════════════════════════════════════
-   VIEWS
-═══════════════════════════════════════ */
-
-/* ── HUB ── */
-function HubView({ now, todayWS }) {
+/* ─────────────────────────────────────────
+   VIEW: HUB
+───────────────────────────────────────── */
+function HubView({ todayWS }) {
   const dc = todayWS.color;
   return (
     <div className="fadein">
+
       {/* Hero */}
-      <div style={{
-        background:`linear-gradient(135deg, rgba(43,107,176,0.10), rgba(43,107,176,0.04))`,
-        border:`1px solid ${C.borderB}`,
-        borderRadius:"18px", padding:"36px 40px", marginBottom:"30px",
-        position:"relative", overflow:"hidden",
-      }}>
-        {/* BG decoration */}
-        <div style={{
-          position:"absolute", right:"-20px", top:"-20px",
-          width:"200px", height:"200px", borderRadius:"50%",
-          background:`radial-gradient(circle, ${C.pGlow}, transparent 70%)`,
-          pointerEvents:"none",
-        }}/>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.pSoft, letterSpacing:"0.2em", textTransform:"uppercase", marginBottom:"14px" }}>
+      <div style={{ background:C.p10, border:`1px solid ${C.borderA}`, borderRadius:"14px", padding:"26px 28px", marginBottom:"22px" }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", letterSpacing:"0.18em", textTransform:"uppercase", color:C.t4, marginBottom:"10px" }}>
           Sistema Operacional Pessoal
         </div>
-        <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(28px,4vw,42px)", fontWeight:700, color:C.t1, lineHeight:1.15, marginBottom:"8px" }}>
-          Habitus OS
-        </h1>
-        <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(15px,2vw,18px)", fontStyle:"italic", color:C.pSoft, marginBottom:"20px" }}>
-          Adelson · Co-fundador da Aderry
+        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"clamp(22px,4vw,32px)", fontWeight:700, color:C.t1, lineHeight:1.15, marginBottom:"6px" }}>
+          Habitus OS <span style={{ color:C.pSoft }}>· Adelson</span>
         </div>
-        <div style={{ display:"flex", gap:"10px", flexWrap:"wrap" }}>
-          <Label text="O Sábio" color={C.gold} bg={C.goldBg} border={C.goldBrd} />
-          <Label text="O Governante" color={C.gold} bg={C.goldBg} border={C.goldBrd} />
-          <Label text="CEO · Head de Posicionamento" />
+        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", color:C.t3, marginBottom:"18px" }}>
+          Co-fundador da Aderry · Consultora de Posicionamento e Crescimento
+        </div>
+        <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
+          <Tag label="O Sábio"       color={C.gold} bg={C.goldBg} border={C.goldBd} />
+          <Tag label="O Governante"  color={C.gold} bg={C.goldBg} border={C.goldBd} />
+          <Tag label="CEO · Head de Posicionamento" />
         </div>
       </div>
 
-      {/* Why this system */}
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"14px", padding:"26px 30px", marginBottom:"24px" }}>
-        <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"18px", fontWeight:600, color:C.t1, marginBottom:"14px" }}>
+      {/* Why */}
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"13px", padding:"22px 24px", marginBottom:"18px" }}>
+        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:600, color:C.t1, marginBottom:"10px" }}>
           Porque este sistema foi desenhado para ti
-        </h2>
-        <p style={{ fontFamily:"'Inter',sans-serif", fontSize:"14px", color:C.t2, lineHeight:1.8, marginBottom:"12px" }}>
+        </div>
+        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:C.t3, lineHeight:1.75, marginBottom:"8px" }}>
           O Sábio não performa melhor sob pressão de execução — performa melhor com espaço para contemplar.
           Este sistema protege a tua produção mais valiosa: o pensamento conceptual, o desenvolvimento metodológico
           e a profundidade estratégica que é a espinha dorsal da Aderry.
         </p>
-        <p style={{ fontFamily:"'Inter',sans-serif", fontSize:"14px", color:C.t2, lineHeight:1.8 }}>
+        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:C.t3, lineHeight:1.75 }}>
           A manhã é longa e deliberadamente não executiva. O Governante em ti estrutura o dia —
-          o Sábio define primeiro <em style={{ color:C.pLight }}>o que merece acontecer</em> antes de o fazer acontecer.
-          A noite é espaçosa porque o pensamento profundo precisa de tempo para assentar.
+          o Sábio define primeiro <em style={{ color:C.pSoft }}>o que merece acontecer</em> antes de o fazer acontecer.
         </p>
       </div>
 
       {/* Stats */}
-      <div className="hub-stats" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"12px", marginBottom:"24px" }}>
+      <div className="stat-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"10px", marginBottom:"22px" }}>
         {[
-          { n:"4h30", l:"Bloco matinal",    sub:"contemplativo" },
-          { n:"7h30", l:"Bloco de tarde",   sub:"método + operação" },
-          { n:"2h",   l:"Leitura diária",   sub:"profunda + leve" },
-          { n:"7h45", l:"Sono",             sub:"por noite" },
+          { n:"4h30", l:"Manhã contemplativa",  s:"06:00 → 10:30" },
+          { n:"7h30", l:"Tarde de trabalho",    s:"10:30 → 18:00" },
+          { n:"2h",   l:"Leitura total/dia",    s:"profunda + leve" },
+          { n:"7h45", l:"Sono",                 s:"22:15 → 06:00" },
         ].map((s,i) => (
-          <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px 20px", textAlign:"center" }}>
-            <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"28px", fontWeight:700, color:C.pSoft, lineHeight:1 }}>{s.n}</div>
-            <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"12px", fontWeight:600, color:C.t2, marginTop:"6px" }}>{s.l}</div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, marginTop:"3px", letterSpacing:"0.08em" }}>{s.sub}</div>
+          <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"11px", padding:"16px", textAlign:"center" }}>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"22px", fontWeight:700, color:C.pSoft, lineHeight:1 }}>{s.n}</div>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"11px", fontWeight:600, color:C.t2, marginTop:"5px" }}>{s.l}</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, marginTop:"3px" }}>{s.s}</div>
           </div>
         ))}
       </div>
 
-      {/* Periods overview */}
-      {PERIODS.map(p => {
-        const pBlocks = BLOCKS.filter(b => b.period === p.id);
+      {/* Schedule overview */}
+      {PERIODS.map(pr => {
+        const pBlocks = BLOCKS.filter(b=>b.p===pr.id);
         return (
-          <div key={p.id} style={{ marginBottom:"22px" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"10px" }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", letterSpacing:"0.2em", textTransform:"uppercase", color:p.color, fontWeight:600 }}>
-                {p.icon} {p.label} · {p.timeRange}
-              </div>
-              <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, ${p.color}35, transparent)` }}/>
-            </div>
-            <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"13px", fontStyle:"italic", color:C.t3, marginBottom:"10px" }}>
-              "{p.subtitle}"
+          <div key={pr.id} style={{ marginBottom:"20px" }}>
+            <SectionHead icon={pr.icon} label={`${pr.label} · ${pr.range}`} color={pr.color} />
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", fontStyle:"italic", color:C.t4, marginBottom:"9px", marginLeft:"2px" }}>
+              "{pr.sub}"
             </div>
             <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"12px", overflow:"hidden" }}>
-              {pBlocks.map((b, bi) => (
+              {pBlocks.map((b,bi) => (
                 <div key={b.id} style={{
-                  display:"grid", gridTemplateColumns:"70px 90px 1fr",
+                  display:"grid", gridTemplateColumns:"68px 88px 1fr",
                   gap:"12px", alignItems:"center", padding:"11px 16px",
                   borderBottom: bi<pBlocks.length-1 ? `1px solid ${C.border}` : "none",
-                  background: "transparent",
                 }}>
-                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:p.color }}>{b.time}</div>
-                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:p.color, background:`${p.color}14`, borderRadius:"4px", padding:"3px 8px", textAlign:"center", letterSpacing:"0.04em" }}>{b.dur}</div>
-                  <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"13px", color:C.t2 }}>{b.label}</div>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:pr.color }}>{b.time}</div>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:pr.color, background:`${pr.color}16`, borderRadius:"5px", padding:"3px 8px", textAlign:"center" }}>{b.dur}</div>
+                  <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"13px", color:C.t2 }}>{b.label}</div>
                 </div>
               ))}
             </div>
@@ -359,26 +300,19 @@ function HubView({ now, todayWS }) {
       })}
 
       {/* Principles */}
-      <div style={{ marginTop:"32px" }}>
-        <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"20px", fontWeight:600, color:C.t1, marginBottom:"18px" }}>
+      <div style={{ marginTop:"28px" }}>
+        <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:700, color:C.t1, marginBottom:"14px" }}>
           Os quatro princípios do sistema
-        </h2>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:"14px" }}>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"12px" }}>
           {PRINCIPLES.map((p,i) => (
             <div key={i} style={{
-              background:`linear-gradient(135deg, ${C.goldBg}, rgba(196,147,63,0.05))`,
-              border:`1px solid ${C.goldBrd}`,
-              borderRadius:"14px", padding:"22px 24px",
+              background:C.goldBg, border:`1px solid ${C.goldBd}`,
+              borderRadius:"13px", padding:"20px 22px",
             }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.gold, letterSpacing:"0.14em", marginBottom:"10px" }}>
-                {p.num}
-              </div>
-              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"15px", fontWeight:600, fontStyle:"italic", color:C.goldSoft, lineHeight:1.4, marginBottom:"10px" }}>
-                "{p.quote}"
-              </div>
-              <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"12px", color:C.t3, lineHeight:1.7 }}>
-                {p.body}
-              </div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.gold, letterSpacing:"0.16em", marginBottom:"9px" }}>{p.n}</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontSize:"14px", fontWeight:700, color:C.goldS, lineHeight:1.35, marginBottom:"9px" }}>"{p.quote}"</div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"10px", color:C.t3, lineHeight:1.7 }}>{p.body}</div>
             </div>
           ))}
         </div>
@@ -387,73 +321,75 @@ function HubView({ now, todayWS }) {
   );
 }
 
-/* ── ROTINA ── */
+/* ─────────────────────────────────────────
+   VIEW: ROTINA
+───────────────────────────────────────── */
 function RotinaView({ now, todayWS }) {
   const [expanded, setExpanded] = useState(null);
-  const nowMin = now.getHours()*60 + now.getMinutes();
+  const nowMin = now.getHours()*60+now.getMinutes();
 
-  function isCurrent(b) {
-    if (b.id === "n5") return false;
-    const s = hhmm(b.time), e = hhmm(b.end);
-    return nowMin >= s && nowMin < e;
-  }
+  const isCur = b => {
+    if (b.id==="n5") return false;
+    const s=hhmm(b.time), e=hhmm(b.end);
+    return nowMin>=s && nowMin<e;
+  };
 
   return (
     <div className="fadein">
-      {/* Today theme */}
+      {/* Today banner */}
       <div style={{
-        background:`linear-gradient(135deg, ${todayWS.color}14, ${todayWS.color}06)`,
-        border:`1px solid ${todayWS.color}30`,
-        borderRadius:"14px", padding:"18px 22px", marginBottom:"24px",
+        background:`linear-gradient(135deg, ${todayWS.color}12, ${todayWS.color}06)`,
+        border:`1px solid ${todayWS.color}28`,
+        borderRadius:"13px", padding:"16px 20px", marginBottom:"22px",
       }}>
-        <div style={{ display:"flex", alignItems:"center", gap:"9px", marginBottom:"8px" }}>
-          <Label text={todayWS.tag} color={todayWS.color} bg={`${todayWS.color}18`} border={`${todayWS.color}35`} />
-          <span className="live" style={{ width:"5px", height:"5px", borderRadius:"50%", background:todayWS.color, display:"inline-block" }}/>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t3 }}>HOJE · {todayWS.full.toUpperCase()}</span>
-        </div>
-        <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"14px", fontStyle:"italic", color:C.t2, lineHeight:1.5, marginBottom:"5px" }}>
-          Estudo: {todayWS.study}
-        </div>
-        <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"12px", color:C.t3 }}>
-          Conteúdo → {todayWS.content}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:"14px", alignItems:"center" }}>
+          <div>
+            <div style={{ display:"flex", alignItems:"center", gap:"9px", marginBottom:"8px" }}>
+              <Tag label={todayWS.tag} color={todayWS.color} bg={`${todayWS.color}18`} border={`${todayWS.color}35`}/>
+              <span className="live" style={{ width:"5px",height:"5px",borderRadius:"50%",background:todayWS.color,display:"inline-block" }}/>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t3,letterSpacing:"0.08em" }}>HOJE · {todayWS.full.toUpperCase()}</span>
+            </div>
+            <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:C.t1,fontWeight:600,marginBottom:"4px" }}>{todayWS.study.split(",")[0]}</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3 }}>Conteúdo → {todayWS.content.split(",")[0]}</div>
+          </div>
+          <div style={{ textAlign:"right" }}>
+            <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"42px",fontWeight:700,color:`${todayWS.color}25`,lineHeight:1 }}>{now.getDate()}</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,marginTop:"2px",letterSpacing:"0.08em" }}>
+              {now.toLocaleDateString("pt-PT",{month:"short"}).toUpperCase()} {now.getFullYear()}
+            </div>
+          </div>
         </div>
       </div>
 
-      {PERIODS.map(p => {
-        const pBlocks = BLOCKS.filter(b => b.period === p.id);
+      {PERIODS.map(pr => {
+        const pB = BLOCKS.filter(b=>b.p===pr.id);
         return (
-          <div key={p.id} style={{ marginBottom:"26px" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"10px" }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", letterSpacing:"0.2em", textTransform:"uppercase", color:p.color, fontWeight:600 }}>
-                {p.icon} {p.label}
-              </div>
-              <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, ${p.color}35, transparent)` }}/>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4 }}>{p.timeRange}</div>
-            </div>
-            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"13px", overflow:"hidden", boxShadow:`0 2px 16px ${C.shadow}` }}>
-              {pBlocks.map((b, bi) => {
-                const cur  = isCurrent(b);
-                const open = expanded === b.id;
+          <div key={pr.id} style={{ marginBottom:"26px" }}>
+            <SectionHead icon={pr.icon} label={pr.label} color={pr.color} right={pr.range} />
+            <div style={{ background:C.surface,border:`1px solid ${C.border}`,borderRadius:"13px",overflow:"hidden",boxShadow:`0 2px 14px ${C.shadow}` }}>
+              {pB.map((b,bi) => {
+                const cur  = isCur(b);
+                const open = expanded===b.id;
                 return (
-                  <div key={b.id} className={`block-row ${cur?"current":""}`}
+                  <div key={b.id} className="row"
                     onClick={() => setExpanded(open?null:b.id)}
                     style={{
-                      display:"grid", gridTemplateColumns:"72px 90px 1fr 18px",
-                      alignItems:"center", gap:"12px", padding:"13px 18px",
-                      borderBottom: bi<pBlocks.length-1 ? `1px solid ${C.border}` : "none",
-                      background: cur ? `${p.color}14` : open ? `${p.color}08` : "transparent",
-                      borderLeft: cur ? `3px solid ${p.color}` : open ? `3px solid ${p.color}70` : "3px solid transparent",
+                      display:"grid", gridTemplateColumns:"70px 88px 1fr 18px",
+                      alignItems:"center", gap:"12px", padding:"13px 17px",
+                      background: cur?`${pr.color}14`:open?`${pr.color}09`:"transparent",
+                      borderBottom: bi<pB.length-1?`1px solid ${C.border}`:"none",
+                      borderLeft: cur?`3px solid ${pr.color}`:open?`3px solid ${pr.color}70`:"3px solid transparent",
                     }}>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"12px", color:(cur||open)?p.color:C.t3, fontWeight:(cur||open)?600:400, display:"flex", alignItems:"center", gap:"5px" }}>
-                      {cur && <span className="live" style={{ width:"5px", height:"5px", borderRadius:"50%", background:p.color, display:"inline-block", flexShrink:0 }}/>}
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"11px",color:(cur||open)?pr.color:C.t3,fontWeight:(cur||open)?600:400,display:"flex",alignItems:"center",gap:"5px" }}>
+                      {cur && <span className="live" style={{ width:"5px",height:"5px",borderRadius:"50%",background:pr.color,display:"inline-block",flexShrink:0 }}/>}
                       {b.time}
                     </div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:p.color, background:`${p.color}18`, borderRadius:"5px", padding:"3px 8px", textAlign:"center", whiteSpace:"nowrap" }}>{b.dur}</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:pr.color,background:`${pr.color}18`,borderRadius:"5px",padding:"3px 8px",textAlign:"center",whiteSpace:"nowrap" }}>{b.dur}</div>
                     <div>
-                      <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"13px", fontWeight:(cur||open)?600:400, color:(cur||open)?C.t1:C.t2 }}>{b.label}</div>
-                      {open && <div className="fadein" style={{ fontFamily:"'Inter',sans-serif", fontSize:"12px", color:C.t3, marginTop:"5px", lineHeight:1.65 }}>{b.desc}</div>}
+                      <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:(cur||open)?C.t1:C.t2,fontWeight:(cur||open)?600:400,lineHeight:1.3 }}>{b.label}</div>
+                      {open && <div className="fadein" style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3,marginTop:"5px",lineHeight:1.65 }}>{b.desc}</div>}
                     </div>
-                    <div style={{ color:open?p.color:C.t4, fontSize:"16px", transition:"transform 0.2s", transform:open?"rotate(90deg)":"none", textAlign:"center", userSelect:"none" }}>›</div>
+                    <div style={{ color:open?pr.color:C.t4,fontSize:"15px",transition:"transform 0.2s",transform:open?"rotate(90deg)":"none",textAlign:"center",userSelect:"none" }}>›</div>
                   </div>
                 );
               })}
@@ -465,137 +401,121 @@ function RotinaView({ now, todayWS }) {
   );
 }
 
-/* ── TEMPLATE ── */
+/* ─────────────────────────────────────────
+   VIEW: TEMPLATE
+───────────────────────────────────────── */
 function TemplateView({ now, todayWS, allData, setAllData }) {
-  const [viewDate, setViewDate] = useState(new Date(now));
-  const vKey = dateKey(viewDate);
-  const vShort = ALL_DAYS[viewDate.getDay()];
-  const vWS = WEEK.find(w=>w.day===vShort) || WEEK[0];
-  const isToday = vKey === dateKey(now);
+  const [vDate, setVDate] = useState(new Date(now));
+  const vKey   = dateKey(vDate);
+  const vShort = ALL_DAYS[vDate.getDay()];
+  const vWS    = WEEK.find(w=>w.day===vShort) || WEEK[0];
+  const isToday= vKey===dateKey(now);
 
-  const dayData = useMemo(() => loadDay(vKey, allData), [vKey, allData]);
+  const dayData = useMemo(()=>getDay(allData,vKey),[allData,vKey]);
 
-  const update = useCallback((fn) => {
-    setAllData(a => {
-      const next = { ...a, [vKey]: fn(loadDay(vKey, a)) };
-      saveAll(next);
-      return next;
-    });
-  }, [vKey]);
+  const upd = useCallback(fn => {
+    setAllData(a=>{const n={...a,[vKey]:fn(getDay(a,vKey))};saveAll(n);return n;});
+  },[vKey]);
 
-  const setBlockField = (bid, field, val) => update(d => ({
-    ...d, blocks: { ...d.blocks, [bid]: { ...(d.blocks[bid]||{}), [field]:val } }
-  }));
-  const setExtra = (bid, key, val) => update(d => ({
-    ...d, blocks: { ...d.blocks, [bid]: { ...(d.blocks[bid]||{}), extras:{ ...((d.blocks[bid]||{}).extras||{}), [key]:val } } }
-  }));
-  const setReview = (field, val) => update(d => ({
-    ...d, review: { ...(d.review||{}), [field]:val }
-  }));
-  const setGratitude = (i, val) => update(d => {
-    const g = [...((d.review||{}).gratitude||["","",""])];
-    g[i] = val;
-    return { ...d, review:{ ...(d.review||{}), gratitude:g } };
-  });
+  const setBF   = (id,f,v) => upd(d=>({...d,blocks:{...d.blocks,[id]:{...d.blocks[id],[f]:v}}}));
+  const setExtr = (id,k,v) => upd(d=>({...d,blocks:{...d.blocks,[id]:{...d.blocks[id],extras:{...(d.blocks[id]?.extras||{}),[k]:v}}}}));
+  const setRev  = (f,v)    => upd(d=>({...d,review:{...(d.review||{}),[f]:v}}));
+  const setGrat = (i,v)    => upd(d=>{const g=[...((d.review||{}).gratitude||["","",""])];g[i]=v;return{...d,review:{...(d.review||{}),gratitude:g}};});
 
-  const shiftDay = n => setViewDate(d => { const nd=new Date(d); nd.setDate(nd.getDate()+n); return nd; });
+  const shiftDay= n=>setVDate(d=>{const nd=new Date(d);nd.setDate(nd.getDate()+n);return nd;});
+  const rev     = dayData.review||{};
+  const doneCnt = BLOCKS.filter(b=>(dayData.blocks[b.id]||{}).done).length;
 
-  const doExport = () => {
-    const txt = exportDay(dayData, fmtDate(viewDate), vShort);
-    const el = document.createElement("a");
-    el.href = "data:text/plain;charset=utf-8," + encodeURIComponent(txt);
-    el.download = `habitus-adelson-${vKey}.txt`;
-    el.click();
+  const doExport = ()=>{
+    const txt = buildExport(dayData, vDate.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long",year:"numeric"}), vShort);
+    downloadTxt(txt, `habitus-adelson-${vKey}.txt`);
   };
-
-  const rev = dayData.review || {};
-  const doneCount = BLOCKS.filter(b => (dayData.blocks[b.id]||{}).done).length;
 
   return (
     <div className="fadein">
-      {/* Date nav + export */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:C.surface, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"12px 18px", marginBottom:"22px", boxShadow:`0 2px 12px ${C.shadowB}` }}>
-        <button className="ibtn" onClick={()=>shiftDay(-1)} style={{ width:"32px", height:"32px", borderRadius:"8px", background:C.card, border:`1px solid ${C.border}`, color:C.t3, display:"flex", alignItems:"center", justifyContent:"center" }}><Prev/></button>
+      {/* Date nav */}
+      <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",background:C.surface,border:`1px solid ${C.border}`,borderRadius:"12px",padding:"11px 17px",marginBottom:"16px",boxShadow:`0 2px 12px ${C.shadow}` }}>
+        <button className="ibtn" onClick={()=>shiftDay(-1)} style={{ width:"32px",height:"32px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.t3,display:"flex",alignItems:"center",justifyContent:"center" }}><PrevIco/></button>
         <div style={{ textAlign:"center" }}>
-          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"15px", fontWeight:600, color:C.t1 }}>
-            {fmtDate(viewDate)}
+          <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.t1 }}>
+            {vDate.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
           </div>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, marginTop:"2px" }}>
-            {isToday && <span style={{ color:C.green }}>HOJE · </span>}
-            {vWS.tag} · {doneCount}/{BLOCKS.length} blocos concluídos
+          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,marginTop:"2px" }}>
+            {isToday&&<span style={{ color:C.green }}>HOJE · </span>}
+            <span style={{ color:vWS.color }}>{vWS.tag}</span>
+            {" · "}{doneCnt}/{BLOCKS.length} blocos
           </div>
         </div>
-        <div style={{ display:"flex", gap:"8px" }}>
-          <button className="ibtn" onClick={()=>shiftDay(1)} style={{ width:"32px", height:"32px", borderRadius:"8px", background:C.card, border:`1px solid ${C.border}`, color:C.t3, display:"flex", alignItems:"center", justifyContent:"center" }}><Next/></button>
-          <button className="ibtn" onClick={doExport} title="Exportar dia" style={{ width:"32px", height:"32px", borderRadius:"8px", background:C.card, border:`1px solid ${C.border}`, color:C.pSoft, display:"flex", alignItems:"center", justifyContent:"center" }}><ExportIco/></button>
+        <div style={{ display:"flex",gap:"7px" }}>
+          <button className="ibtn" onClick={()=>shiftDay(1)} style={{ width:"32px",height:"32px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.t3,display:"flex",alignItems:"center",justifyContent:"center" }}><NextIco/></button>
+          <button className="ibtn" onClick={doExport} title="Exportar" style={{ width:"32px",height:"32px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.pSoft,display:"flex",alignItems:"center",justifyContent:"center" }}><DownIco/></button>
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div style={{ height:"3px", background:C.border, borderRadius:"2px", marginBottom:"22px" }}>
-        <div style={{ height:"100%", width:`${(doneCount/BLOCKS.length)*100}%`, background:`linear-gradient(90deg, ${C.primary}, ${C.green})`, borderRadius:"2px", transition:"width 0.3s" }}/>
+      {/* Progress */}
+      <div style={{ height:"3px",background:C.border,borderRadius:"2px",marginBottom:"20px" }}>
+        <div style={{ height:"100%",width:`${(doneCnt/BLOCKS.length)*100}%`,background:`linear-gradient(90deg,${C.primary},${C.green})`,borderRadius:"2px",transition:"width 0.3s" }}/>
       </div>
 
-      {/* Blocks by period */}
-      {PERIODS.map(p => {
-        const pBlocks = BLOCKS.filter(b => b.period === p.id);
+      {PERIODS.map(pr => {
+        const pB = BLOCKS.filter(b=>b.p===pr.id);
         return (
-          <div key={p.id} style={{ marginBottom:"28px" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"10px" }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", letterSpacing:"0.2em", textTransform:"uppercase", color:p.color, fontWeight:600 }}>
-                {p.icon} {p.label}
-              </div>
-              <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg,${p.color}35,transparent)` }}/>
-            </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
-              {pBlocks.map(b => {
-                const bd = dayData.blocks[b.id] || {};
-                return (
-                  <BlockTemplate key={b.id} block={b} data={bd} periodColor={p.color}
-                    onDone={v     => setBlockField(b.id,"done",v)}
-                    onIntent={v   => setBlockField(b.id,"intention",v)}
-                    onNotes={v    => setBlockField(b.id,"notes",v)}
-                    onExtra={(k,v)=> setExtra(b.id,k,v)}
-                  />
-                );
-              })}
+          <div key={pr.id} style={{ marginBottom:"26px" }}>
+            <SectionHead icon={pr.icon} label={pr.label} color={pr.color} />
+            <div style={{ display:"flex",flexDirection:"column",gap:"7px" }}>
+              {pB.map(b => (
+                <BlockCard key={b.id} b={b} data={dayData.blocks[b.id]||{}} pc={pr.color}
+                  onDone  ={v=>setBF(b.id,"done",v)}
+                  onIntent={v=>setBF(b.id,"intention",v)}
+                  onNotes ={v=>setBF(b.id,"notes",v)}
+                  onExtr  ={(k,v)=>setExtr(b.id,k,v)}
+                />
+              ))}
             </div>
           </div>
         );
       })}
 
-      {/* Day Review */}
-      <div style={{ background:`linear-gradient(135deg, ${C.goldBg}, rgba(196,147,63,0.04))`, border:`1px solid ${C.goldBrd}`, borderRadius:"14px", padding:"24px 26px", marginTop:"10px" }}>
-        <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"17px", fontWeight:600, fontStyle:"italic", color:C.goldSoft, marginBottom:"20px" }}>
+      {/* Revisão */}
+      <div style={{ background:C.goldBg,border:`1px solid ${C.goldBd}`,borderRadius:"13px",padding:"22px 24px" }}>
+        <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.goldS,marginBottom:"18px" }}>
           Revisão do Dia
-        </h3>
-        <Field label="O que aprendi hoje que não sabia ontem?" value={rev.learned||""} onChange={v=>setReview("learned",v)} big placeholder="O conhecimento novo — mesmo que pequeno..." />
-        <Field label="O meu pensamento avançou? Em que direcção?" value={rev.thinking||""} onChange={v=>setReview("thinking",v)} big placeholder="Reflexão sobre o avanço intelectual do dia..." />
-        <Field label="O que o silêncio de hoje me mostrou?" value={rev.silence||""} onChange={v=>setReview("silence",v)} big placeholder="O que emergiu nos momentos quietos..." />
-
+        </div>
+        {[
+          { f:"learned",  l:"O que aprendi hoje que não sabia ontem?" },
+          { f:"thinking", l:"O meu pensamento avançou? Em que direcção?" },
+          { f:"silence",  l:"O que o silêncio de hoje me mostrou?" },
+        ].map(({f,l})=>(
+          <div key={f} style={{ marginBottom:"12px" }}>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"5px" }}>{l}</div>
+            <textarea rows={2} value={(rev[f])||""} onChange={e=>setRev(f,e.target.value)}
+              onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border}
+              style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"9px 12px",fontSize:"12px",color:C.t2,lineHeight:1.65,fontFamily:"'JetBrains Mono',monospace" }}
+            />
+          </div>
+        ))}
         <div style={{ marginBottom:"14px" }}>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, letterSpacing:"0.14em", textTransform:"uppercase", marginBottom:"8px" }}>Gratidão (3 coisas)</div>
-          <div style={{ display:"flex", flexDirection:"column", gap:"6px" }}>
-            {[0,1,2].map(i => (
-              <input key={i} type="text" value={(rev.gratitude||["","",""])[i]||""} onChange={e=>setGratitude(i,e.target.value)}
+          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"8px" }}>Gratidão (3 coisas)</div>
+          <div style={{ display:"flex",flexDirection:"column",gap:"5px" }}>
+            {[0,1,2].map(i=>(
+              <input key={i} type="text" value={(rev.gratitude||["","",""])[i]||""} onChange={e=>setGrat(i,e.target.value)}
                 placeholder={`${i+1}.`}
                 onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border}
-                style={{ width:"100%", background:C.inputBg, border:`1px solid ${C.border}`, borderRadius:"8px", padding:"8px 12px", fontSize:"13px", color:C.t2 }}
+                style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"8px 12px",fontSize:"12px",color:C.t2,fontFamily:"'JetBrains Mono',monospace" }}
               />
             ))}
           </div>
         </div>
-
         <div>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, letterSpacing:"0.14em", textTransform:"uppercase", marginBottom:"8px" }}>Nota do dia</div>
-          <div style={{ display:"flex", gap:"8px" }}>
-            {[1,2,3,4,5].map(n => (
-              <button key={n} className="ibtn" onClick={()=>setReview("score",rev.score===n?0:n)} style={{
-                width:"40px", height:"40px", borderRadius:"10px",
-                background: rev.score>=n ? `${C.gold}25` : C.card,
-                border:`1px solid ${rev.score>=n ? C.gold : C.border}`,
-                color: rev.score>=n ? C.gold : C.t4,
-                fontFamily:"'Playfair Display',serif", fontSize:"16px", fontWeight:600,
+          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"8px" }}>Nota do dia</div>
+          <div style={{ display:"flex",gap:"7px" }}>
+            {[1,2,3,4,5].map(n=>(
+              <button key={n} className="ibtn" onClick={()=>setRev("score",rev.score===n?0:n)} style={{
+                width:"40px",height:"40px",borderRadius:"10px",
+                background:rev.score>=n?`${C.gold}22`:C.card,
+                border:`1px solid ${rev.score>=n?C.gold:C.border}`,
+                color:rev.score>=n?C.gold:C.t4,
+                fontFamily:"'Syne',sans-serif",fontSize:"16px",fontWeight:700,
               }}>{n}</button>
             ))}
           </div>
@@ -605,111 +525,105 @@ function TemplateView({ now, todayWS, allData, setAllData }) {
   );
 }
 
-function BlockTemplate({ block: b, data: bd, periodColor, onDone, onIntent, onNotes, onExtra }) {
+function BlockCard({ b, data:bd, pc, onDone, onIntent, onNotes, onExtr }) {
   const [open, setOpen] = useState(false);
-  const done = bd.done || false;
-
+  const done = bd.done||false;
   return (
     <div style={{
-      background: done ? C.greenBg : C.card,
-      border:`1px solid ${done ? C.green+"30" : (open ? `${periodColor}30` : C.border)}`,
-      borderRadius:"12px", overflow:"hidden",
-      boxShadow:`0 1px 8px ${C.shadowB}`,
+      background:done?C.greenBg:C.card,
+      border:`1px solid ${done?C.green+"28":(open?`${pc}28`:C.border)}`,
+      borderRadius:"12px",overflow:"hidden",
+      boxShadow:`0 1px 8px ${C.shadow}`,
     }}>
-      {/* Header row */}
-      <div style={{ display:"grid", gridTemplateColumns:"auto 72px 90px 1fr auto", alignItems:"center", gap:"12px", padding:"12px 16px", cursor:"pointer" }}
-        onClick={()=>setOpen(!open)}>
-        {/* Checkbox */}
+      {/* Header */}
+      <div onClick={()=>setOpen(!open)} style={{ display:"grid",gridTemplateColumns:"auto 68px 86px 1fr auto",alignItems:"center",gap:"12px",padding:"12px 16px",cursor:"pointer" }}>
         <button className="ibtn" onClick={e=>{e.stopPropagation();onDone(!done)}} style={{
-          width:"22px", height:"22px", borderRadius:"6px",
-          background: done ? C.green : "transparent",
-          border:`2px solid ${done ? C.green : C.t4}`,
-          display:"flex", alignItems:"center", justifyContent:"center",
-          color:"#fff", flexShrink:0,
-        }}>
-          {done && <CheckIco/>}
-        </button>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"11px", color:done?C.t3:periodColor }}>{b.time}</div>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:periodColor, background:`${periodColor}18`, borderRadius:"4px", padding:"3px 8px", textAlign:"center", whiteSpace:"nowrap" }}>{b.dur}</div>
-        <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"13px", fontWeight:open?600:400, color:done?C.t3:(open?C.t1:C.t2), textDecoration:done?"line-through":"none" }}>{b.label}</div>
-        <div style={{ color:open?periodColor:C.t4, fontSize:"16px", transition:"transform 0.2s", transform:open?"rotate(90deg)":"none" }}>›</div>
+          width:"22px",height:"22px",borderRadius:"6px",background:done?C.green:"transparent",
+          border:`2px solid ${done?C.green:C.t4}`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",flexShrink:0,
+        }}>{done&&<CheckIco/>}</button>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"11px",color:done?C.t3:pc }}>{b.time}</div>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:pc,background:`${pc}18`,borderRadius:"5px",padding:"3px 8px",textAlign:"center",whiteSpace:"nowrap" }}>{b.dur}</div>
+        <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:done?C.t3:(open?C.t1:C.t2),fontWeight:open?600:400,textDecoration:done?"line-through":"none",lineHeight:1.3 }}>{b.label}</div>
+        <div style={{ color:open?pc:C.t4,fontSize:"15px",transition:"transform 0.2s",transform:open?"rotate(90deg)":"none",userSelect:"none" }}>›</div>
       </div>
 
       {/* Expanded */}
       {open && (
-        <div className="fadein" style={{ borderTop:`1px solid ${C.border}`, padding:"16px 18px", display:"flex", flexDirection:"column", gap:"0" }}>
-          <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"12px", color:C.t3, lineHeight:1.65, marginBottom:"14px" }}>{b.desc}</div>
+        <div className="fadein" style={{ borderTop:`1px solid ${C.border}`,padding:"15px 17px" }}>
+          <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3,lineHeight:1.65,marginBottom:"14px" }}>{b.desc}</div>
 
           {/* Special fields */}
-          {b.fields && b.fields.map(f => (
-            <Field key={f.key} label={f.label} big={f.big}
-              value={(bd.extras||{})[f.key]||""}
-              onChange={v=>onExtra(f.key,v)}
-            />
-          ))}
-          {/* Reflection block: big free text */}
-          {b.type==="reflexao" && (
-            <div style={{ marginBottom:"10px" }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4, letterSpacing:"0.14em", textTransform:"uppercase", marginBottom:"5px" }}>Diário de pensamento</div>
-              <textarea rows={6} value={(bd.extras||{}).diario||""} onChange={e=>onExtra("diario",e.target.value)}
-                placeholder={"Espaço livre. Escreve o que vier — ideias, intuições, fragmentos..."}
-                onFocus={e=>e.target.style.borderColor=C.pSoft} onBlur={e=>e.target.style.borderColor=C.border}
-                style={{ width:"100%", background:C.inputBg, border:`1px solid ${C.border}`, borderRadius:"8px", padding:"10px 13px", fontSize:"13px", color:C.t2, lineHeight:1.7, resize:"vertical", marginBottom:"10px" }}
-              />
+          {(b.fields||[]).map(f=>(
+            <div key={f.k} style={{ marginBottom:"10px" }}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"4px" }}>{f.l}</div>
+              {f.big
+                ? <textarea rows={3} value={(bd.extras||{})[f.k]||""} onChange={e=>onExtr(f.k,e.target.value)}
+                    onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
+                    style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"9px 12px",fontSize:"12px",color:C.t2,lineHeight:1.65,fontFamily:"'JetBrains Mono',monospace" }}/>
+                : <input type="text" value={(bd.extras||{})[f.k]||""} onChange={e=>onExtr(f.k,e.target.value)}
+                    onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
+                    style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"8px 12px",fontSize:"12px",color:C.t2,fontFamily:"'JetBrains Mono',monospace" }}/>
+              }
             </div>
-          )}
+          ))}
 
-          <Field label="Intenção do bloco" value={bd.intention||""} onChange={onIntent} placeholder="O que quero que este tempo produza?" />
-          <Field label="Notas livres" value={bd.notes||""} onChange={onNotes} big placeholder="Pensamentos, observações, o que surgiu..." />
+          {/* Common fields */}
+          <div style={{ marginBottom:"10px" }}>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"4px" }}>Intenção do bloco</div>
+            <input type="text" value={bd.intention||""} onChange={e=>onIntent(e.target.value)} placeholder="O que quero que este tempo produza?"
+              onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
+              style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"8px 12px",fontSize:"12px",color:C.t2,fontFamily:"'JetBrains Mono',monospace" }}/>
+          </div>
+          <div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.13em",textTransform:"uppercase",marginBottom:"4px" }}>Notas livres</div>
+            <textarea rows={2} value={bd.notes||""} onChange={e=>onNotes(e.target.value)} placeholder="Pensamentos, observações, o que surgiu..."
+              onFocus={e=>e.target.style.borderColor=pc} onBlur={e=>e.target.style.borderColor=C.border}
+              style={{ width:"100%",background:C.inputBg,border:`1px solid ${C.border}`,borderRadius:"8px",padding:"9px 12px",fontSize:"12px",color:C.t2,lineHeight:1.65,fontFamily:"'JetBrains Mono',monospace" }}/>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-/* ── SEMANA ── */
-function SemanaView({ now }) {
-  const todayShort = ALL_DAYS[now.getDay()];
+/* ─────────────────────────────────────────
+   VIEW: SEMANA
+───────────────────────────────────────── */
+function SemanaView({ todayShort }) {
   return (
     <div className="fadein">
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px 22px", marginBottom:"24px" }}>
-        <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"17px", fontWeight:600, color:C.t1, marginBottom:"8px" }}>Sistema Semanal</h2>
-        <p style={{ fontFamily:"'Inter',sans-serif", fontSize:"13px", color:C.t3, lineHeight:1.7 }}>
-          O Sábio constrói de dentro para fora. A semana começa em filosofia e método, não em execução.
+      <div style={{ background:C.p10,border:`1px solid ${C.borderA}`,borderRadius:"11px",padding:"14px 18px",marginBottom:"20px",display:"flex",gap:"10px" }}>
+        <span style={{ fontSize:"14px",flexShrink:0 }}>📖</span>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t3,lineHeight:1.65 }}>
+          <strong style={{ color:C.pSoft }}>Sistema semanal do Sábio</strong> — A semana começa em Método & Filosofia, não em execução.
           Cada dia aprofunda um pilar diferente do mesmo sistema.
-        </p>
+        </div>
       </div>
-      <div className="week-grid" style={{ display:"grid", gridTemplateColumns:"1fr", gap:"10px" }}>
-        {WEEK.map((w, i) => {
-          const isToday = w.day === todayShort;
+      <div style={{ display:"flex",flexDirection:"column",gap:"8px" }}>
+        {WEEK.map((w,i)=>{
+          const isT=w.day===todayShort;
           return (
-            <div key={i} className="wday" style={{
-              background: isToday
-                ? `linear-gradient(135deg, ${w.color}14, ${w.color}06)`
-                : C.surface,
-              border:`1px solid ${isToday ? w.color+"35" : C.border}`,
-              borderRadius:"14px", padding:"18px 22px",
-              display:"grid", gridTemplateColumns:"120px 1fr 1fr auto",
-              gap:"18px", alignItems:"start",
-              boxShadow:`0 2px 12px ${C.shadowB}`,
+            <div key={i} className="wcard" style={{
+              background:isT?`linear-gradient(135deg,${w.color}12,${w.color}06)`:C.surface,
+              border:`1px solid ${isT?w.color+"30":C.border}`,
+              borderRadius:"13px",padding:"15px 18px",
+              display:"grid",gridTemplateColumns:"110px 1fr 1fr",
+              gap:"18px",alignItems:"start",boxShadow:`0 2px 10px ${C.shadow}`,
             }}>
               <div>
-                <div style={{ display:"flex", alignItems:"center", gap:"7px", marginBottom:"7px" }}>
-                  {isToday && <span className="live" style={{ width:"6px", height:"6px", borderRadius:"50%", background:w.color, display:"inline-block", flexShrink:0 }}/>}
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"15px", fontWeight:600, color:isToday?w.color:C.t2 }}>{w.full}</div>
+                <div style={{ display:"flex",alignItems:"center",gap:"7px",marginBottom:"6px" }}>
+                  {isT&&<span className="live" style={{ width:"6px",height:"6px",borderRadius:"50%",background:w.color,display:"inline-block",flexShrink:0 }}/>}
+                  <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:isT?w.color:C.t2 }}>{w.full}</div>
                 </div>
-                <Label text={w.tag} color={w.color} bg={`${w.color}18`} border={`${w.color}30`} />
+                <Tag label={w.tag} color={w.color} bg={`${w.color}18`} border={`${w.color}30`}/>
               </div>
               <div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:"5px" }}>Estudo</div>
-                <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"12px", color:C.t3, lineHeight:1.6 }}>{w.study}</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:"5px" }}>Estudo</div>
+                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"11px",color:C.t3,lineHeight:1.6 }}>{w.study}</div>
               </div>
               <div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:"5px" }}>Conteúdo</div>
-                <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"12px", color:C.t3, lineHeight:1.6 }}>{w.content}</div>
-              </div>
-              <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"11px", fontStyle:"italic", color:C.t4, lineHeight:1.6, maxWidth:"140px", textAlign:"right" }}>
-                {w.note}
+                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:"5px" }}>Conteúdo</div>
+                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"11px",color:C.t3,lineHeight:1.6 }}>{w.content}</div>
               </div>
             </div>
           );
@@ -719,56 +633,48 @@ function SemanaView({ now }) {
   );
 }
 
-/* ── ARQUIVO ── */
+/* ─────────────────────────────────────────
+   VIEW: ARQUIVO
+───────────────────────────────────────── */
 function ArquivoView({ allData }) {
   const keys = Object.keys(allData).sort((a,b)=>b.localeCompare(a)).slice(0,30);
   if (!keys.length) return (
-    <div className="fadein" style={{ textAlign:"center", padding:"60px 0" }}>
-      <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"18px", fontStyle:"italic", color:C.t3, marginBottom:"8px" }}>O arquivo está vazio</div>
-      <div style={{ fontFamily:"'Inter',sans-serif", fontSize:"13px", color:C.t4 }}>Os dias preenchidos no template aparecerão aqui.</div>
+    <div className="fadein" style={{ textAlign:"center",padding:"60px 0" }}>
+      <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"16px",color:C.t3,marginBottom:"8px" }}>Arquivo vazio</div>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:C.t4 }}>Os dias preenchidos no Template aparecem aqui.</div>
     </div>
   );
-
   return (
     <div className="fadein">
-      <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"18px", fontWeight:600, color:C.t1, marginBottom:"18px" }}>Arquivo de Dias</h2>
-      <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
-        {keys.map(k => {
-          const d    = allData[k];
-          const dt   = new Date(k+"T06:00:00");
-          const ws   = WEEK.find(w=>w.day===ALL_DAYS[dt.getDay()]) || WEEK[0];
-          const done = BLOCKS.filter(b=>(d.blocks||{})[b.id]?.done).length;
-          const score= (d.review||{}).score || 0;
+      <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.t1,marginBottom:"16px" }}>Arquivo de Dias</div>
+      <div style={{ display:"flex",flexDirection:"column",gap:"7px" }}>
+        {keys.map(k=>{
+          const d  = allData[k];
+          const dt = new Date(k+"T06:00:00");
+          const ws = WEEK.find(w=>w.day===ALL_DAYS[dt.getDay()])||WEEK[0];
+          const dn = BLOCKS.filter(b=>(d.blocks||{})[b.id]?.done).length;
+          const sc = (d.review||{}).score||0;
           return (
-            <div key={k} style={{
-              background:C.surface, border:`1px solid ${C.border}`,
-              borderRadius:"12px", padding:"14px 18px",
-              display:"grid", gridTemplateColumns:"1fr auto auto auto",
-              gap:"16px", alignItems:"center",
-            }}>
+            <div key={k} style={{ background:C.surface,border:`1px solid ${C.border}`,borderRadius:"11px",padding:"13px 17px",display:"grid",gridTemplateColumns:"1fr auto auto auto",gap:"16px",alignItems:"center" }}>
               <div>
-                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"14px", color:C.t1, marginBottom:"3px" }}>
+                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"13px",color:C.t1,marginBottom:"3px" }}>
                   {dt.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
                 </div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:ws.color }}>{ws.tag}</div>
+                <Tag label={ws.tag} color={ws.color} bg={`${ws.color}16`} border={`${ws.color}28`}/>
               </div>
               <div style={{ textAlign:"center" }}>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"14px", color:done===BLOCKS.length?C.green:C.pSoft }}>{done}/{BLOCKS.length}</div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4 }}>blocos</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"13px",color:dn===BLOCKS.length?C.green:C.pSoft }}>{dn}/{BLOCKS.length}</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4 }}>blocos</div>
               </div>
-              {score>0 && (
-                <div style={{ textAlign:"center" }}>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"18px", color:C.gold, lineHeight:1 }}>{score}</div>
-                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4 }}>nota</div>
-                </div>
-              )}
-              <button className="ibtn" onClick={() => {
-                const txt = exportDay(d, dt.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long",year:"numeric"}), ALL_DAYS[dt.getDay()]);
-                const el = document.createElement("a");
-                el.href = "data:text/plain;charset=utf-8," + encodeURIComponent(txt);
-                el.download = `habitus-adelson-${k}.txt`; el.click();
-              }} style={{ width:"30px", height:"30px", borderRadius:"8px", background:C.card, border:`1px solid ${C.border}`, color:C.t3, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                <ExportIco/>
+              {sc>0&&<div style={{ textAlign:"center" }}>
+                <div style={{ fontFamily:"'Syne',sans-serif",fontSize:"18px",color:C.gold,lineHeight:1 }}>{sc}</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4 }}>nota</div>
+              </div>}
+              <button className="ibtn" onClick={()=>{
+                const txt=buildExport(d,dt.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long",year:"numeric"}),ALL_DAYS[dt.getDay()]);
+                downloadTxt(txt,`habitus-adelson-${k}.txt`);
+              }} style={{ width:"30px",height:"30px",borderRadius:"8px",background:C.card,border:`1px solid ${C.border}`,color:C.t3,display:"flex",alignItems:"center",justifyContent:"center" }}>
+                <DownIco/>
               </button>
             </div>
           );
@@ -778,112 +684,105 @@ function ArquivoView({ allData }) {
   );
 }
 
-/* ═══════════════════════════════════════
+/* ─────────────────────────────────────────
    MAIN APP
-═══════════════════════════════════════ */
+───────────────────────────────────────── */
 function HabitusAdelson() {
-  const [tab, setTab]       = useState("hub");
-  const [now, setNow]       = useState(new Date());
-  const [allData, setAllData] = useState(() => loadAll());
+  const [tab, setTab]         = useState("hub");
+  const [now, setNow]         = useState(new Date());
+  const [allData, setAllData] = useState(()=>loadAll());
 
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 60000);
-    return () => clearInterval(t);
-  }, []);
+  useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
 
   const todayShort = ALL_DAYS[now.getDay()];
-  const todayWS    = WEEK.find(w=>w.day===todayShort) || WEEK[0];
-  const timeStr    = fmtTime(now);
+  const todayWS    = WEEK.find(w=>w.day===todayShort)||WEEK[0];
   const dayFrac    = (now.getHours()*60+now.getMinutes())/(24*60);
-  const dc         = todayWS.color;
 
   const TABS = [
-    { key:"hub",      label:"Hub"       },
-    { key:"rotina",   label:"Rotina"    },
-    { key:"template", label:"Template"  },
-    { key:"semana",   label:"Semana"    },
-    { key:"arquivo",  label:"Arquivo"   },
+    { k:"hub",      l:"Hub"      },
+    { k:"rotina",   l:"Rotina"   },
+    { k:"template", l:"Template" },
+    { k:"semana",   l:"Semana"   },
+    { k:"arquivo",  l:"Arquivo"  },
   ];
 
   return (
-    <div style={{ minHeight:"100vh", background:C.bg, color:C.t1, fontFamily:"'Inter',system-ui,sans-serif" }}>
+    <div style={{ minHeight:"100vh",background:C.bg,color:C.t1,fontFamily:"'Syne',system-ui,sans-serif" }}>
 
       {/* ── TOPBAR ── */}
-      <div style={{ padding:"0 24px", borderBottom:`1px solid ${C.border}`, background:C.glass, backdropFilter:"blur(24px)", position:"sticky", top:0, zIndex:20 }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:"56px" }}>
+      <div style={{ padding:"0 22px",borderBottom:`1px solid ${C.border}`,background:C.glass,backdropFilter:"blur(24px)",position:"sticky",top:0,zIndex:20 }}>
+        <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",height:"54px" }}>
 
           {/* Logo */}
-          <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
+          <div style={{ display:"flex",alignItems:"center",gap:"10px" }}>
             <div style={{
-              width:"30px", height:"30px", borderRadius:"8px",
-              background:`linear-gradient(135deg, ${C.primary}, #1A4E87)`,
-              display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:"14px", color:"#fff",
-              boxShadow:`0 3px 12px rgba(43,107,176,0.45)`,
+              width:"28px",height:"28px",borderRadius:"8px",
+              background:`linear-gradient(135deg,${C.primary},${C.pDark})`,
+              display:"flex",alignItems:"center",justifyContent:"center",
+              fontSize:"13px",color:"#fff",
+              boxShadow:`0 3px 12px rgba(74,124,199,0.45)`,
             }}>◈</div>
             <div>
-              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"14px", fontWeight:700, color:C.t1, lineHeight:1.2 }}>Habitus OS</div>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"8px", color:C.t4, letterSpacing:"0.1em" }}>ADELSON · ADERRY</div>
+              <span style={{ fontFamily:"'Syne',sans-serif",fontSize:"14px",fontWeight:700,color:C.t1 }}>Habitus OS</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",color:C.t4,letterSpacing:"0.1em",display:"block",marginTop:"1px" }}>ADELSON · ADERRY</span>
             </div>
           </div>
 
-          {/* Right */}
-          <div className="topbar-right" style={{ display:"flex", alignItems:"center", gap:"16px" }}>
-            {/* Week dots */}
-            <div className="week-dots" style={{ display:"flex", gap:"3px" }}>
-              {WEEK.map(w => {
-                const isT = w.day === todayShort;
+          {/* Week dots + clock */}
+          <div style={{ display:"flex",alignItems:"center",gap:"14px" }}>
+            <div className="wdots" style={{ display:"flex",gap:"3px" }}>
+              {WEEK.map(w=>{
+                const isT=w.day===todayShort;
                 return (
                   <div key={w.day} title={`${w.full} · ${w.tag}`} style={{
-                    width:"26px", height:"26px", borderRadius:"7px",
-                    background: isT ? w.color : C.card,
-                    border:`1px solid ${isT ? w.color : C.border}`,
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontFamily:"'JetBrains Mono',monospace", fontSize:"8px",
-                    fontWeight:isT?700:400, color:isT?"#fff":C.t4,
+                    width:"26px",height:"26px",borderRadius:"7px",
+                    background:isT?w.color:C.card,
+                    border:`1px solid ${isT?w.color:C.border}`,
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    fontFamily:"'JetBrains Mono',monospace",fontSize:"8px",
+                    fontWeight:isT?700:400,color:isT?"#fff":C.t4,
                   }}>{w.day.charAt(0)}</div>
                 );
               })}
             </div>
-            {/* Clock */}
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"13px", color:C.t2, letterSpacing:"0.04em" }}>{timeStr}</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"12px",color:C.t2,letterSpacing:"0.04em" }}>
+              {fmtTime(now)}
+            </div>
           </div>
         </div>
 
         {/* Day progress */}
-        <div style={{ height:"2px", background:C.border }}>
-          <div style={{ height:"100%", width:`${dayFrac*100}%`, background:`linear-gradient(90deg, ${C.primary}, ${dc})`, transition:"width 60s linear" }}/>
+        <div style={{ height:"2px",background:C.border }}>
+          <div style={{ height:"100%",width:`${dayFrac*100}%`,background:`linear-gradient(90deg,${C.primary},${todayWS.color})`,transition:"width 60s linear" }}/>
         </div>
 
         {/* Tabs */}
-        <div style={{ display:"flex", gap:"0", overflowX:"auto" }}>
-          {TABS.map(t => (
-            <button key={t.key} className="tab-btn" onClick={()=>setTab(t.key)} style={{
-              padding:"10px 16px", fontFamily:"'JetBrains Mono',monospace",
-              fontSize:"9px", letterSpacing:"0.14em", textTransform:"uppercase",
-              color: tab===t.key ? C.pSoft : C.t3,
-              borderBottom: tab===t.key ? `2px solid ${C.primary}` : "2px solid transparent",
-              marginBottom:"-1px", whiteSpace:"nowrap",
-            }}>{t.label}</button>
+        <div style={{ display:"flex",overflowX:"auto" }}>
+          {TABS.map(t=>(
+            <button key={t.k} className="tab" onClick={()=>setTab(t.k)} style={{
+              padding:"10px 16px",fontFamily:"'JetBrains Mono',monospace",
+              fontSize:"9px",letterSpacing:"0.14em",textTransform:"uppercase",
+              color:tab===t.k?C.pSoft:C.t3,
+              borderBottom:tab===t.k?`2px solid ${C.primary}`:"2px solid transparent",
+              marginBottom:"-1px",whiteSpace:"nowrap",
+            }}>{t.l}</button>
           ))}
         </div>
       </div>
 
       {/* ── CONTENT ── */}
-      <div style={{ padding:"26px 24px 64px", maxWidth:"920px", margin:"0 auto" }}>
-        {tab==="hub"      && <HubView      now={now} todayWS={todayWS} />}
+      <div style={{ padding:"24px 22px 64px",maxWidth:"900px",margin:"0 auto" }}>
+        {tab==="hub"      && <HubView      todayWS={todayWS} />}
         {tab==="rotina"   && <RotinaView   now={now} todayWS={todayWS} />}
         {tab==="template" && <TemplateView now={now} todayWS={todayWS} allData={allData} setAllData={setAllData} />}
-        {tab==="semana"   && <SemanaView   now={now} />}
+        {tab==="semana"   && <SemanaView   todayShort={todayShort} />}
         {tab==="arquivo"  && <ArquivoView  allData={allData} />}
       </div>
 
       {/* ── FOOTER ── */}
-      <div style={{ borderTop:`1px solid ${C.border}`, padding:"16px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", background:C.glass, backdropFilter:"blur(12px)" }}>
-        <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"11px", fontStyle:"italic", color:C.t4 }}>
-          Habitus OS · Adelson · Aderry
-        </div>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"9px", color:C.t4 }}>
+      <div style={{ borderTop:`1px solid ${C.border}`,padding:"15px 22px",display:"flex",justifyContent:"space-between",alignItems:"center",background:C.glass,backdropFilter:"blur(12px)" }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4,letterSpacing:"0.1em" }}>HABITUS OS · ADELSON · ADERRY</div>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:"9px",color:C.t4 }}>
           {now.toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}
         </div>
       </div>
