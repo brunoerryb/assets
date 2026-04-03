@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobreiro Residences | Mafra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --sage-bg: #E8EDE6;
+  --dark-green: #3A5A47;
+  --olive-green: #4A6741;
+  --cream: #F5F0E8;
+  --dark-bg: #3D5233;
+  --text-body: #4A4A4A;
+  --white: #FFFFFF;
+  --border: rgba(58,90,71,0.2);
+  --transition: 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior:smooth; font-size:16px; }
+
+body {
+  font-family:'Inter',sans-serif;
+  background:var(--sage-bg);
+  color:var(--text-body);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* CUSTOM CURSOR */
+.cursor {
+  position:fixed;
+  width:40px;
+  height:40px;
+  border:1px solid var(--dark-green);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width 0.3s,height 0.3s,border-color 0.3s,background 0.3s;
+  mix-blend-mode:difference;
+}
+.cursor-dot {
+  position:fixed;
+  width:6px;
+  height:6px;
+  background:var(--dark-green);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform 0.1s;
+}
+.cursor.hover {
+  width:60px;
+  height:60px;
+  background:rgba(58,90,71,0.1);
+}
+body:has(.section-dark-full:hover) .cursor,
+body:has(.contact-panel:hover) .cursor { border-color:var(--cream); }
+
+/* NAVIGATION */
+#nav {
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:1000;
+  padding:1.5rem 3rem;
+  transition:background var(--transition),backdrop-filter var(--transition),padding 0.4s;
+}
+#nav.scrolled {
+  background:rgba(232,237,230,0.92);
+  backdrop-filter:blur(12px);
+  padding:1rem 3rem;
+  border-bottom:1px solid var(--border);
+}
+#nav.dark-nav { background:rgba(61,82,51,0.9); backdrop-filter:blur(12px); }
+
+.nav-inner {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:1600px;
+  margin:0 auto;
+}
+.nav-logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;
+  font-weight:500;
+  letter-spacing:0.2em;
+  color:var(--cream);
+  text-transform:uppercase;
+  transition:color 0.3s;
+}
+.nav-logo span { font-size:0.65rem; letter-spacing:0.4em; display:block; font-family:'Inter',sans-serif; }
+#nav.scrolled .nav-logo { color:var(--dark-green); }
+
+.nav-links {
+  list-style:none;
+  display:flex;
+  gap:2rem;
+  align-items:center;
+}
+.nav-links a {
+  font-family:'Inter',sans-serif;
+  font-size:0.62rem;
+  letter-spacing:0.15em;
+  color:rgba(245,240,232,0.85);
+  text-decoration:none;
+  text-transform:uppercase;
+  transition:color 0.3s,opacity 0.3s;
+  position:relative;
+}
+.nav-links a::after {
+  content:'';
+  position:absolute;
+  bottom:-3px;
+  left:0;
+  width:0;
+  height:1px;
+  background:currentColor;
+  transition:width 0.35s ease;
+}
+.nav-links a:hover { color:var(--cream); }
+.nav-links a:hover::after { width:100%; }
+#nav.scrolled .nav-links a { color:var(--olive-green); }
+#nav.scrolled .nav-links a:hover { color:var(--dark-green); }
+
+.nav-hamburger {
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:4px;
+}
+.nav-hamburger span {
+  display:block;
+  width:24px;
+  height:1.5px;
+  background:var(--cream);
+  transition:transform 0.3s,opacity 0.3s;
+}
+#nav.scrolled .nav-hamburger span { background:var(--dark-green); }
+
+/* HERO */
+.hero {
+  position:relative;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.hero-bg {
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    90deg,
+    #2D4A35 0px,
+    #2D4A35 18px,
+    #3A5A47 18px,
+    #3A5A47 32px,
+    #4A7A5A 32px,
+    #4A7A5A 44px,
+    #3D6B50 44px,
+    #3D6B50 56px,
+    #2A4030 56px,
+    #2A4030 64px,
+    #3A5A47 64px,
+    #3A5A47 75px
+  );
+  background-size:75px 100%;
+}
+.hero-bg::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 70% 30%,rgba(255,255,255,0.06) 0%,transparent 60%);
+}
+.hero-overlay {
+  position:absolute;
+  inset:0;
+  background:rgba(20,35,25,0.25);
+}
+.hero-content {
+  position:relative;
+  z-index:2;
+  text-align:center;
+  opacity:0;
+}
+.hero-logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(4rem,12vw,10rem);
+  font-weight:300;
+  color:var(--cream);
+  letter-spacing:0.08em;
+  line-height:1;
+}
+.hero-sub {
+  font-family:'Inter',sans-serif;
+  font-size:clamp(0.6rem,1.2vw,0.9rem);
+  letter-spacing:0.5em;
+  color:rgba(245,240,232,0.8);
+  margin-top:1rem;
+  text-transform:uppercase;
+}
+.scroll-indicator {
+  position:absolute;
+  bottom:2.5rem;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.75rem;
+  z-index:2;
+  opacity:0;
+}
+.scroll-line {
+  width:1px;
+  height:50px;
+  background:linear-gradient(to bottom,var(--cream),transparent);
+  animation:scrollLine 1.8s ease-in-out infinite;
+}
+.scroll-text {
+  font-family:'Inter',sans-serif;
+  font-size:0.55rem;
+  letter-spacing:0.3em;
+  color:rgba(245,240,232,0.6);
+}
+@keyframes scrollLine {
+  0%{transform:scaleY(0);transform-origin:top;}
+  50%{transform:scaleY(1);transform-origin:top;}
+  51%{transform:scaleY(1);transform-origin:bottom;}
+  100%{transform:scaleY(0);transform-origin:bottom;}
+}
+
+/* SECTIONS */
+.section {
+  padding:7rem 0;
+  background:var(--sage-bg);
+}
+.section-full {
+  position:relative;
+  overflow:hidden;
+}
+.section-dark-full {
+  background:var(--dark-bg);
+  position:relative;
+  overflow:hidden;
+}
+
+.container {
+  max-width:1400px;
+  margin:0 auto;
+  padding:0 4rem;
+}
+
+.two-col {
+  display:flex;
+  gap:4rem;
+  align-items:flex-start;
+}
+.col-left { flex:0 0 45%; }
+.col-right { flex:1; }
+
+.three-col { display:flex; gap:4rem; align-items:flex-start; }
+.col-text { flex:0 0 38%; }
+.col-imgs-2 { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+.split-section {
+  display:flex;
+  align-items:stretch;
+}
+.split-section.reverse { flex-direction:row-reverse; }
+.split-img { overflow:hidden; }
+.split-text { display:flex; flex-direction:column; justify-content:center; }
+
+/* TYPOGRAPHY */
+.section-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3.5rem);
+  font-weight:400;
+  color:var(--dark-green);
+  line-height:1.1;
+  margin-bottom:1.5rem;
+  letter-spacing:0.02em;
+}
+.section-title-large {
+  font-size:clamp(1.8rem,3.5vw,3rem);
+}
+.section-subtitle {
+  font-family:'Inter',sans-serif;
+  font-size:0.65rem;
+  letter-spacing:0.3em;
+  color:var(--olive-green);
+  text-transform:uppercase;
+  margin-bottom:1.5rem;
+  font-weight:500;
+}
+.body-text {
+  font-size:0.9rem;
+  line-height:1.85;
+  color:var(--text-body);
+  margin-bottom:1.25rem;
+  font-weight:300;
+}
+.body-text.body-text-en { color:rgba(74,74,74,0.7); }
+.body-text.body-text-sm { font-size:0.78rem; }
+.body-text-large {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1rem,1.8vw,1.4rem);
+  line-height:1.7;
+  font-style:italic;
+  color:var(--dark-green);
+}
+.divider {
+  border:none;
+  border-top:1px solid var(--border);
+  margin:2rem 0;
+}
+
+/* VERTICAL TEXT */
+.vertical-text-wrap {
+  position:absolute;
+  left:-2rem;
+  top:0;
+  height:100%;
+  display:flex;
+  align-items:center;
+  pointer-events:none;
+  overflow:hidden;
+}
+.vertical-text {
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3rem,8vw,7rem);
+  font-weight:300;
+  color:var(--dark-green);
+  opacity:0.08;
+  white-space:nowrap;
+  letter-spacing:0.05em;
+}
+.section-localizacao,
+.section-vida,
+.section-vila { position:relative; }
+
+/* IMAGE PLACEHOLDERS */
+.img-wrapper {
+  overflow:hidden;
+  position:relative;
+}
+.img-placeholder {
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  transition:transform var(--transition);
+}
+.img-wrapper:hover .img-placeholder { transform:scale(1.04); }
+.img-label {
+  position:absolute;
+  bottom:1rem;
+  left:1rem;
+  font-family:'Inter',sans-serif;
+  font-size:0.6rem;
+  letter-spacing:0.2em;
+  color:rgba(255,255,255,0.5);
+  text-transform:uppercase;
+}
+
+.full-img { position:absolute; inset:0; }
+.full-img .img-placeholder { height:100% !important; }
+
+/* BULLET LIST */
+.bullet-list {
+  list-style:none;
+  margin:2rem 0;
+}
+.bullet-list li {
+  display:flex;
+  flex-direction:column;
+  gap:0.2rem;
+  padding:1rem 0;
+  border-bottom:1px solid var(--border);
+  position:relative;
+  padding-left:1.5rem;
+}
+.bullet-list li::before {
+  content:'';
+  position:absolute;
+  left:0;
+  top:1.4rem;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--olive-green);
+}
+.bullet-list li strong {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;
+  font-weight:500;
+  color:var(--dark-green);
+  font-style:italic;
+}
+.bullet-list li span {
+  font-size:0.75rem;
+  color:rgba(74,74,74,0.65);
+  font-weight:300;
+}
+
+/* MAP */
+.map-container { background:var(--sage-bg); border-radius:4px; overflow:hidden; }
+.map-svg { width:100%; display:block; }
+.img-grid-2x2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.img-grid-2x2 .img-placeholder { aspect-ratio:1; }
+
+/* POI LIST */
+.poi-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 2rem; }
+.poi-col { display:flex; flex-direction:column; gap:0; }
+.poi-item {
+  display:flex;
+  align-items:flex-start;
+  gap:0.75rem;
+  padding:0.6rem 0;
+  border-bottom:1px solid var(--border);
+}
+.poi-num {
+  font-family:'Cormorant Garamond',serif;
+  font-size:0.9rem;
+  color:var(--olive-green);
+  font-weight:500;
+  min-width:1.5rem;
+  margin-top:0.1rem;
+}
+.poi-item div { display:flex; flex-direction:column; gap:0.1rem; }
+.poi-item strong { font-size:0.78rem; font-weight:500; color:var(--dark-green); }
+.poi-item span { font-size:0.68rem; color:rgba(74,74,74,0.6); }
+
+/* OVERLAY TEXT (full-screen sections) */
+.overlay-text {
+  position:absolute;
+  bottom:4rem;
+  left:4rem;
+  z-index:10;
+}
+.hero-section-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.5rem,6vw,5rem);
+  font-weight:300;
+  color:var(--cream);
+  line-height:1.05;
+  letter-spacing:0.02em;
+}
+.hero-section-sub {
+  font-family:'Inter',sans-serif;
+  font-size:0.65rem;
+  letter-spacing:0.35em;
+  color:rgba(245,240,232,0.65);
+  margin-top:0.75rem;
+}
+
+/* PARALLAX */
+.parallax-section { position:relative; overflow:hidden; }
+.parallax-img { position:absolute; top:-15%; left:0; right:0; }
+
+/* APARTMENTS / MORADIAS SECTIONS */
+.section-apt-header .apt-info { background:var(--dark-bg); }
+.apt-type-small {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;
+  font-weight:300;
+  color:rgba(245,240,232,0.7);
+  letter-spacing:0.1em;
+  margin-bottom:0.25rem;
+}
+.apt-big-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3rem,7vw,6rem);
+  font-weight:300;
+  color:var(--cream);
+  font-style:italic;
+  letter-spacing:0.05em;
+  margin:0.5rem 0;
+  line-height:1;
+}
+.apt-subtitle {
+  font-family:'Inter',sans-serif;
+  font-size:0.62rem;
+  letter-spacing:0.2em;
+  color:rgba(245,240,232,0.5);
+  text-transform:uppercase;
+  margin-bottom:3rem;
+}
+.apt-features { display:flex; flex-direction:column; gap:1.5rem; }
+.apt-feature {
+  display:flex;
+  align-items:center;
+  gap:1.25rem;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.feature-icon {
+  color:rgba(245,240,232,0.6);
+  flex-shrink:0;
+}
+.apt-feature strong {
+  display:block;
+  font-family:'Inter',sans-serif;
+  font-size:0.65rem;
+  letter-spacing:0.2em;
+  color:rgba(245,240,232,0.85);
+  text-transform:uppercase;
+  font-weight:500;
+}
+.apt-feature span {
+  display:block;
+  font-size:0.65rem;
+  color:rgba(245,240,232,0.4);
+  margin-top:0.2rem;
+  letter-spacing:0.1em;
+}
+
+/* EQUIPA */
+.equipa-header { text-align:center; margin-bottom:3rem; }
+.destaque-label {
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  margin-top:1rem;
+}
+.destaque-label span:first-child {
+  font-family:'Inter',sans-serif;
+  font-size:0.6rem;
+  letter-spacing:0.3em;
+  color:var(--olive-green);
+  border-top:1px solid var(--border);
+  padding-top:0.75rem;
+  text-transform:uppercase;
+}
+.destaque-vitalicio {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;
+  font-weight:300;
+  color:var(--dark-green);
+  letter-spacing:0.15em;
+  font-style:italic;
+}
+.equipa-cols { gap:5rem; align-items:flex-start; }
+.equipa-text { display:flex; flex-direction:column; gap:2rem; }
+.equipa-person { text-align:center; }
+.person-photo { display:flex; flex-direction:column; align-items:center; gap:0.75rem; }
+.photo-circle {
+  width:140px !important;
+  height:140px !important;
+  border-radius:50%;
+  aspect-ratio:1 !important;
+}
+.person-name {
+  font-family:'Inter',sans-serif;
+  font-size:0.65rem;
+  letter-spacing:0.2em;
+  color:var(--dark-green);
+  text-transform:uppercase;
+  font-weight:500;
+}
+.person-role {
+  font-size:0.62rem;
+  color:var(--olive-green);
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+}
+
+/* ARQUITECTOS */
+.arquitectos-header { margin-bottom:2rem; }
+.plano-humano-logo { display:flex; flex-direction:column; }
+.plano {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,5vw,4.5rem);
+  font-weight:300;
+  color:var(--dark-green);
+  letter-spacing:0.08em;
+  line-height:1;
+}
+.humano {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,5vw,4.5rem);
+  font-weight:300;
+  color:var(--dark-green);
+  letter-spacing:0.08em;
+  line-height:1;
+}
+.arq-label {
+  font-family:'Inter',sans-serif;
+  font-size:0.6rem;
+  letter-spacing:0.4em;
+  color:var(--olive-green);
+  text-transform:uppercase;
+  margin-top:0.5rem;
+}
+.arq-persons { display:flex; flex-direction:column; gap:2.5rem; }
+.arq-person { display:flex; flex-direction:column; align-items:center; gap:0.75rem; }
+.arq-photo { width:180px !important; height:220px !important; aspect-ratio:4/5 !important; border-radius:8px; }
+.awards-section { margin-top:2rem; padding-top:2rem; border-top:1px solid var(--border); }
+
+/* CONTACTOS */
+.contact-addr, .contact-web {
+  font-family:'Inter',sans-serif;
+  font-size:0.8rem;
+  color:rgba(245,240,232,0.75);
+  line-height:1.8;
+  letter-spacing:0.05em;
+}
+.contact-web a { color:var(--cream); text-decoration:none; border-bottom:1px solid rgba(245,240,232,0.3); }
+.contact-web a:hover { border-color:var(--cream); }
+.contact-addr a { color:rgba(245,240,232,0.75); text-decoration:none; }
+.contact-label {
+  font-family:'Inter',sans-serif;
+  font-size:0.58rem;
+  letter-spacing:0.3em;
+  color:rgba(245,240,232,0.4);
+  text-transform:uppercase;
+  margin-bottom:0.75rem;
+}
+.contact-logo { margin-bottom:auto; }
+.contact-info { margin:2rem 0; }
+.destaque-logo {
+  font-family:'Inter',sans-serif;
+  font-size:0.6rem;
+  letter-spacing:0.3em;
+  color:rgba(245,240,232,0.5);
+  text-transform:uppercase;
+  margin-bottom:0.75rem;
+}
+
+/* FOOTER */
+.footer {
+  position:relative;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.footer-bg {
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    90deg,
+    #2D4A35 0px,
+    #2D4A35 18px,
+    #3A5A47 18px,
+    #3A5A47 32px,
+    #4A7A5A 32px,
+    #4A7A5A 44px,
+    #3D6B50 44px,
+    #3D6B50 56px,
+    #2A4030 56px,
+    #2A4030 64px,
+    #3A5A47 64px,
+    #3A5A47 75px
+  );
+  background-size:75px 100%;
+}
+.footer-bg::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(20,35,25,0.35);
+}
+.footer-content {
+  position:relative;
+  z-index:2;
+  text-align:center;
+}
+.footer-logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3rem,10vw,8rem);
+  font-weight:300;
+  color:var(--cream);
+  letter-spacing:0.08em;
+  line-height:1;
+}
+.footer-sub {
+  font-family:'Inter',sans-serif;
+  font-size:clamp(0.55rem,1vw,0.75rem);
+  letter-spacing:0.55em;
+  color:rgba(245,240,232,0.65);
+  margin-top:0.75rem;
+}
+.footer-copy {
+  font-family:'Inter',sans-serif;
+  font-size:0.58rem;
+  letter-spacing:0.25em;
+  color:rgba(245,240,232,0.35);
+  margin-top:2rem;
+  text-transform:uppercase;
+}
+
+/* ANIMATION STATES */
+.reveal-title .word-wrap { overflow:hidden; display:inline-block; }
+.reveal-title .word { display:inline-block; }
+.reveal-fade { opacity:0; transform:translateY(30px); }
+.reveal-img .img-placeholder { clip-path:inset(100% 0 0 0); }
+.reveal-img.animated .img-placeholder { clip-path:inset(0% 0 0 0); transition:clip-path 1s cubic-bezier(0.25,0.46,0.45,0.94); }
+
+/* LOCALIZACAO */
+.localizacao-col .col-left { padding-right:2rem; }
+
+/* RESPONSIVE */
+@media (max-width:1100px) {
+  .two-col { flex-direction:column; gap:2.5rem; }
+  .two-col .col-left,.two-col .col-right { flex:none; width:100%; }
+  .three-col { flex-direction:column; }
+  .split-section { flex-direction:column !important; }
+  .split-img { flex:none !important; height:50vh !important; width:100% !important; }
+  .split-text { flex:none !important; padding:3rem 2rem !important; }
+  .apt-info { flex:none !important; width:100% !important; }
+  .section-apt-header .split-section { flex-direction:column-reverse !important; }
+  .overlay-text { bottom:2rem; left:2rem; }
+  .contact-panel { flex:none !important; width:100% !important; }
+  .poi-grid { grid-template-columns:1fr; }
+  .container { padding:0 2rem; }
+  #nav { padding:1.2rem 2rem; }
+  .nav-links { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:var(--dark-bg); flex-direction:column; align-items:center; justify-content:center; gap:2.5rem; }
+  .nav-links.open { display:flex; }
+  .nav-links a { font-size:1.2rem; color:var(--cream) !important; }
+  .nav-hamburger { display:flex; }
+}
+
+@media (max-width:768px) {
+  .section { padding:4rem 0; }
+  .hero-logo { font-size:clamp(3rem,15vw,6rem); }
+  .equipa-text { flex-direction:row; flex-wrap:wrap; justify-content:center; }
+  .img-grid-2x2 { grid-template-columns:1fr 1fr; }
+  .arq-persons { flex-direction:row; flex-wrap:wrap; justify-content:center; }
+  .vertical-text-wrap { display:none; }
+}
+
+</style>
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursor-dot"></div>
+
+  <!-- Navigation -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">SOBREIRO <span>RESIDENCES</span></div>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#welcome">BEM-VINDO / WELCOME</a></li>
+        <li><a href="#localizacao">LOCALIZA&#199;&#195;O / LOCATION</a></li>
+        <li><a href="#sobreiro-residences">SOBREIRO RESIDENCES</a></li>
+        <li><a href="#apartamentos">APARTAMENTOS / APARTMENTS</a></li>
+        <li><a href="#moradias">MORADIAS / TERRACED HOUSES</a></li>
+        <li><a href="#equipa">EQUIPA / TEAM</a></li>
+        <li><a href="#contactos">CONTACTOS / CONTACTS</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO (P.1) -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-logo">SOBREIRO</h1>
+      <p class="hero-sub">RESIDENCES</p>
+    </div>
+    <div class="scroll-indicator">
+      <span class="scroll-line"></span>
+      <span class="scroll-text">SCROLL</span>
+    </div>
+  </section>
+
+  <!-- BUILDING EXTERIOR (P.2) -->
+  <section class="section-full" id="welcome">
+    <div class="img-wrapper full-img" style="height:100vh;">
+      <div class="img-placeholder" style="background:linear-gradient(160deg,#7A9E7A 0%,#A8B89A 20%,#C4B99A 50%,#A89880 75%,#8B7B6A 100%);height:100%;width:100%;">
+        <!-- Replace with: <img src="images/building-exterior.jpg" alt="Sobreiro Residences fachada"> -->
+        <div class="img-label">Fachada do Edif&#237;cio</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UM LUGAR COM VALOR (P.3) -->
+  <section class="section section-valor" id="valor">
+    <div class="container">
+      <div class="two-col">
+        <div class="col-left">
+          <h2 class="section-title reveal-title">UM LUGAR COM VALOR</h2>
+          <p class="section-subtitle">A PLACE WITH VALUE</p>
+          <ul class="bullet-list">
+            <li>
+              <strong>Acabamentos de alta qualidade e fachada inspirada no barroco local</strong>
+              <span>High-quality finishes and a fa&#231;ade inspired by the local Baroque style</span>
+            </li>
+            <li>
+              <strong>Terra&#231;os e lounges partilhados</strong>
+              <span>Shared terraces and lounges</span>
+            </li>
+            <li>
+              <strong>Espa&#231;o infantil ao ar livre</strong>
+              <span>Outdoor playground</span>
+            </li>
+          </ul>
+          <div class="divider"></div>
+          <p class="body-text reveal-fade">Inspirado no territ&#243;rio, Sobreiro Residences cria um novo lugar de perten&#231;a. Um espa&#231;o onde tradi&#231;&#227;o e contemporaneidade se encontram para criar uma comunidade pensada para viver com significado.</p>
+          <p class="body-text body-text-en reveal-fade">Inspired by the territory, Sobreiro Residences creates a new place of belonging. A space where tradition and contemporaneity meet to create a community designed for living with meaning.</p>
+        </div>
+        <div class="col-right">
+          <div class="img-wrapper reveal-img">
+            <div class="img-placeholder" style="background:linear-gradient(160deg,#6B8C5A 0%,#4A7060 30%,#8B8040 70%,#C4A050 100%);aspect-ratio:3/4;">
+              <!-- Replace with: <img src="images/aerial-view.jpg" alt="Vista a&#233;rea Sobreiro Residences"> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- A ESCALA CERTA (P.4) -->
+  <section class="section section-localizacao" id="localizacao">
+    <div class="vertical-text-wrap">
+      <span class="vertical-text">A ESCALA CERTA</span>
+    </div>
+    <div class="container">
+      <div class="two-col localizacao-col">
+        <div class="col-left">
+          <p class="body-text reveal-fade">Entre a heran&#231;a monumental e a proximidade ao Atl&#226;ntico, Mafra afirma-se como um territ&#243;rio onde tradi&#231;&#227;o e qualidade de vida coexistem de forma natural, marcada pela proximidade ao que &#233; essencial.</p>
+          <p class="body-text reveal-fade">Com acessos diretos que permitem estar no centro da capital em menos de uma hora, mantendo ao mesmo tempo a tranquilidade de um ambiente mais respir&#225;vel. Oferece uma liga&#231;&#227;o privilegiada entre cidade, campo e mar, uma escolha estrat&#233;gica para quem procura proximidade com espa&#231;o e serenidade.</p>
+          <p class="section-subtitle reveal-fade">THE RIGHT SCALE</p>
+          <p class="body-text body-text-en reveal-fade">Between its monumental heritage and its proximity to the Atlantic, Mafra stands as a territory where tradition and quality of life naturally coexist, shaped by closeness to what is essential. With direct access routes that put you in the heart of the capital in under an hour, while maintaining the tranquillity of a more breathable environment.</p>
+        </div>
+        <div class="col-right">
+          <!-- Stylized Map SVG -->
+          <div class="map-container reveal-img">
+            <svg viewBox="0 0 500 400" class="map-svg">
+              <rect width="500" height="400" fill="#E8EDE6"/>
+              <!-- Roads -->
+              <path d="M50,200 Q200,180 350,200 Q420,210 480,190" stroke="#9AB08A" stroke-width="3" fill="none" opacity="0.6"/>
+              <path d="M250,50 Q260,150 250,200 Q245,300 260,380" stroke="#9AB08A" stroke-width="3" fill="none" opacity="0.6"/>
+              <path d="M100,100 Q200,150 250,200" stroke="#9AB08A" stroke-width="2" fill="none" opacity="0.4"/>
+              <path d="M350,100 Q300,150 250,200" stroke="#9AB08A" stroke-width="2" fill="none" opacity="0.4"/>
+              <!-- MAFRA label -->
+              <text x="160" y="180" font-family="Inter,sans-serif" font-size="14" fill="#4A6741" font-weight="500" letter-spacing="3">MAFRA</text>
+              <!-- Sobreiro marker -->
+              <circle cx="230" cy="195" r="28" fill="white" stroke="#4A6741" stroke-width="1.5" opacity="0.95"/>
+              <text x="230" y="190" font-family="Cormorant Garamond,serif" font-size="11" fill="#3A5A47" text-anchor="middle" font-weight="600">SOBREIRO</text>
+              <text x="230" y="204" font-family="Inter,sans-serif" font-size="8" fill="#4A6741" text-anchor="middle" letter-spacing="1">RESIDENCES</text>
+              <!-- Lisboa label -->
+              <text x="330" y="340" font-family="Inter,sans-serif" font-size="14" fill="#4A6741" font-weight="500" letter-spacing="3">LISBOA</text>
+              <circle cx="355" cy="320" r="6" fill="#4A6741" opacity="0.5"/>
+              <!-- Atlantic indicators -->
+              <text x="30" y="300" font-family="Inter,sans-serif" font-size="9" fill="#4A6741" opacity="0.5" transform="rotate(-90,30,300)">ATL&#194;NTICO</text>
+              <!-- Tree icons -->
+              <text x="80" y="150" font-size="18" opacity="0.3">&#127794;</text>
+              <text x="400" y="130" font-size="18" opacity="0.3">&#127794;</text>
+              <text x="150" y="280" font-size="18" opacity="0.3">&#127794;</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- O TERRITORIO (P.5) -->
+  <section class="section section-territorio" id="territorio">
+    <div class="container">
+      <div class="two-col">
+        <div class="col-left">
+          <h2 class="section-title section-title-large reveal-title">O TERRIT&#211;RIO COMO PONTO DE PARTIDA</h2>
+          <p class="body-text reveal-fade">Mafra tem uma rela&#231;&#227;o antiga com a natureza. Os percursos, as copas, as margens, a costa: elementos que n&#227;o decoram o territ&#243;rio, mas que o constituem e moldam o tempo.</p>
+          <p class="body-text reveal-fade">O Sobreiro Residences nasce do sobreiro-rei, que enra&#237;za h&#225; s&#233;culos no mesmo lugar. Dele herd&#225;mos o gesto: ficar, pertencer e crescer com raiz.</p>
+          <div class="divider"></div>
+          <p class="section-subtitle">TERRITORY AS A STARTING POINT</p>
+          <p class="body-text body-text-en reveal-fade">Mafra has a long-standing relationship with nature. The paths, the canopies, the riverbanks, the coastline: elements that do not merely adorn the territory, but define it and shape the passage of time. Sobreiro Residences is born from the ancient cork oak, rooted in the same place for centuries.</p>
+        </div>
+        <div class="col-right">
+          <div class="img-grid-2x2">
+            <div class="img-wrapper reveal-img">
+              <div class="img-placeholder" style="background:linear-gradient(135deg,#F5C842 0%,#F8D88A 40%,#8BC34A 80%,#5A8A3A 100%);">
+                <!-- Replace: borboleta / butterfly image -->
+              </div>
+            </div>
+            <div class="img-wrapper reveal-img">
+              <div class="img-placeholder" style="background:linear-gradient(180deg,#87CEEB 0%,#5B8DB8 30%,#D2A679 65%,#8B7355 100%);">
+                <!-- Replace: costa portuguesa / Portuguese coast -->
+              </div>
+            </div>
+            <div class="img-wrapper reveal-img">
+              <div class="img-placeholder" style="background:linear-gradient(180deg,#2D5A27 0%,#3A6B30 30%,#4A8A3A 60%,#6BAA5A 100%);">
+                <!-- Replace: sobreiro / cork oak tree -->
+              </div>
+            </div>
+            <div class="img-wrapper reveal-img">
+              <div class="img-placeholder" style="background:linear-gradient(135deg,#87CEEB 0%,#D2A679 50%,#F5DEB3 100%);">
+                <!-- Replace: fam&#237;lia / family on beach -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VILA COM ESCALA HUMANA (P.6) -->
+  <section class="section section-vila" id="vila">
+    <div class="vertical-text-wrap">
+      <span class="vertical-text" style="font-size:clamp(2rem,6vw,5rem);">UMA VILA</span>
+    </div>
+    <div class="container">
+      <h2 class="section-title reveal-title">UMA VILA COM ESCALA HUMANA</h2>
+      <div class="three-col">
+        <div class="col-text">
+          <p class="body-text reveal-fade">O Jardim do Cerco, o mercado, o caf&#233; da pra&#231;a, a vida organiza-se num raio onde o essencial est&#225; perto. O Pal&#225;cio Nacional &#233; n&#227;o s&#243; um monumento de visita como tamb&#233;m serve de pano de fundo do dia a dia.</p>
+          <p class="body-text reveal-fade">&#201; esse o ritmo que define o lugar: um quotidiano onde o encontro acontece sem ser planeado, onde o com&#233;rcio local ainda tem nome pr&#243;prio e onde caminhar voltou a favorecer o encontro.</p>
+          <div class="divider"></div>
+          <p class="section-subtitle">A HUMAN SCALED VILLAGE</p>
+          <p class="body-text body-text-en reveal-fade">The Cerco Garden, the market, the square caf&#233;, life organises itself within a radius where everything essential is close by. The National Palace is not only a monument to visit, but also serves as the backdrop of everyday life. That is the rhythm that defines this place: a daily life where encounters happen without planning.</p>
+        </div>
+        <div class="col-imgs-2">
+          <div class="img-wrapper reveal-img">
+            <div class="img-placeholder" style="background:linear-gradient(135deg,#8B6914 0%,#C4892A 40%,#D4A847 70%,#E8C87A 100%);aspect-ratio:4/3;">
+              <!-- Replace: charcutaria / food spread -->
+            </div>
+          </div>
+          <div class="img-wrapper reveal-img">
+            <div class="img-placeholder" style="background:linear-gradient(135deg,#4A7A3A 0%,#6B9E5A 40%,#8BC34A 70%,#C8E6A0 100%);aspect-ratio:4/3;">
+              <!-- Replace: mercado frutas / market fruits -->
+            </div>
+          </div>
+          <div class="img-wrapper reveal-img" style="grid-column:1/-1;">
+            <div class="img-placeholder" style="background:linear-gradient(160deg,#C4AA7A 0%,#D4BA8A 30%,#B89A60 60%,#8B7040 100%);aspect-ratio:16/7;">
+              <!-- Replace: Pal&#225;cio Nacional de Mafra / Mafra National Palace -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- A VIDA LOCAL (P.7) -->
+  <section class="section section-vida" id="vida-local">
+    <div class="vertical-text-wrap">
+      <span class="vertical-text">A VIDA LOCAL</span>
+    </div>
+    <div class="container">
+      <div class="two-col">
+        <div class="col-left">
+          <h3 class="section-subtitle" style="margin-bottom:2rem;">LOCAL LIFE</h3>
+          <div class="poi-grid">
+            <div class="poi-col">
+              <div class="poi-item"><span class="poi-num">1</span><div><strong>Jardim do Cerco</strong><span>Cerco Garden</span></div></div>
+              <div class="poi-item"><span class="poi-num">2</span><div><strong>Pal&#225;cio Nacional de Mafra</strong><span>Mafra National Palace</span></div></div>
+              <div class="poi-item"><span class="poi-num">3</span><div><strong>Museu Nacional da M&#250;sica</strong><span>National Museum of Music</span></div></div>
+              <div class="poi-item"><span class="poi-num">4</span><div><strong>Pastelaria Polo Norte</strong><span>Polo Norte Pastry Shop</span></div></div>
+              <div class="poi-item"><span class="poi-num">5</span><div><strong>Mercado de Mafra</strong><span>Market</span></div></div>
+              <div class="poi-item"><span class="poi-num">6</span><div><strong>Escola B&#225;sica de Mafra</strong><span>Mafra Primary School</span></div></div>
+              <div class="poi-item"><span class="poi-num">7</span><div><strong>Parque Intermodal de Mafra</strong><span>Intermodal Park</span></div></div>
+              <div class="poi-item"><span class="poi-num">8</span><div><strong>Escola Secund&#225;ria Jos&#233; Saramago</strong><span>Jos&#233; Saramago Secondary School</span></div></div>
+              <div class="poi-item"><span class="poi-num">9</span><div><strong>My Padel Center</strong></div></div>
+              <div class="poi-item"><span class="poi-num">10</span><div><strong>Parque Desportivo de Mafra</strong><span>Sports Park</span></div></div>
+              <div class="poi-item"><span class="poi-num">11</span><div><strong>Est&#225;dio Municipal de Mafra</strong><span>Mafra's Municipal Stadium</span></div></div>
+            </div>
+            <div class="poi-col">
+              <div class="poi-item"><span class="poi-num">12</span><div><strong>Clube Pit&#225;goras</strong><span>Centro de explica&#231;&#245;es / Study center</span></div></div>
+              <div class="poi-item"><span class="poi-num">13</span><div><strong>Rat'Art</strong><span>Restaurante / Restaurant</span></div></div>
+              <div class="poi-item"><span class="poi-num">14</span><div><strong>Vivono</strong><span>Restaurante / Restaurant</span></div></div>
+              <div class="poi-item"><span class="poi-num">15</span><div><strong>Unidade de Sa&#250;de D. Jo&#227;o V</strong><span>Hospital Unit</span></div></div>
+              <div class="poi-item"><span class="poi-num">16</span><div><strong>Jo&#227;o da Vila Velha</strong><span>Restaurante / Restaurant</span></div></div>
+              <div class="poi-item"><span class="poi-num">17</span><div><strong>Cafeteria Doce Cam&#233;lia</strong><span>Coffee Shop</span></div></div>
+              <div class="poi-item"><span class="poi-num">18</span><div><strong>Audit&#243;rio Municipal Beatriz Costa</strong><span>Beatriz Costa Municipal Auditorium</span></div></div>
+              <div class="poi-item"><span class="poi-num">19</span><div><strong>Centro Yoga Mafra</strong><span>Yoga Center</span></div></div>
+              <div class="poi-item"><span class="poi-num">20</span><div><strong>Continente Modelo</strong><span>Supermercado / Supermarket</span></div></div>
+              <div class="poi-item"><span class="poi-num">21</span><div><strong>Aldi</strong><span>Supermercado / Supermarket</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="map-container reveal-img" style="height:100%;min-height:500px;">
+            <svg viewBox="0 0 400 500" class="map-svg" style="height:100%;">
+              <rect width="400" height="500" fill="#E8EDE6"/>
+              <path d="M50,250 Q200,230 350,250 Q380,255 400,245" stroke="#9AB08A" stroke-width="2.5" fill="none" opacity="0.5"/>
+              <path d="M200,30 Q210,150 200,250 Q195,380 210,490" stroke="#9AB08A" stroke-width="2.5" fill="none" opacity="0.5"/>
+              <path d="M80,120 Q150,180 200,250" stroke="#9AB08A" stroke-width="1.5" fill="none" opacity="0.4"/>
+              <path d="M320,120 Q260,180 200,250" stroke="#9AB08A" stroke-width="1.5" fill="none" opacity="0.4"/>
+              <text x="130" y="225" font-family="Inter,sans-serif" font-size="13" fill="#4A6741" font-weight="500" letter-spacing="3">MAFRA</text>
+              <circle cx="185" cy="245" r="24" fill="white" stroke="#4A6741" stroke-width="1.5" opacity="0.95"/>
+              <text x="185" y="241" font-family="Cormorant Garamond,serif" font-size="10" fill="#3A5A47" text-anchor="middle" font-weight="600">SOBREIRO</text>
+              <text x="185" y="253" font-family="Inter,sans-serif" font-size="7" fill="#4A6741" text-anchor="middle" letter-spacing="1">RESIDENCES</text>
+              <!-- POI dots -->
+              <circle cx="310" cy="280" r="5" fill="#4A6741"/>
+              <text x="320" y="284" font-family="Inter,sans-serif" font-size="8" fill="#4A6741">1</text>
+              <circle cx="270" cy="240" r="5" fill="#4A6741"/>
+              <text x="280" y="244" font-family="Inter,sans-serif" font-size="8" fill="#4A6741">2</text>
+              <circle cx="240" cy="200" r="5" fill="#4A6741"/>
+              <text x="250" y="204" font-family="Inter,sans-serif" font-size="8" fill="#4A6741">5</text>
+              <circle cx="150" cy="290" r="5" fill="#4A6741"/>
+              <text x="160" y="294" font-family="Inter,sans-serif" font-size="8" fill="#4A6741">10</text>
+              <circle cx="290" cy="350" r="5" fill="#4A6741"/>
+              <text x="300" y="354" font-family="Inter,sans-serif" font-size="8" fill="#4A6741">15</text>
+              <!-- Tree decorations -->
+              <text x="60" y="180" font-size="16" opacity="0.25">&#127794;</text>
+              <text x="340" y="160" font-size="16" opacity="0.25">&#127794;</text>
+              <text x="100" y="380" font-size="16" opacity="0.25">&#127794;</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- PENSADO PARA PERMANECER (P.8) -->
+  <section class="section-full section-dark-full" id="sobreiro-residences">
+    <div class="img-wrapper full-img parallax-section" style="height:100vh;">
+      <div class="img-placeholder parallax-img" style="background:linear-gradient(160deg,#2D4A35 0%,#3D6B50 25%,#5A8A6A 50%,#87B8A0 70%,#87CEEB 85%,#C0DCE8 100%);height:130%;width:100%;transform-origin:center;">
+        <!-- Replace with: <img src="images/terrace-pool.jpg" alt="Terraço piscina Sobreiro"> -->
+      </div>
+    </div>
+    <div class="overlay-text">
+      <h2 class="hero-section-title reveal-title">PENSADO PARA<br>PERMANECER</h2>
+      <p class="hero-section-sub">DESIGNED TO LAST</p>
+    </div>
+  </section>
+
+  <!-- ENTRE LUZ, PAUSA E ENCONTRO (P.9) -->
+  <section class="section" id="luz-pausa">
+    <div class="split-section">
+      <div class="split-img" style="flex:0 0 60%;">
+        <div class="img-wrapper reveal-img" style="height:100%;">
+          <div class="img-placeholder" style="background:linear-gradient(135deg,#C4B99A 0%,#D8CFB8 25%,#E8DFD0 50%,#A8C0A0 75%,#87CEEB 100%);height:500px;">
+            <!-- Replace: sala comum / common lounge area -->
+          </div>
+        </div>
+      </div>
+      <div class="split-text" style="flex:0 0 40%;padding:4rem 3rem;">
+        <h2 class="section-title reveal-title">ENTRE LUZ, PAUSA E ENCONTRO</h2>
+        <p class="body-text reveal-fade">Os espa&#231;os comuns prolongam a casa para al&#233;m das suas paredes e criam lugares de encontro, pausa e partilha. S&#227;o &#225;reas pensadas para trabalhar, ler, conversar ou simplesmente abrandar a rotina, sempre com uma rela&#231;&#227;o direta com a luz natural e com toda a envolvente.</p>
+        <p class="body-text reveal-fade">Extens&#245;es naturais da vida di&#225;ria, onde o conforto e a serenidade se instalam de forma discreta.</p>
+        <div class="divider"></div>
+        <p class="section-subtitle">BETWEEN LIGHT, PAUSE AND ENCOUNTER</p>
+        <p class="body-text body-text-en reveal-fade">The common areas extend the home beyond its walls and create spaces for encounter, pause and sharing. These are areas designed for working, reading, conversing or simply slowing down the daily routine, always with a direct relationship with natural light and the surrounding environment.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUILIBRIO CORPO E MENTE (P.10) -->
+  <section class="section" id="corpo-mente">
+    <div class="split-section reverse">
+      <div class="split-text" style="flex:0 0 40%;padding:4rem 3rem;">
+        <h2 class="section-title reveal-title">EQUIL&#205;BRIO ENTRE CORPO E MENTE</h2>
+        <p class="body-text reveal-fade">A zona fitness, as &#225;reas de perman&#234;ncia exterior, o jardim infantil e os ambientes de transi&#231;&#227;o entre interior e paisagem foram concebidos como parte de uma rotina saud&#225;vel e cont&#237;nua.</p>
+        <p class="body-text reveal-fade">Espa&#231;os pensados para apoiar um modo de vida mais consciente, onde atividade, descanso e conviv&#234;ncia coexistem de forma org&#226;nica, oferecendo uma experi&#234;ncia de vida plena.</p>
+        <div class="divider"></div>
+        <p class="section-subtitle">BALANCE BETWEEN BODY AND MIND</p>
+        <p class="body-text body-text-en reveal-fade">The fitness area, the outdoor lounging spaces, the children's garden and the transitional environments between interior and landscape were conceived as part of a healthy and continuous routine. Spaces designed to support a more mindful way of living.</p>
+      </div>
+      <div class="split-img" style="flex:0 0 60%;">
+        <div class="img-wrapper reveal-img" style="height:100%;">
+          <div class="img-placeholder" style="background:linear-gradient(135deg,#F5F0E8 0%,#E0D8C8 30%,#C4B99A 60%,#87B8CE 100%);height:500px;">
+            <!-- Replace: fitness area / gym with view -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APARTAMENTOS HEADER (P.11) -->
+  <section class="section-dark-full section-apt-header" id="apartamentos">
+    <div class="split-section" style="height:100vh;align-items:stretch;">
+      <div class="apt-info" style="flex:0 0 42%;padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center;">
+        <p class="apt-type-small">T1 &#183; T2 &#183; T3</p>
+        <p class="apt-type-small">&#38; T2 &#183; T3 Duplex</p>
+        <h2 class="apt-big-title">APARTAMENTOS</h2>
+        <p class="apt-subtitle">FROM 1 TO 3 BEDROOM APARTMENTS<br>PLUS 2 AND 3 BEDROOM DUPLEXES</p>
+        <div class="apt-features">
+          <div class="apt-feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 40 40" width="36" height="36">
+                <rect x="5" y="20" width="30" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M5 20 Q20 8 35 20" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="15" y1="20" x2="15" y2="35" stroke="currentColor" stroke-width="1.2"/>
+                <line x1="25" y1="20" x2="25" y2="35" stroke="currentColor" stroke-width="1.2"/>
+              </svg>
+            </div>
+            <div>
+              <strong>VARANDAS</strong>
+              <span>BALCONIES</span>
+            </div>
+          </div>
+          <div class="apt-feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 40 40" width="36" height="36">
+                <ellipse cx="20" cy="22" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <ellipse cx="20" cy="22" rx="15" ry="8" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-10,20,22)"/>
+                <path d="M5 22 Q20 38 35 22" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+              </svg>
+            </div>
+            <div>
+              <strong>PISCINAS COMUNS E PRIVATIVAS</strong>
+              <span>COMMON AND PRIVATE POOLS</span>
+            </div>
+          </div>
+          <div class="apt-feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 40 40" width="36" height="36">
+                <rect x="4" y="12" width="32" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 20 L36 20" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
+                <circle cx="14" cy="28" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+                <circle cx="26" cy="28" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M14 10 L14 12 M26 10 L26 12" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div>
+              <strong>ESTACIONAMENTO</strong>
+              <span>PARKING</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="split-img" style="flex:1;">
+        <div class="img-placeholder parallax-img" style="background:linear-gradient(180deg,#1A2E20 0%,#2D4A35 30%,#3A6B45 60%,#5A8A65 80%,#7AAA85 100%);height:100%;">
+          <!-- Replace: apartment balcony night view with green corrugated wall -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESPACOS QUE RESPIRAM (P.12) -->
+  <section class="section" id="espacos">
+    <div class="container">
+      <h2 class="section-title reveal-title">ESPA&#199;OS QUE RESPIRAM</h2>
+      <div class="two-col" style="margin-top:3rem;">
+        <div class="col-left" style="flex:0 0 58%;">
+          <div class="img-wrapper reveal-img">
+            <div class="img-placeholder" style="background:linear-gradient(135deg,#C4B08A 0%,#D8C8A8 30%,#E8DFD0 55%,#A8C5B0 80%,#87CEEB 100%);aspect-ratio:4/3;">
+              <!-- Replace: kitchen/living room interior apartments -->
+            </div>
+          </div>
+        </div>
+        <div class="col-right" style="flex:0 0 42%;padding-left:3rem;display:flex;flex-direction:column;justify-content:space-between;">
+          <div class="img-wrapper reveal-img" style="margin-bottom:2rem;">
+            <div class="img-placeholder" style="background:linear-gradient(135deg,#E8DFD0 0%,#D0C8B8 40%,#87CEEB 100%);aspect-ratio:4/3;">
+              <!-- Replace: open plan interior top view -->
+            </div>
+          </div>
+          <div>
+            <p class="body-text reveal-fade">O projeto valoriza a qualidade dos espa&#231;os atrav&#233;s de elementos naturais, como a luz e a ventila&#231;&#227;o, que criam ambientes mais agrad&#225;veis no dia a dia. Cada habita&#231;&#227;o foi pensada para se abrir ao que a rodeia, com varandas que enquadram vistas sobre a natureza e o horizonte atl&#226;ntico.</p>
+            <div class="divider"></div>
+            <p class="section-subtitle">SPACES THAT BREATHE</p>
+            <p class="body-text body-text-en reveal-fade">The project enhances the quality of its spaces through natural elements such as light and ventilation, creating more pleasant everyday environments. Each home was designed to open up to its surroundings, with balconies that frame views over nature and the Atlantic horizon.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FULL SCREEN INTERIOR LIVING (P.13) -->
+  <section class="section-full" style="height:100vh;">
+    <div class="img-wrapper full-img parallax-section" style="height:100vh;">
+      <div class="img-placeholder parallax-img" style="background:linear-gradient(135deg,#D8CFB8 0%,#C4B99A 25%,#B0A07A 50%,#8B9E7A 75%,#6B8A5A 100%);height:130%;width:100%;">
+        <!-- Replace: full-screen interior living room -->
+      </div>
+    </div>
+  </section>
+
+  <!-- QUARTO E CASA DE BANHO (P.14) -->
+  <section class="section" id="interiores-apt">
+    <div class="split-section">
+      <div class="split-img" style="flex:0 0 55%;">
+        <div class="img-wrapper reveal-img">
+          <div class="img-placeholder" style="background:linear-gradient(160deg,#E8DFD0 0%,#D4C8B0 30%,#C4B08A 60%,#B09A70 100%);height:500px;">
+            <!-- Replace: bedroom with sea view balcony -->
+          </div>
+        </div>
+      </div>
+      <div class="split-text" style="flex:0 0 45%;display:grid;grid-template-rows:1fr auto;">
+        <div class="img-wrapper reveal-img">
+          <div class="img-placeholder" style="background:linear-gradient(180deg,#F0ECE4 0%,#E0D8CC 30%,#C8C0B0 60%,#B0A890 100%);height:300px;">
+            <!-- Replace: bathroom / spa-like bathroom -->
+          </div>
+        </div>
+        <div style="padding:2.5rem;">
+          <p class="body-text-large reveal-fade">"Os acabamentos a madeiras naturais, texturas suaves e paletas serenas comp&#245;em um ambiente equilibrado. Os interiores foram concebidos para despertar uma sensa&#231;&#227;o duradoura de bem-estar."</p>
+          <div class="divider"></div>
+          <p class="body-text body-text-en reveal-fade">Natural wood finishes, soft textures and serene palettes compose a balanced environment. The interiors were conceived to evoke a lasting sense of well-being.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VARANDAS (P.15) -->
+  <section class="section" id="varandas" style="background:var(--dark-bg);">
+    <div class="split-section" style="align-items:stretch;min-height:80vh;">
+      <div class="split-text" style="flex:0 0 42%;padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center;">
+        <p class="body-text-large reveal-fade" style="color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:clamp(1.1rem,2vw,1.5rem);line-height:1.7;font-style:italic;">"As varandas abrem-se para uma envolvente tranquila. Com vistas sobre a paisagem de Mafra, convidam &#224; pausa e ao privil&#233;gio raro de estar longe do ru&#237;do sem abdicar de nada."</p>
+        <div class="divider" style="border-color:rgba(255,255,255,0.2);"></div>
+        <p class="body-text body-text-en reveal-fade" style="color:rgba(245,240,232,0.7);">The balconies open onto a tranquil setting. With views over the Mafra landscape, they invite a moment of pause and offer the rare privilege of being away from the noise without giving up a thing.</p>
+      </div>
+      <div class="split-img" style="flex:1;">
+        <div class="img-wrapper" style="height:100%;">
+          <div class="img-placeholder" style="background:linear-gradient(160deg,#2D4A35 0%,#3A6B4A 25%,#5A8A6A 50%,#87B8A0 70%,#87CEEB 90%,#C0DCF0 100%);height:100%;min-height:500px;">
+            <!-- Replace: rooftop lounge with fire pit and sea view -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DUPLEX TERRACE FULL (P.16) -->
+  <section class="section-full parallax-section" style="height:100vh;">
+    <div class="img-placeholder parallax-img" style="background:linear-gradient(160deg,#3A6B50 0%,#4A7A5A 20%,#6A9A7A 40%,#87B8CE 65%,#A0C8E0 80%,#D0E8F0 100%);height:130%;width:100%;">
+      <!-- Replace: duplex rooftop terrace with pool and dining -->
+    </div>
+  </section>
+  <!-- MORADIAS HEADER (P.17) -->
+  <section class="section-dark-full section-apt-header" id="moradias">
+    <div class="split-section" style="height:100vh;align-items:stretch;">
+      <div class="split-img" style="flex:0 0 65%;">
+        <div class="img-placeholder parallax-img" style="background:linear-gradient(180deg,#87CEEB 0%,#A0C0D0 25%,#8B9E7A 50%,#5A7A4A 75%,#3D5A30 100%);height:100%;">
+          <!-- Replace: exterior terraced houses modernist with pool -->
+        </div>
+      </div>
+      <div class="apt-info" style="flex:0 0 35%;padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center;">
+        <p class="apt-type-small">T5 e T6</p>
+        <h2 class="apt-big-title">MORADIAS</h2>
+        <p class="apt-subtitle">5 AND 6 BEDROOM TERRACED HOUSES</p>
+        <div class="apt-features">
+          <div class="apt-feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 40 40" width="36" height="36">
+                <ellipse cx="20" cy="24" rx="14" ry="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M6 24 Q20 38 34 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+              </svg>
+            </div>
+            <div>
+              <strong>PISCINA PRIVATIVA</strong>
+              <span>PRIVATE POOL</span>
+            </div>
+          </div>
+          <div class="apt-feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 40 40" width="36" height="36">
+                <rect x="12" y="4" width="16" height="32" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="16" y="8" width="8" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/>
+                <rect x="16" y="20" width="8" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/>
+                <line x1="20" y1="26" x2="20" y2="36" stroke="currentColor" stroke-width="1.2"/>
+              </svg>
+            </div>
+            <div>
+              <strong>ELEVADOR PRIVATIVO</strong>
+              <span>PRIVATE ELEVATOR</span>
+            </div>
+          </div>
+          <div class="apt-feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 40 40" width="36" height="36">
+                <rect x="4" y="12" width="32" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 20 L36 20" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
+                <circle cx="14" cy="28" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+                <circle cx="26" cy="28" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              </svg>
+            </div>
+            <div>
+              <strong>ESTACIONAMENTO</strong>
+              <span>PARKING</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONDE A CASA ENCONTRA A NATUREZA (P.18) -->
+  <section class="section" id="casa-natureza">
+    <div class="container">
+      <h2 class="section-title reveal-title">ONDE A CASA ENCONTRA A NATUREZA</h2>
+      <div class="two-col" style="margin-top:3rem;">
+        <div class="col-left" style="flex:0 0 58%;">
+          <div class="img-wrapper reveal-img">
+            <div class="img-placeholder" style="background:linear-gradient(135deg,#D8CFB8 0%,#C4B99A 30%,#B0A07A 55%,#8BB880 80%,#6A9A60 100%);aspect-ratio:4/3;">
+              <!-- Replace: terraced house kitchen interior with garden view -->
+            </div>
+          </div>
+        </div>
+        <div class="col-right" style="flex:0 0 42%;padding-left:3rem;display:flex;flex-direction:column;gap:2rem;">
+          <div class="img-wrapper reveal-img">
+            <div class="img-placeholder" style="background:linear-gradient(160deg,#4A7A5A 0%,#6A9A7A 40%,#87CEEB 80%,#B0D8E8 100%);aspect-ratio:4/3;">
+              <!-- Replace: exterior moradias with pool -->
+            </div>
+          </div>
+          <div>
+            <p class="body-text reveal-fade">Pensadas para quem procura uma rela&#231;&#227;o mais &#237;ntima com o exterior. Com jardim privativo e espa&#231;os que se prolongam naturalmente para fora, convidam a uma forma de viver mais pr&#243;xima da natureza, sem abdicar do conforto e da qualidade.</p>
+            <div class="divider"></div>
+            <p class="section-subtitle">WHERE HOME MEETS NATURE</p>
+            <p class="body-text body-text-en reveal-fade">Designed for those seeking a more intimate relationship with the outdoors. With a private garden and spaces that flow naturally outside, they invite a way of living closer to nature, without compromising on comfort or quality.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERIOR MORADIAS - LIVING (P.19) -->
+  <section class="section-full parallax-section" style="height:100vh;">
+    <div class="img-placeholder parallax-img" style="background:linear-gradient(135deg,#F0ECD8 0%,#E0D8C0 25%,#C8C0A0 50%,#A8A080 75%,#87CEEB 100%);height:130%;width:100%;">
+      <!-- Replace: terraced house large living/dining room -->
+    </div>
+  </section>
+
+  <!-- COZINHA ABERTA (P.20) -->
+  <section class="section" id="interiores-mor" style="background:var(--dark-bg);padding:0;">
+    <div class="split-section" style="align-items:stretch;min-height:80vh;">
+      <div class="split-img" style="flex:0 0 55%;">
+        <div class="img-wrapper" style="height:100%;">
+          <div class="img-placeholder" style="background:linear-gradient(180deg,#2D3A25 0%,#4A6A35 30%,#7A9A55 55%,#A8B880 80%,#C8D0A8 100%);height:100%;min-height:500px;">
+            <!-- Replace: open kitchen with spiral staircase, view to city -->
+          </div>
+        </div>
+      </div>
+      <div class="split-text" style="flex:0 0 45%;padding:5rem 4rem;display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <p class="body-text-large reveal-fade" style="color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:clamp(1.1rem,2vw,1.5rem);line-height:1.7;font-style:italic;">"As cozinhas abertas para a sala promovem a partilha e o conv&#237;vio no dia a dia. Estes espa&#231;os integrados ampliam a &#225;rea social e incentivam os momentos mais espont&#226;neos."</p>
+          <div class="divider" style="border-color:rgba(255,255,255,0.2);"></div>
+          <p class="body-text body-text-en reveal-fade" style="color:rgba(245,240,232,0.7);">The open-plan kitchens flowing into the living room foster sharing and togetherness in everyday life. These integrated spaces expand the social area and encourage more spontaneous moments.</p>
+        </div>
+        <div class="img-wrapper reveal-img">
+          <div class="img-placeholder" style="background:linear-gradient(135deg,#C8A870 0%,#D8B880 40%,#E8C890 70%,#F0D8A0 100%);aspect-ratio:16/9;">
+            <!-- Replace: mezzanine/study area interior -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUARTOS MORADIAS (P.21) -->
+  <section class="section" id="quartos-mor">
+    <div class="split-section">
+      <div class="split-img" style="flex:0 0 58%;">
+        <div class="img-wrapper reveal-img">
+          <div class="img-placeholder" style="background:linear-gradient(160deg,#F0ECE0 0%,#E0D8C8 25%,#C8C0A8 50%,#A8C0A0 75%,#7AAA80 100%);height:540px;">
+            <!-- Replace: bedroom facing private garden with garden view -->
+          </div>
+        </div>
+      </div>
+      <div class="split-text" style="flex:0 0 42%;">
+        <div class="img-wrapper reveal-img" style="margin-bottom:2rem;">
+          <div class="img-placeholder" style="background:linear-gradient(135deg,#E8E0D0 0%,#D8D0C0 35%,#C8C0A8 70%,#B0A888 100%);height:260px;">
+            <!-- Replace: second bedroom -->
+          </div>
+        </div>
+        <div style="padding:2rem;">
+          <p class="body-text-large reveal-fade" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,1.8vw,1.35rem);line-height:1.7;font-style:italic;color:var(--dark-green);">"Um lugar para descansar sem compromissos. Os tons suaves, os materiais cuidados e a luz natural comp&#245;em quartos que distribuem uma atmosfera serena e tranquila."</p>
+          <div class="divider"></div>
+          <p class="body-text body-text-en reveal-fade">A place to rest without compromise. Soft tones, carefully chosen materials and natural light compose bedrooms that radiate a serene and tranquil atmosphere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSET E ESCRITORIO (P.22) -->
+  <section class="section" id="closet" style="padding:0;">
+    <div class="split-section" style="align-items:stretch;">
+      <div style="flex:0 0 42%;background:var(--dark-bg);display:flex;align-items:center;justify-content:center;padding:2rem;min-height:500px;">
+        <div class="img-wrapper reveal-img" style="width:100%;">
+          <div class="img-placeholder" style="background:linear-gradient(160deg,#2D3A25 0%,#F5F0E8 35%,#E8E0D0 60%,#D0C8B0 100%);aspect-ratio:3/4;">
+            <!-- Replace: walk-in closet / dressing room -->
+          </div>
+        </div>
+      </div>
+      <div style="flex:0 0 58%;">
+        <div class="img-wrapper" style="height:100%;">
+          <div class="img-placeholder" style="background:linear-gradient(135deg,#1A2830 0%,#2A3840 30%,#4A5A60 55%,#E8DFD0 80%,#F5F0E8 100%);height:100%;min-height:500px;">
+            <!-- Replace: home office / study room with balcony -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXTERIOR MORADIAS RUA (P.23) -->
+  <section class="section-full parallax-section" style="height:100vh;">
+    <div class="img-placeholder parallax-img" style="background:linear-gradient(180deg,#87CEEB 0%,#A0C0D8 25%,#B0C8B0 50%,#8BAA7A 65%,#6A8A50 80%,#4A6A30 100%);height:130%;width:100%;">
+      <!-- Replace: street view terraced houses exterior modernist -->
+    </div>
+  </section>
+
+  <!-- EQUIPA (P.24) -->
+  <section class="section section-equipa" id="equipa">
+    <div class="container">
+      <div class="equipa-header">
+        <h2 class="section-title reveal-title">CONSTRUIR UM FUTURO DE QUALIDADE</h2>
+        <p class="section-subtitle">BUILDING A QUALITY FUTURE</p>
+        <div class="destaque-label">
+          <span>DESTAQUE</span>
+          <span class="destaque-vitalicio">VITAL&#205;CIO</span>
+        </div>
+      </div>
+      <div class="two-col equipa-cols">
+        <div class="col-left equipa-text">
+          <div class="equipa-person">
+            <div class="person-photo reveal-img">
+              <div class="img-placeholder photo-circle" style="background:linear-gradient(135deg,#3A4A5A 0%,#5A6A7A 50%,#4A5A68 100%);">
+                <!-- Replace: Antonio Francisco CEO photo -->
+              </div>
+              <p class="person-name">ANT&#211;NIO FRANCISCO</p>
+              <p class="person-role">CEO</p>
+            </div>
+          </div>
+          <div class="equipa-person">
+            <div class="person-photo reveal-img">
+              <div class="img-placeholder photo-circle" style="background:linear-gradient(135deg,#4A5A6A 0%,#6A7A8A 50%,#5A6A78 100%);">
+                <!-- Replace: Alain Blanchoud Managing Partner photo -->
+              </div>
+              <p class="person-name">ALAIN BLANCHOUD</p>
+              <p class="person-role">MANAGING PARTNER</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-right">
+          <p class="body-text reveal-fade">A Destaque Vital&#237;cio, membro do grupo Vision Supra Partners, &#233; a promotora respons&#225;vel por este projeto. A Vision Supra Partners &#233; uma empresa que alia a precis&#227;o su&#237;&#231;a com o conhecimento profundo do mercado portugu&#234;s, visando a constru&#231;&#227;o de empreendimentos de alta qualidade em Portugal. Uma alian&#231;a s&#243;lida entre a ALCARINE SA su&#237;&#231;a e a portuguesa AM SF, Lda, este grupo combina experi&#234;ncia internacional com conhecimento local.</p>
+          <p class="body-text reveal-fade">Com o objetivo de garantir uma excelente qualidade de vida aos clientes, o grupo foca-se em locais estrat&#233;gicos, constru&#231;&#227;o de alta qualidade e parcerias de excel&#234;ncia. Agradecendo a confian&#231;a depositada, a Vision Supra Partners compromete-se a transformar sonhos imobili&#225;rios em realidade, construindo um futuro de qualidade com entusiasmo e paix&#227;o.</p>
+          <div class="divider"></div>
+          <p class="body-text body-text-en reveal-fade">Destaque Vital&#237;cio, a member of the Vision Supra Partners group, is the developer responsible for this project. Vision Supra Partners is a company that combines Swiss precision with a deep knowledge of the Portuguese market, aiming to build high-quality developments in Portugal. A solid alliance between the Swiss ALCARINE SA and the Portuguese AM SF, Lda, this group combines international experience with local knowledge.</p>
+          <p class="body-text body-text-en reveal-fade">With the goal of ensuring an excellent quality of life for its clients, the group focuses on strategic locations, high-quality construction and partnerships of excellence. Vision Supra Partners is committed to turning real estate dreams into reality, building a quality future with enthusiasm and passion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARQUITECTOS (P.25) -->
+  <section class="section section-arquitectos" id="arquitectos">
+    <div class="container">
+      <div class="arquitectos-header">
+        <div class="plano-humano-logo">
+          <span class="plano">PLANO</span>
+          <span class="humano">HUMANO</span>
+          <span class="arq-label">ARQUITECTOS</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="two-col equipa-cols">
+        <div class="col-left">
+          <p class="body-text reveal-fade">A Plano Humano Arquitectos &#233; um atelier de arquitetura sediado em Lisboa, fundado em 2009 pelos arquitetos Pedro Ferreira e Helena Vieira. Em cont&#237;nuo crescimento e afirma&#231;&#227;o no panorama nacional, o atelier tem vindo a consolidar uma pr&#225;tica sustentada no rigor, na inova&#231;&#227;o e numa rela&#231;&#227;o de proximidade e confian&#231;a com cada cliente.</p>
+          <p class="body-text reveal-fade">Ao longo dos anos, o atelier tem concretizado projetos de refer&#234;ncia em territ&#243;rio nacional, entre os quais se destacam a Capela de Nossa Senhora de F&#225;tima e o edif&#237;cio Lisbon Wood. Estas obras refletem uma abordagem contempor&#226;nea, sens&#237;vel ao contexto e orientada para a durabilidade, sustentabilidade e valoriza&#231;&#227;o da identidade pr&#243;pria de cada lugar.</p>
+          <div class="divider"></div>
+          <p class="body-text body-text-en reveal-fade">Plano Humano Arquitectos is an architecture studio based in Lisbon, founded in 2009 by architects Pedro Ferreira and Helena Vieira. In continuous growth and establishing its presence within the national landscape, the studio has been consolidating a practice grounded in rigor, innovation, and a close, trusting relationship with each client. Over the years, the studio has delivered notable projects across the country, among which the Chapel of Our Lady of F&#225;tima and the Lisbon Wood building stand out.</p>
+          <div class="awards-section">
+            <p class="section-subtitle" style="margin-bottom:0.75rem;">PR&#201;MIOS E DISTIN&#199;&#213;ES / AWARDS AND HONOURS</p>
+            <p class="body-text body-text-sm reveal-fade">Luxury Lifestyle Awards 2026, Loop Design Awards 2021, The MasterPrize 2019, The International Architecture Award 2019, Architizer 2019, Archizinc Trophy 2018, Architizer 2018, Inova&#231;&#227;o na Constru&#231;&#227;o 2018, Architizer 2018, The American Architecture Prize 2017.</p>
+            <p class="section-subtitle" style="margin-top:1.5rem;margin-bottom:0.75rem;">NOMEA&#199;&#213;ES / NOMINATIONS</p>
+            <p class="body-text body-text-sm reveal-fade">Pr&#233;mio Expresso Imobili&#225;rio 2020, Pr&#233;mio Nacional do Imobili&#225;rio 2019 e 2020, European Union Mies van der Rohe Award 2019, Dezeen Awards 2018, WAF 2018, Pr&#233;mios Construir 2017, 2018 e 2019.</p>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="arq-persons">
+            <div class="arq-person reveal-img">
+              <div class="img-placeholder arq-photo" style="background:linear-gradient(135deg,#C8B8A0 0%,#D8C8B0 50%,#E8D8C0 100%);">
+                <!-- Replace: Helena Vieira photo -->
+              </div>
+              <p class="person-name">HELENA VIEIRA</p>
+              <p class="person-role">CO-FOUNDER &amp; ARCHITECT</p>
+            </div>
+            <div class="arq-person reveal-img">
+              <div class="img-placeholder arq-photo" style="background:linear-gradient(135deg,#A8B8C0 0%,#B8C8D0 50%,#C8D8E0 100%);">
+                <!-- Replace: Pedro Ferreira photo -->
+              </div>
+              <p class="person-name">PEDRO FERREIRA</p>
+              <p class="person-role">CO-FOUNDER &amp; ARCHITECT</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- CONTACTOS (P.26) -->
+  <section class="section section-contactos" id="contactos" style="padding:0;">
+    <div class="split-section" style="align-items:stretch;min-height:100vh;">
+      <div class="split-img" style="flex:0 0 58%;">
+        <div class="img-wrapper" style="height:100%;">
+          <div class="img-placeholder" style="background:linear-gradient(180deg,#87CEEB 0%,#A8C8D8 20%,#9AAA8A 45%,#7A9A6A 65%,#5A7A50 80%,#3A5A38 100%);height:100%;min-height:600px;">
+            <!-- Replace: house exterior with garage and bicycle -->
+          </div>
+        </div>
+      </div>
+      <div class="contact-panel" style="flex:0 0 42%;background:var(--dark-bg);padding:5rem 4rem;display:flex;flex-direction:column;justify-content:space-between;">
+        <div class="contact-logo">
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--cream);letter-spacing:0.1em;line-height:1.1;">SOBREIRO</h2>
+          <p style="font-family:'Inter',sans-serif;font-size:0.65rem;letter-spacing:0.35em;color:rgba(245,240,232,0.7);margin-top:0.5rem;">RESIDENCES</p>
+        </div>
+        <div class="contact-info">
+          <p class="contact-addr reveal-fade">Rua das Laranjeiras, Mafra</p>
+          <p class="contact-web reveal-fade"><a href="https://www.sobreiroresidences.pt" target="_blank">www.sobreiroresidences.pt</a></p>
+        </div>
+        <div class="divider" style="border-color:rgba(255,255,255,0.2);"></div>
+        <div class="contact-owner reveal-fade">
+          <p class="contact-label">RESPONS&#193;VEL PELO PROJETO / PROJECT OWNER</p>
+          <div class="destaque-logo">
+            <p>DESTAQUE</p>
+            <p class="destaque-vitalicio" style="color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;letter-spacing:0.15em;">VITAL&#205;CIO</p>
+          </div>
+          <p class="contact-addr"><a href="tel:+41793660641">+41 79 366 06 41</a> / <a href="mailto:afrancisco@visionsupra.com">afrancisco@visionsupra.com</a></p>
+          <p class="contact-web"><a href="https://www.visionsupra.com" target="_blank">www.visionsupra.com</a></p>
+        </div>
+        <div class="divider" style="border-color:rgba(255,255,255,0.2);"></div>
+        <div class="disclaimer reveal-fade">
+          <p class="contact-label">AVISO LEGAL / DISCLAIMER</p>
+          <p style="font-size:0.65rem;color:rgba(245,240,232,0.5);line-height:1.7;margin-top:0.75rem;">Esta informa&#231;&#227;o &#233; meramente indicativa e poder&#225;, por motivos t&#233;cnicos, comerciais ou legais, ser sujeita a altera&#231;&#245;es sem aviso pr&#233;vio, pelo que n&#227;o tem car&#225;ter contratual.</p>
+          <p style="font-size:0.65rem;color:rgba(245,240,232,0.35);line-height:1.7;margin-top:0.5rem;">This information is purely indicative and may, for technical, commercial or legal reasons, be subject to change without prior notice and is therefore not contractual.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER (P.27) -->
+  <footer class="footer" id="footer">
+    <div class="hero-bg footer-bg"></div>
+    <div class="footer-content">
+      <h2 class="footer-logo">SOBREIRO</h2>
+      <p class="footer-sub">RESIDENCES</p>
+      <p class="footer-copy">SOBREIRO RESIDENCES &#169; 2026 &#183; ALL RIGHTS RESERVED</p>
+    </div>
+  </footer>
+
+  <!-- JS Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.23/bundled/lenis.min.js"></script>
+  <script>
+// Sobreiro Residences - main.js
+// Premium animations: GSAP + ScrollTrigger + Lenis
+
+(function() {
+  'use strict';
+
+  // ─── CUSTOM CURSOR ───────────────────────────────────────────────────────────
+  const cursor = document.getElementById('cursor');
+  const cursorDot = document.getElementById('cursor-dot');
+  let mouseX = 0, mouseY = 0;
+  let dotX = 0, dotY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (cursor) {
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top = mouseY + 'px';
+    }
+  });
+
+  // Smooth dot follow
+  function animateDot() {
+    dotX += (mouseX - dotX) * 0.12;
+    dotY += (mouseY - dotY) * 0.12;
+    if (cursorDot) {
+      cursorDot.style.left = dotX + 'px';
+      cursorDot.style.top = dotY + 'px';
+    }
+    requestAnimationFrame(animateDot);
+  }
+  animateDot();
+
+  // Cursor hover state
+  document.querySelectorAll('a, button, .img-wrapper, .apt-feature').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor && cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor && cursor.classList.remove('hover'));
+  });
+
+  // ─── NAVIGATION ──────────────────────────────────────────────────────────────
+  const nav = document.getElementById('nav');
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('nav-links');
+
+  function updateNav() {
+    const scrolled = window.scrollY > 60;
+    if (nav) nav.classList.toggle('scrolled', scrolled);
+  }
+  window.addEventListener('scroll', updateNav, { passive: true });
+  updateNav();
+
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => navLinks.classList.remove('open'));
+    });
+  }
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ─── LENIS SMOOTH SCROLL ─────────────────────────────────────────────────────
+  let lenis;
+  if (typeof Lenis !== 'undefined') {
+    lenis = new Lenis({
+      duration: 1.4,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      smooth: true,
+      smoothTouch: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+  }
+
+  // ─── GSAP SETUP ──────────────────────────────────────────────────────────────
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    console.warn('GSAP not loaded, falling back to CSS animations');
+    // Fallback: show all elements
+    document.querySelectorAll('.reveal-fade,.reveal-img').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    });
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Connect Lenis to ScrollTrigger
+  if (lenis) {
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  // ─── HERO ENTRANCE ───────────────────────────────────────────────────────────
+  const heroContent = document.querySelector('.hero-content');
+  const scrollIndicator = document.querySelector('.scroll-indicator');
+
+  gsap.timeline({ defaults: { ease: 'power3.out' } })
+    .to(heroContent, {
+      opacity: 1,
+      duration: 0.1,
+      delay: 0.2
+    })
+    .from('.hero-logo', {
+      y: 80,
+      opacity: 0,
+      duration: 1.4,
+      ease: 'power3.out'
+    }, 0.3)
+    .from('.hero-sub', {
+      y: 20,
+      opacity: 0,
+      duration: 1,
+      ease: 'power3.out'
+    }, 0.9)
+    .to(scrollIndicator, {
+      opacity: 1,
+      duration: 0.8
+    }, 1.4);
+
+  // Subtle hero background pan
+  gsap.to('.hero-bg', {
+    backgroundPositionX: '30px',
+    duration: 20,
+    repeat: -1,
+    yoyo: true,
+    ease: 'none'
+  });
+
+  // ─── TITLE REVEAL (word by word) ─────────────────────────────────────────────
+  function setupTitleReveal(el) {
+    const text = el.textContent.trim();
+    const words = text.split(/\s+/);
+    el.innerHTML = words.map(w =>
+      `<span class="word-wrap" style="display:inline-block;overflow:hidden;"><span class="word" style="display:inline-block;">${w}&nbsp;</span></span>`
+    ).join('');
+
+    gsap.from(el.querySelectorAll('.word'), {
+      y: '110%',
+      opacity: 0,
+      duration: 0.9,
+      stagger: 0.08,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 85%',
+        toggleActions: 'play none none none'
+      }
+    });
+  }
+
+  document.querySelectorAll('.reveal-title').forEach(setupTitleReveal);
+
+  // ─── FADE UP ANIMATIONS ──────────────────────────────────────────────────────
+  document.querySelectorAll('.reveal-fade').forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 88%',
+        toggleActions: 'play none none none'
+      }
+    });
+  });
+
+  // ─── IMAGE REVEAL (clip-path) ────────────────────────────────────────────────
+  document.querySelectorAll('.reveal-img').forEach(el => {
+    const placeholder = el.querySelector('.img-placeholder');
+    if (!placeholder) return;
+
+    gsap.fromTo(placeholder,
+      { clipPath: 'inset(100% 0 0 0)' },
+      {
+        clipPath: 'inset(0% 0 0 0)',
+        duration: 1.2,
+        ease: 'power4.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+
+  // ─── PARALLAX IMAGES ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.parallax-section').forEach(section => {
+    const img = section.querySelector('.parallax-img');
+    if (!img) return;
+
+    gsap.to(img, {
+      y: '15%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: section,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+  });
+
+  // Parallax on full image sections
+  gsap.utils.toArray('.section-full').forEach(section => {
+    const img = section.querySelector('.img-placeholder');
+    if (!img) return;
+    gsap.to(img, {
+      y: '-8%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: section,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1.5
+      }
+    });
+  });
+
+  // ─── NAV ACTIVE STATE ─────────────────────────────────────────────────────────
+  const sections = document.querySelectorAll('section[id], footer[id]');
+  const navItems = document.querySelectorAll('.nav-links a');
+
+  const observerOptions = {
+    threshold: 0.3,
+    rootMargin: '-80px 0px -30% 0px'
+  };
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(item => {
+          item.style.opacity = item.getAttribute('href') === '#' + id ? '1' : '0.5';
+        });
+      }
+    });
+  }, observerOptions);
+
+  sections.forEach(s => sectionObserver.observe(s));
+
+  // ─── DARK SECTION NAV ────────────────────────────────────────────────────────
+  const darkSections = document.querySelectorAll('.section-dark-full, .footer, [style*="background:var(--dark-bg)"]');
+  const darkObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        nav && nav.classList.add('dark-nav');
+      } else {
+        nav && nav.classList.remove('dark-nav');
+      }
+    });
+  }, { threshold: 0.5 });
+  darkSections.forEach(s => darkObserver.observe(s));
+
+  // ─── STAGGER ANIMATIONS for POI items ────────────────────────────────────────
+  const poiCols = document.querySelectorAll('.poi-col');
+  poiCols.forEach(col => {
+    const items = col.querySelectorAll('.poi-item');
+    gsap.from(items, {
+      opacity: 0,
+      x: -20,
+      duration: 0.5,
+      stagger: 0.05,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: col,
+        start: 'top 85%',
+        toggleActions: 'play none none none'
+      }
+    });
+  });
+
+  // ─── APT FEATURES STAGGER ────────────────────────────────────────────────────
+  const aptFeatures = document.querySelectorAll('.apt-features');
+  aptFeatures.forEach(group => {
+    const items = group.querySelectorAll('.apt-feature');
+    gsap.from(items, {
+      opacity: 0,
+      y: 30,
+      duration: 0.6,
+      stagger: 0.15,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: group,
+        start: 'top 85%',
+        toggleActions: 'play none none none'
+      }
+    });
+  });
+
+  // ─── MAP SVG DRAW ────────────────────────────────────────────────────────────
+  document.querySelectorAll('.map-svg path').forEach(path => {
+    const length = path.getTotalLength ? path.getTotalLength() : 200;
+    gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      duration: 1.5,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: path,
+        start: 'top 80%',
+        toggleActions: 'play none none none'
+      }
+    });
+  });
+
+  // ─── PERSON PHOTO HOVER ──────────────────────────────────────────────────────
+  document.querySelectorAll('.person-photo, .arq-person').forEach(el => {
+    const photo = el.querySelector('.img-placeholder');
+    if (!photo) return;
+    el.addEventListener('mouseenter', () => {
+      gsap.to(photo, { scale: 1.05, duration: 0.4, ease: 'power2.out' });
+    });
+    el.addEventListener('mouseleave', () => {
+      gsap.to(photo, { scale: 1, duration: 0.4, ease: 'power2.out' });
+    });
+  });
+
+  // ─── BULLET LIST STAGGER ─────────────────────────────────────────────────────
+  document.querySelectorAll('.bullet-list').forEach(list => {
+    const items = list.querySelectorAll('li');
+    gsap.from(items, {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      stagger: 0.12,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: list,
+        start: 'top 85%',
+        toggleActions: 'play none none none'
+      }
+    });
+  });
+
+  // ─── FOOTER LOGO ENTRANCE ────────────────────────────────────────────────────
+  gsap.from('.footer-logo', {
+    opacity: 0,
+    y: 60,
+    duration: 1.5,
+    ease: 'power3.out',
+    scrollTrigger: {
+      trigger: '.footer',
+      start: 'top 70%',
+      toggleActions: 'play none none none'
+    }
+  });
+
+  gsap.from(['.footer-sub', '.footer-copy'], {
+    opacity: 0,
+    y: 20,
+    duration: 1,
+    stagger: 0.2,
+    ease: 'power2.out',
+    scrollTrigger: {
+      trigger: '.footer',
+      start: 'top 65%',
+      toggleActions: 'play none none none'
+    }
+  });
+
+  // ─── DESTAQUE LABEL ───────────────────────────────────────────────────────────
+  gsap.from('.destaque-label', {
+    opacity: 0,
+    y: 20,
+    duration: 0.8,
+    ease: 'power2.out',
+    scrollTrigger: {
+      trigger: '.destaque-label',
+      start: 'top 85%',
+      toggleActions: 'play none none none'
+    }
+  });
+
+  // ─── PLANO HUMANO LOGO ────────────────────────────────────────────────────────
+  gsap.from('.plano-humano-logo > *', {
+    opacity: 0,
+    y: 30,
+    duration: 0.8,
+    stagger: 0.15,
+    ease: 'power3.out',
+    scrollTrigger: {
+      trigger: '.plano-humano-logo',
+      start: 'top 80%',
+      toggleActions: 'play none none none'
+    }
+  });
+
+  console.log('Sobreiro Residences — animations initialized');
+})();
+
+</script>
+</body>
+</html>
